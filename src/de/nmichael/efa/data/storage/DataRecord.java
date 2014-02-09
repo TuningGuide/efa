@@ -927,6 +927,14 @@ public abstract class DataRecord implements Cloneable, Comparable {
     public abstract TableItemHeader[] getGuiTableHeader();
     public abstract TableItem[] getGuiTableItems();
 
+    /**
+     * exchange null with set aggregations to display aggregations after filter
+     * DataList
+     */
+    public String[] getGuiTableAggregations(String[] aggregations, int index, int size, HashMap<String, Object> overallInfo) {
+        return null;
+    }
+
     public IItemType[] getGuiItemsAsArray(AdminRecord admin) {
         Vector<IItemType> items = getGuiItems(admin);
         return items.toArray(new IItemType[0]);

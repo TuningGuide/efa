@@ -11,6 +11,10 @@ package de.nmichael.efa.core;
 
 import de.nmichael.efa.Daten;
 import de.nmichael.efa.core.config.AdminRecord;
+import de.nmichael.efa.data.Clubwork;
+import de.nmichael.efa.data.types.DataTypeDate;
+import de.nmichael.efa.util.Dialog;
+import de.nmichael.efa.util.International;
 import de.nmichael.efa.util.Logger;
 import javax.swing.JDialog;
 
@@ -40,6 +44,9 @@ public class AdminTask extends Thread {
         Logger.log(Logger.DEBUG, Logger.MSG_CORE_ADMINTASK, "running AdminTask ...");
         // Actions to be implemented here!
         // For each action, check whether admin has necessary permissions.
+		if(admin.isAllowedAdministerProjectClubwork()) {
+			checkForClubworkCarryOver();
+		}
     }
     
     public void run() {
@@ -79,5 +86,27 @@ public class AdminTask extends Thread {
         task = new AdminTask(admin, dlg);
         task.start();
     }
+
+	private void checkForClubworkCarryOver() {
+		String[] clubworkNames = Daten.project.getAllClubworkNames();
+		if(clubworkNames != null && clubworkNames.length > 0) {
+			Clubwork clubwork = Daten.project.getCurrentClubwork();
+			if (clubwork != null && clubwork.isOpen()) {
+				DataTypeDate date = clubwork.getEndDate();
+				if (date != null && DataTypeDate.today().isAfterOrEqual(date)) {
+					int res = Dialog.yesNoDialog(International.getString("Übertrag berechnen"),
+						International.getMessage("Möchtest Du den Übertrag für das Vereinsarbeitsbuch '{record}' wirklich berechnen?",
+						clubwork.getName()));
+					if(res == Dialog.YES) {
+						clubwork.doCarryOver(1, parent);
+					}
+				}
+			}
+			else {
+				Dialog.error(International.getString("Kein Vereinsarbeitsbuch geöffnet.") +
+					International.getMessage("Berechnen des {verb}s nicht möglich.", International.getString("Übertrag")));
+			}
+		}
+	}
     
 }

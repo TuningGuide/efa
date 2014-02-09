@@ -1216,9 +1216,9 @@ public class Audit extends Thread {
 
     private int runAuditClubworks() {
         int clubworkErr = 0;
-        String[] logbookNames = project.getAllLogbookNames();
-        if (logbookNames != null) {
-            for (String s : logbookNames) {
+        String[] clubworkNames = project.getAllClubworkNames();
+        if (clubworkNames != null) {
+            for (String s : clubworkNames) {
                 try {
                     Clubwork c = Daten.project.getClubwork(s, true);
                     if (c == null) {
@@ -1327,9 +1327,7 @@ public class Audit extends Thread {
                     runAuditPurgeDeletedRecords(project.getGroups(false),
                             International.getString("Gruppe"));
                 }
-                if (Daten.NEW_FEATURES) {
-                    runAuditClubworks();
-                }
+                runAuditClubworks();
             } catch (Exception e) {
                 Logger.logdebug(e);
                 auditError(Logger.MSG_DATA_AUDIT,

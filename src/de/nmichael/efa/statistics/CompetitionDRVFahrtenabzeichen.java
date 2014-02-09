@@ -308,7 +308,7 @@ public class CompetitionDRVFahrtenabzeichen extends Competition {
                             sd[i].gender,
                             sd[i].disabled,
                             sd[i].distance,
-                            (int)(wafaMeters / 1000),
+                            (int)(totalWafaMeters / 1000),
                             wafaAnzMTour,
                             jumAnz,
                             0);

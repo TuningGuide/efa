@@ -824,13 +824,11 @@ public class EfaConfig extends StorageObject implements IItemFactory {
                     IItemType.TYPE_PUBLIC,BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_GUIBUTTONS),
                     International.getMessage("Button '{button}'",
                     International.getString("Statistiken erstellen"))));
-            if (Daten.NEW_FEATURES) {
-                addParameter(efaDirekt_butVereinsarbeit = new ItemTypeConfigButton("ButtonClubwork",
-                    International.getString("Vereinsarbeit"), "CCFFCC", false, false, true, true,
-                    IItemType.TYPE_PUBLIC,BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_GUIBUTTONS),
+            addParameter(efaDirekt_butVereinsarbeit = new ItemTypeConfigButton("ButtonClubwork",
+                    International.getString("Vereinsarbeit"), "CCFFCC", true, false, true, true,
+                    IItemType.TYPE_PUBLIC, BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_GUIBUTTONS),
                     International.getMessage("Button '{button}'",
                     International.getString("Vereinsarbeit erfassen"))));
-            }
             addParameter(efaDirekt_butNachrichtAnAdmin = new ItemTypeConfigButton("ButtonMessageToAdmin",
                     International.getString("Nachricht an Admin"), "FFF197", true, false, true, true,
                     IItemType.TYPE_PUBLIC,BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_GUIBUTTONS),

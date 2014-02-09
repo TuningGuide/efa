@@ -40,6 +40,7 @@ public class AdminRecord extends DataRecord implements IItemListener {
     public static final String CHANGEPASSWORD        = "ChangePassword";
     public static final String CONFIGURATION         = "Configuration";
     public static final String ADMINPROJECTLOGBOOK   = "AdministerProjectLogbook";
+	public static final String ADMINPROJECTCLUBWORK  = "AdministerProjectClubwork";
     public static final String EDITLOGBOOK           = "EditLogbook";
     public static final String EDITBOATSTATUS        = "EditBoatStatus";
     public static final String EDITBOATRESERVATION   = "EditBoatReservation";
@@ -82,6 +83,7 @@ public class AdminRecord extends DataRecord implements IItemListener {
         f.add(CHANGEPASSWORD);                    t.add(IDataAccess.DATA_BOOLEAN);
         f.add(CONFIGURATION);                     t.add(IDataAccess.DATA_BOOLEAN);
         f.add(ADMINPROJECTLOGBOOK);               t.add(IDataAccess.DATA_BOOLEAN);
+		f.add(ADMINPROJECTCLUBWORK);              t.add(IDataAccess.DATA_BOOLEAN);
         f.add(EDITLOGBOOK);                       t.add(IDataAccess.DATA_BOOLEAN);
         f.add(EDITBOATSTATUS);                    t.add(IDataAccess.DATA_BOOLEAN);
         f.add(EDITBOATRESERVATION);               t.add(IDataAccess.DATA_BOOLEAN);
@@ -220,6 +222,13 @@ public class AdminRecord extends DataRecord implements IItemListener {
     public Boolean isAllowedEditPersons() {
         return getBool(EDITPERSONS);
     }
+
+	public void setAllowedAdministerProjectClubwork(boolean allowed) {
+		setBool(ADMINPROJECTCLUBWORK, allowed);
+	}
+	public Boolean isAllowedAdministerProjectClubwork() {
+		return getBool(ADMINPROJECTCLUBWORK);
+	}
     
     public void setAllowedEditClubwork(boolean allowed) {
         setBool(EDITCLUBWORK, allowed);
@@ -390,6 +399,7 @@ public class AdminRecord extends DataRecord implements IItemListener {
                     || !isAllowedChangePassword()
                     || !isAllowedConfiguration()
                     || !isAllowedAdministerProjectLogbook()
+					|| !isAllowedAdministerProjectClubwork()
                     || !isAllowedEditLogbook()
                     || !isAllowedEditBoatStatus()
                     || !isAllowedEditBoatReservation()
@@ -420,6 +430,7 @@ public class AdminRecord extends DataRecord implements IItemListener {
                 setAllowedChangePassword(true);
                 setAllowedConfiguration(true);
                 setAllowedAdministerProjectLogbook(true);
+				setAllowedAdministerProjectClubwork(true);
                 setAllowedEditLogbook(true);
                 setAllowedEditBoatStatus(true);
                 setAllowedEditBoatReservation(true);
@@ -517,7 +528,10 @@ public class AdminRecord extends DataRecord implements IItemListener {
         ((ItemTypeBoolean)item).setEnabled(!isSuperAdmin());
         v.add(item = new ItemTypeBoolean(ADMINPROJECTLOGBOOK, isAllowedAdministerProjectLogbook(),
                 IItemType.TYPE_PUBLIC, CAT_PERMISSIONS, International.getString("Projekte und Fahrtenbücher administrieren")));
-        ((ItemTypeBoolean)item).setEnabled(!isSuperAdmin());
+		((ItemTypeBoolean)item).setEnabled(!isSuperAdmin());
+		v.add(item = new ItemTypeBoolean(ADMINPROJECTCLUBWORK, isAllowedAdministerProjectClubwork(),
+				IItemType.TYPE_PUBLIC, CAT_PERMISSIONS, International.getString("Vereinsarbeitsbücher administrieren")));
+		((ItemTypeBoolean)item).setEnabled(!isSuperAdmin());
         v.add(item = new ItemTypeBoolean(EDITLOGBOOK, isAllowedEditLogbook(),
                 IItemType.TYPE_PUBLIC, CAT_PERMISSIONS, International.getString("Fahrtenbuch bearbeiten")));
         ((ItemTypeBoolean)item).setEnabled(!isSuperAdmin());
@@ -536,10 +550,8 @@ public class AdminRecord extends DataRecord implements IItemListener {
         v.add(item = new ItemTypeBoolean(EDITPERSONS, isAllowedEditPersons(),
                 IItemType.TYPE_PUBLIC, CAT_PERMISSIONS, International.getString("Personen und Status bearbeiten")));
         ((ItemTypeBoolean)item).setEnabled(!isSuperAdmin());
-        if (Daten.NEW_FEATURES) {
-            v.add(item = new ItemTypeBoolean(EDITCLUBWORK, isAllowedEditClubwork(),
-                    IItemType.TYPE_PUBLIC, CAT_PERMISSIONS, International.getString("Vereinsarbeit bearbeiten")));
-        }
+        v.add(item = new ItemTypeBoolean(EDITCLUBWORK, isAllowedEditClubwork(),
+                IItemType.TYPE_PUBLIC, CAT_PERMISSIONS, International.getString("Vereinsarbeit bearbeiten")));
         ((ItemTypeBoolean)item).setEnabled(!isSuperAdmin());
         v.add(item = new ItemTypeBoolean(EDITGROUPS, isAllowedEditGroups(),
                 IItemType.TYPE_PUBLIC, CAT_PERMISSIONS, International.getString("Gruppen bearbeiten")));

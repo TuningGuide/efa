@@ -54,13 +54,13 @@ public class PersonRecord extends DataRecord implements IItemFactory {
     public static final String DISABILITY          = "Disability";
     public static final String EXCLUDEFROMSTATISTIC= "ExcludeFromStatistics";
     public static final String EXCLUDEFROMCOMPETE  = "ExcludeFromCompetition";
-    public static final String BOATUSAGEBAN        = "BoatUsageBan";
+    public static final String EXCLUDEFROMCLUBWORK = "ExcludeFromClubwork";
+    public static final String BOATUSAGEBAN = "BoatUsageBan";
     public static final String INPUTSHORTCUT       = "InputShortcut";
     public static final String DEFAULTBOATID       = "DefaultBoatId";
     public static final String FREEUSE1            = "FreeUse1";
     public static final String FREEUSE2            = "FreeUse2";
     public static final String FREEUSE3            = "FreeUse3";
-    public static final String YEARLYCLUBWORKCREDIT= "YearlyClubworkCredit";
 
     public static final String[] IDX_NAME_NAMEAFFIX = new String[] { FIRSTLASTNAME, NAMEAFFIX };
 
@@ -99,13 +99,13 @@ public class PersonRecord extends DataRecord implements IItemFactory {
         f.add(DISABILITY);                        t.add(IDataAccess.DATA_BOOLEAN);
         f.add(EXCLUDEFROMSTATISTIC);              t.add(IDataAccess.DATA_BOOLEAN);
         f.add(EXCLUDEFROMCOMPETE);                t.add(IDataAccess.DATA_BOOLEAN);
+	f.add(EXCLUDEFROMCLUBWORK);               t.add(IDataAccess.DATA_BOOLEAN);
         f.add(BOATUSAGEBAN);                      t.add(IDataAccess.DATA_BOOLEAN);
         f.add(INPUTSHORTCUT);                     t.add(IDataAccess.DATA_STRING);
         f.add(DEFAULTBOATID);                     t.add(IDataAccess.DATA_UUID);
         f.add(FREEUSE1);                          t.add(IDataAccess.DATA_STRING);
         f.add(FREEUSE2);                          t.add(IDataAccess.DATA_STRING);
         f.add(FREEUSE3);                          t.add(IDataAccess.DATA_STRING);
-        f.add(YEARLYCLUBWORKCREDIT);              t.add(IDataAccess.DATA_DOUBLE);
         f.add(EFBID);                             t.add(IDataAccess.DATA_STRING);
         MetaData metaData = constructMetaData(Persons.DATATYPE, f, t, true);
         metaData.setKey(new String[] { ID }); // plus VALID_FROM
@@ -361,6 +361,14 @@ public class PersonRecord extends DataRecord implements IItemFactory {
         return getBool(EXCLUDEFROMCOMPETE);
     }
 
+    public void setExcludeFromClubwork(boolean exclude) {
+        setBool(EXCLUDEFROMCLUBWORK, exclude);
+    }
+
+    public boolean getExcludeFromClubwork() {
+        return getBool(EXCLUDEFROMCLUBWORK);
+    }
+
     public void setBoatUsageBan(boolean banned) {
         setBool(BOATUSAGEBAN, banned);
     }
@@ -417,13 +425,6 @@ public class PersonRecord extends DataRecord implements IItemFactory {
     }
     public String getFreeUse3() {
         return getString(FREEUSE3);
-    }
-    
-    public void setYearlyClubworkCredit(int s) {
-        setDouble(YEARLYCLUBWORKCREDIT, s);
-    }
-    public double getYearlyClubworkCredit() {
-    	return getDouble(YEARLYCLUBWORKCREDIT);
     }
 
     protected Object getVirtualColumn(int fieldIdx) {
@@ -639,6 +640,8 @@ public class PersonRecord extends DataRecord implements IItemFactory {
                     IItemType.TYPE_PUBLIC, CAT_MOREDATA, International.getString("von allgemein verfügbaren Statistiken ausnehmen")));
             v.add(item = new ItemTypeBoolean(PersonRecord.EXCLUDEFROMCOMPETE, getExcludeFromCompetition(),
                     IItemType.TYPE_PUBLIC, CAT_MOREDATA, International.getString("von Wettbewerbsmeldungen ausnehmen")));
+			v.add(item = new ItemTypeBoolean(PersonRecord.EXCLUDEFROMCLUBWORK, getExcludeFromClubwork(),
+					IItemType.TYPE_PUBLIC, CAT_MOREDATA, International.getString("von Vereinsarbeit ausnehmen")));
             v.add(item = new ItemTypeBoolean(PersonRecord.BOATUSAGEBAN, getBoatUsageBan(),
                     IItemType.TYPE_PUBLIC, CAT_MOREDATA, International.getString("Bootsbenutzungs-Sperre")));
             v.add(item = new ItemTypeString(PersonRecord.INPUTSHORTCUT, getInputShortcut(),
@@ -648,10 +651,6 @@ public class PersonRecord extends DataRecord implements IItemFactory {
                     boats, getValidFrom(), getInvalidFrom() - 1,
                     International.getString("Standard-Boot")));
             item.setFieldSize(300, -1);
-            if (Daten.NEW_FEATURES) {
-                v.add(item = new ItemTypeDouble(PersonRecord.YEARLYCLUBWORKCREDIT, getYearlyClubworkCredit(), 0, ItemTypeDouble.MAX,
-                      IItemType.TYPE_PUBLIC, CAT_MOREDATA, International.getString("jährliche Gutschrift für Vereinsarbeit")));
-            }
             v.add(item = new ItemTypeString(PersonRecord.EXTERNALID, getExternalId(),
                     IItemType.TYPE_EXPERT, CAT_MOREDATA, International.getString("Externe ID")));
             if (Daten.efaConfig.getValueUseFunctionalityCanoeingGermany()) {

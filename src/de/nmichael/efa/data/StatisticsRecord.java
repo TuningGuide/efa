@@ -519,6 +519,7 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
     public boolean sSumGuestsByClub;
     // --- Clubwork-Options
     public double sDefaultClubworkTargetHours;
+	public double sClubworkTargetHoursForStatistic;
     public double sTransferableClubworkHours;
     public double sFineForTooLittleClubwork;
 
@@ -933,14 +934,16 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
                             STYPE_BOATSTATUS,
                             STYPE_BOATRESERVATIONS,
                             STYPE_BOATDAMAGES,
-                            STYPE_BOATDAMAGESTAT
+                            STYPE_BOATDAMAGESTAT,
+                            STYPE_CLUBWORK
                         };
             } else {
                 return new String[]{
                             International.getString("Bootsstatus"),
                             International.getString("Bootsreservierungen"),
                             International.getString("Bootsschäden"),
-                            International.getString("Bootsschäden-Statistik")
+                            International.getString("Bootsschäden-Statistik"),
+							International.getString("Vereinsarbeit")
                         };
             }
         }
@@ -1688,7 +1691,7 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
     public String getFilterCriteriaAsStringDescription() {
         String filter = null;
         if (getStatisticCategoryEnum() != StatisticCategory.other ||
-         getStatisticTypeEnum() == StatisticType.clubwork) {
+                getStatisticTypeEnum() == StatisticType.clubwork) {
             if (!isFilterGenderAllSelected()) {
                 filter = (filter == null ? "" : filter + "\n")
                         + International.getString("Geschlecht") + ": " + getFilterGenderSelectedListAsText();
@@ -1780,7 +1783,7 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
     public void setShowLogbookFields(DataTypeList<String> list) {
         setList(SHOWLOGBOOKFIELDS, list);
     }
-    
+
     public DataTypeList<String> getShowLogbookFields() {
         return getList(SHOWLOGBOOKFIELDS, IDataAccess.DATA_STRING);
     }
@@ -1981,7 +1984,7 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
                 International.getString("Tage") + ")");
         allKeys.put(AGGR_DAMAGEAVGDUR, International.getString("Reparaturdauer") + "/" +
                 International.getString("Schaden"));
-        allKeys.put(AGGR_CLUBWORK, International.getString("Vereinsarbeit"));
+            allKeys.put(AGGR_CLUBWORK, International.getString("Vereinsarbeit"));
         allKeys.put(AGGR_CBRELTOTARGET, International.getString("Vereinsarbeit")
                 + " (" + International.getString("relativ zum Soll") + ")");
         allKeys.put(AGGR_CBOVERUNDERCARRYOVER, International.getString("Vereinsarbeit")
@@ -1991,19 +1994,19 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
 
         Vector<String> selectedKeys = new Vector<String>();
         if (type == StatisticType.persons || type == StatisticType.boats) {
-            selectedKeys.add(AGGR_DISTANCE);
-            selectedKeys.add(AGGR_ROWDISTANCE);
-            selectedKeys.add(AGGR_COXDISTANCE);
-            selectedKeys.add(AGGR_SESSIONS);
-            selectedKeys.add(AGGR_AVGDISTANCE);
-            selectedKeys.add(AGGR_DURATION);
-            selectedKeys.add(AGGR_SPEED);
-            if (Daten.efaConfig.getValueUseFunctionalityRowingGermany()) {
-                selectedKeys.add(AGGR_WANDERFAHRTEN);
-            }
-            if (Daten.efaConfig.getValueUseFunctionalityRowingBerlin()) {
-                selectedKeys.add(AGGR_ZIELFAHRTEN);
-            }
+			selectedKeys.add(AGGR_DISTANCE);
+			selectedKeys.add(AGGR_ROWDISTANCE);
+			selectedKeys.add(AGGR_COXDISTANCE);
+			selectedKeys.add(AGGR_SESSIONS);
+			selectedKeys.add(AGGR_AVGDISTANCE);
+			selectedKeys.add(AGGR_DURATION);
+			selectedKeys.add(AGGR_SPEED);
+			if (Daten.efaConfig.getValueUseFunctionalityRowingGermany()) {
+				selectedKeys.add(AGGR_WANDERFAHRTEN);
+			}
+			if (Daten.efaConfig.getValueUseFunctionalityRowingBerlin()) {
+				selectedKeys.add(AGGR_ZIELFAHRTEN);
+			}
         }
         if (type == StatisticType.boatdamagestat) {
             selectedKeys.add(AGGR_DAMAGECOUNT);
@@ -2200,7 +2203,8 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
                 SORTING_DATE,
                 SORTING_DAMAGECOUNT,
                 SORTING_DAMAGEDUR,
-                SORTING_DAMAGEAVGDUR
+                SORTING_DAMAGEAVGDUR,
+                SORTING_CLUBWORK
             };
         } else {
             return new String[] {
@@ -2226,7 +2230,8 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
                     International.getString("Schäden"),
                 International.getString("Reparaturdauer"),
                 International.getString("Reparaturdauer") + "/" +
-                    International.getString("Schaden")
+                    International.getString("Schaden"),
+                International.getString("Vereinsarbeit")
             };
         }
     }
@@ -2633,8 +2638,8 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
         v.add(item = new ItemTypeBoolean(StatisticsRecord.FILTERONLYOPENDAMAGES, getFilterOnlyOpenDamages(),
                     IItemType.TYPE_PUBLIC, BaseTabbedDialog.makeCategory(CAT_FILTER,CAT_FILTERVARIOUS),
                     International.getString("nur offene Bootsschäden")));
-        
-        
+
+
         // CAT_FIELDS
         v.add(item = new ItemTypeMultiSelectList<String>(StatisticsRecord.AGGREGATIONS, getAggregations(),
                     getAggregationList(getStatisticTypeEnum(), ARRAY_STRINGLIST_VALUES), 
@@ -3168,9 +3173,9 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
                 sIsOFieldsReportedOn = true;
             } else if (s.equals(OFIELDS_FIXEDON)) {
                 sIsOFieldsFixedOn = true;
-            } 
+            }
         }
-        if ((sStatisticCategory == StatisticCategory.list || sStatisticCategory == StatisticCategory.other) &&
+        if ((sStatisticCategory == StatisticCategory.list || sStatisticCategory == StatisticCategory.other || sStatisticType.equals(STYPE_CLUBWORK)) &&
             (fields == null || fields.length() == 0)) {
             // at least show these fields, if for (whatever reason) no fields were selected
             sIsFieldsPosition = true;
@@ -3257,20 +3262,20 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
             } else if (s.equals(AGGR_CBRELTOTARGET) && sStatisticTypeEnum == StatisticType.clubwork) {
                 sIsAggrClubworkRelativeToTarget = true;
             } else if (s.equals(AGGR_CBOVERUNDERCARRYOVER) && sStatisticTypeEnum == StatisticType.clubwork) {
-                sIsAggrClubworkOverUnderCarryOver = true;
+	            sIsAggrClubworkOverUnderCarryOver = true;
             } else if (s.equals(AGGR_CLUBWORKCREDIT) && sStatisticTypeEnum == StatisticType.clubwork) {
-                sIsAggrClubworkCredit = true;
-            }
+	            sIsAggrClubworkCredit = true;
+	        }
         }
 
         if (sStatisticCategory != StatisticCategory.other) {
-            sAggrDistanceBarSize = getAggrDistanceBarSize();
-            sAggrRowDistanceBarSize = getAggrRowDistanceBarSize();
-            sAggrCoxDistanceBarSize = getAggrCoxDistanceBarSize();
-            sAggrSessionsBarSize = getAggrSessionsBarSize();
-            sAggrAvgDistanceBarSize = getAggrAvgDistanceBarSize();
-            sAggrDurationBarSize = getAggrDurationBarSize();
-            sAggrSpeedBarSize = getAggrSpeedBarSize();
+			sAggrDistanceBarSize = getAggrDistanceBarSize();
+			sAggrRowDistanceBarSize = getAggrRowDistanceBarSize();
+			sAggrCoxDistanceBarSize = getAggrCoxDistanceBarSize();
+			sAggrSessionsBarSize = getAggrSessionsBarSize();
+			sAggrAvgDistanceBarSize = getAggrAvgDistanceBarSize();
+			sAggrDurationBarSize = getAggrDurationBarSize();
+			sAggrSpeedBarSize = getAggrSpeedBarSize();
         }
 
         sSortingCriteria = getSortingCriteriaEnum();
@@ -3509,7 +3514,7 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
             }
             if (sIsAggrDamageCount) {
                 pTableColumns.add(International.getString("Schäden"));
-            }
+        }
             if (sIsAggrDamageDuration) {
                 pTableColumns.add(International.getString("Reparaturdauer") + " (" +
                 International.getString("Tage") + ")");
@@ -3519,16 +3524,16 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
                 International.getString("Schaden"));
             }
             if (sIsAggrClubwork) {
-                pTableColumns.add(International.getString("Vereinsarbeit"));
+                pTableColumns.add(International.getString("Vereinsarbeit in h"));
             }
             if (sIsAggrClubworkRelativeToTarget) {
-                pTableColumns.add(International.getString("relativ zum Soll"));
+                pTableColumns.add(International.getString("relativ zum Soll in h"));
             }
             if (sIsAggrClubworkOverUnderCarryOver) {
-                pTableColumns.add(International.getString("über/unter Soll"));
+                pTableColumns.add(International.getString("abzgl. Übertrag in h"));
             }
             if (sIsAggrClubworkCredit) {
-                pTableColumns.add(International.getString("Gutschriften"));
+                pTableColumns.add(International.getString("Gutschriften in h"));
             }
         }
         if (sStatisticCategory == StatisticCategory.matrix) {
@@ -3679,32 +3684,32 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
 
         }
     }
-    
+
     private void selectedStatisticsCategory(IItemType itemType) {
-        String cats = itemType.getValueFromField();
-        StatisticCategory cat = getStatisticCategoryEnum(cats);
-        String defaultStatisticType = getStatisticTypeDefault(cat);
-        String defaultStatisticKey = getStatisticKeyDefault(defaultStatisticType);
+            String cats = itemType.getValueFromField();
+            StatisticCategory cat = getStatisticCategoryEnum(cats);
+            String defaultStatisticType = getStatisticTypeDefault(cat);
+            String defaultStatisticKey = getStatisticKeyDefault(defaultStatisticType);
         StatisticType typeEnum = getStatisticTypeEnum(defaultStatisticType);
-        if (itemStatisticType != null) {
-            itemStatisticType.setListData(getStatisticTypes(cat, ARRAY_STRINGLIST_VALUES),
-                    getStatisticTypes(cat, ARRAY_STRINGLIST_DISPLAY));
-            if (defaultStatisticType != null) {
-                itemStatisticType.parseAndShowValue(defaultStatisticType);
+            if (itemStatisticType != null) {
+                itemStatisticType.setListData(getStatisticTypes(cat, ARRAY_STRINGLIST_VALUES),
+                                              getStatisticTypes(cat, ARRAY_STRINGLIST_DISPLAY));
+                if (defaultStatisticType != null) {
+                    itemStatisticType.parseAndShowValue(defaultStatisticType);
+                }
             }
-        }
-        if (itemStatisticKey != null) {
-            if (defaultStatisticType == null) {
-                defaultStatisticType = "other"; // null means we get all, but we want none!
+            if (itemStatisticKey != null) {
+                if (defaultStatisticType == null) {
+                    defaultStatisticType = "other"; // null means we get all, but we want none!
+                }
+                itemStatisticKey.setListData(getStatisticKeys(defaultStatisticType, ARRAY_STRINGLIST_VALUES),
+                                             getStatisticKeys(defaultStatisticType, ARRAY_STRINGLIST_DISPLAY));
+                if (defaultStatisticKey != null) {
+                    itemStatisticKey.parseAndShowValue(defaultStatisticKey);
+                }
             }
-            itemStatisticKey.setListData(getStatisticKeys(defaultStatisticType, ARRAY_STRINGLIST_VALUES),
-                    getStatisticKeys(defaultStatisticType, ARRAY_STRINGLIST_DISPLAY));
-            if (defaultStatisticKey != null) {
-                itemStatisticKey.parseAndShowValue(defaultStatisticKey);
-            }
-        }
-        setDefaultSorting(cat);
-        setDefaultDates(cat, defaultStatisticType);
+            setDefaultSorting(cat);
+            setDefaultDates(cat, defaultStatisticType);
         if (itemAggrFields != null) {
             itemAggrFields.setListData(getAggregationList(typeEnum, ARRAY_STRINGLIST_VALUES),
                     getAggregationList(typeEnum, ARRAY_STRINGLIST_DISPLAY));
@@ -3723,17 +3728,17 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
     }
     
     private void selectedStatisticsType(IItemType itemType) {
-        String type = itemType.getValueFromField();
+            String type = itemType.getValueFromField();
         StatisticType typeEnum = getStatisticTypeEnum(type);
-        String defaultStatisticKey = getStatisticKeyDefault(type);
-        if (itemStatisticKey != null) {
-            itemStatisticKey.setListData(getStatisticKeys(type, ARRAY_STRINGLIST_VALUES),
-                    getStatisticKeys(type, ARRAY_STRINGLIST_DISPLAY));
-            if (defaultStatisticKey != null) {
-                itemStatisticKey.parseAndShowValue(defaultStatisticKey);
+            String defaultStatisticKey = getStatisticKeyDefault(type);
+            if (itemStatisticKey != null) {
+                itemStatisticKey.setListData(getStatisticKeys(type, ARRAY_STRINGLIST_VALUES),
+                                             getStatisticKeys(type, ARRAY_STRINGLIST_DISPLAY));
+                if (defaultStatisticKey != null) {
+                    itemStatisticKey.parseAndShowValue(defaultStatisticKey);
+                }
             }
-        }
-        setDefaultDates(null, type);
+            setDefaultDates(null, type);
         if (itemAggrFields != null) {
             itemAggrFields.setListData(getAggregationList(typeEnum, ARRAY_STRINGLIST_VALUES),
                     getAggregationList(typeEnum, ARRAY_STRINGLIST_DISPLAY));

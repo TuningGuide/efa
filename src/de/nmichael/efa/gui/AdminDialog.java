@@ -30,6 +30,7 @@ public class AdminDialog extends BaseDialog implements IItemListener {
     private AdminRecord admin;
     private JLabel projectName;
     private JLabel logbookName;
+    private JLabel clubworkName;
     private ItemTypeButton messageButton;
 
     public AdminDialog(EfaBoathouseFrame parent, AdminRecord admin) {
@@ -169,13 +170,19 @@ public class AdminDialog extends BaseDialog implements IItemListener {
         projectName = new JLabel();
         northPanel.add(projectName,
                 new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0,
-                GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL,
-                new Insets(10, 10, 0, 10), 0, 0));
+                GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL,
+                new Insets(10, 10, 10, 10), 0, 0));
         logbookName = new JLabel();
         northPanel.add(logbookName,
-                new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0,
-                GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL,
-                new Insets(0, 10, 10, 10), 0, 0));
+                new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0,
+                GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL,
+                new Insets(10, 10, 10, 10), 0, 0));
+
+        clubworkName = new JLabel();
+        northPanel.add(clubworkName,
+                new GridBagConstraints(2, 0, 1, 1, 0.0, 0.0,
+                GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL,
+                new Insets(10, 10, 10, 10), 0, 0));
 
         updateInfos();
         mainPanel.add(northPanel, BorderLayout.NORTH);
@@ -186,21 +193,30 @@ public class AdminDialog extends BaseDialog implements IItemListener {
     }
 
     private void updateInfos() {
-        projectName.setText(International.getString("Projekt") + ": " +
-                (Daten.project != null ? Daten.project.getProjectName() : "- " + International.getString("Kein Projekt geöffnet.") + " -"));
-        logbookName.setText(International.getString("Fahrtenbuch") + ": " +
-                (efaBoathouseFrame.getLogbook() != null && efaBoathouseFrame.getLogbook().isOpen() ?
-                    efaBoathouseFrame.getLogbook().getName() : "- " + International.getString("Kein Fahrtenbuch geöffnet.") + " -"));
+        projectName.setText(International.getString("Projekt") + ": "
+                + (Daten.project != null ? Daten.project.getProjectName() : "- " + International.getString("Kein Projekt geöffnet.") + " -"));
+        logbookName.setText(International.getString("Fahrtenbuch") + ": "
+                + (efaBoathouseFrame.getLogbook() != null && efaBoathouseFrame.getLogbook().isOpen()
+                ? efaBoathouseFrame.getLogbook().getName() : "- " + International.getString("Kein Fahrtenbuch geöffnet.") + " -"));
+        if (efaBoathouseFrame.getClubwork() != null && efaBoathouseFrame.getClubwork().isOpen()) {
+            clubworkName.setText(International.getString("Vereinsarbeitsbuch") + ": " + efaBoathouseFrame.getClubwork().getName());
+        }
 
         try {
             ProjectRecord r = Daten.project.getBoathouseRecord();
-            if (r.getAutoNewLogbookName() != null && r.getAutoNewLogbookName().length() > 0 &&
-                r.getAutoNewLogbookDate() != null && r.getAutoNewLogbookDate().isSet()) {
-                logbookName.setText(logbookName.getText() + " [" +
-                        International.getMessage("ab {timestamp}", r.getAutoNewLogbookDate().toString()) + ": " +
-                        r.getAutoNewLogbookName() + "]");
+            if (r.getAutoNewLogbookName() != null && r.getAutoNewLogbookName().length() > 0
+                    && r.getAutoNewLogbookDate() != null && r.getAutoNewLogbookDate().isSet()) {
+                logbookName.setText(logbookName.getText() + " ["
+                        + International.getMessage("ab {timestamp}", r.getAutoNewLogbookDate().toString()) + ": "
+                        + r.getAutoNewLogbookName() + "]");
             }
-        } catch(Exception eignore) {
+            if (r.getAutoNewClubworkName() != null && r.getAutoNewClubworkName().length() > 0
+                    && r.getAutoNewClubworkDate() != null && r.getAutoNewClubworkDate().isSet()) {
+                clubworkName.setText(clubworkName.getText() + " ["
+                        + International.getMessage("ab {timestamp}", r.getAutoNewClubworkDate().toString()) + ": "
+                        + r.getAutoNewClubworkName() + "]");
+            }
+        } catch (Exception eignore) {
             Logger.logdebug(eignore);
         }
     }
@@ -258,10 +274,20 @@ public class AdminDialog extends BaseDialog implements IItemListener {
                 return;
             }
 
+            if ((action.equals(EfaMenuButton.BUTTON_PROJECTS) || action.equals(EfaMenuButton.BUTTON_CLUBWORKBOOK)) && permission) {
+                if (Daten.project == null) {
+                    Dialog.error(International.getString("Kein Projekt geöffnet."));
+                    return;
+                }
+                efaBoathouseFrame.openClubwork(admin);
+                updateInfos();
+                return;
+            }
+
             if (action.equals(EfaMenuButton.BUTTON_BACKUP)) {
                 // handled in EfaMenuButton; here we just need to update some infos
-                if (efaBoathouseFrame.getLogbook() != null && !efaBoathouseFrame.getLogbook().isOpen() &&
-                    Daten.project != null && Daten.project.isOpen() &&
+                if (efaBoathouseFrame.getLogbook() != null && !efaBoathouseFrame.getLogbook().isOpen()
+                        &&               Daten.project != null && Daten.project.isOpen() &&
                     Daten.project.getCurrentLogbookEfaBoathouse() != null &&
                     Daten.project.getCurrentLogbookEfaBoathouse().length() > 0) {
                     efaBoathouseFrame.openLogbook(Daten.project.getCurrentLogbookEfaBoathouse());

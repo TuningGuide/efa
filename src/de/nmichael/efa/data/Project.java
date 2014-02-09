@@ -58,14 +58,13 @@ public class Project extends StorageObject {
     public static final String STORAGEOBJECT_WATERS = "waters";
     public static final String STORAGEOBJECT_STATISTICS = "statistics";
     public static final String STORAGEOBJECT_MESSAGES = "messages";
-
     private Hashtable<String, StorageObject> persistenceCache = new Hashtable<String, StorageObject>();
     protected IDataAccess remoteDataAccess; // used for ClubRecord and LogbookRecord, if TYPE_EFA_REMOTE
     private String myIdentifier = null;
     private String myBoathouseName = null;
     private int myBoathouseId = -1;
     private int numberOfBoathouses = -1;
-    private Hashtable<Integer,String> boathouseIdToNameMapping = null;
+    private Hashtable<Integer, String> boathouseIdToNameMapping = null;
     private volatile boolean _inOpeningProject = false;
     private volatile boolean _inDeleteProject = false;
     private boolean isRemoteOpen = false;
@@ -92,7 +91,7 @@ public class Project extends StorageObject {
     private void updateMyIdentifier() {
         try {
             myIdentifier = InetAddress.getLocalHost().getHostName();
-        } catch(Exception e) {
+        } catch (Exception e) {
             Logger.logdebug(e);
             myIdentifier = null;
         }
@@ -108,7 +107,7 @@ public class Project extends StorageObject {
         }
         return fieldName;
     }
-    
+
     public static boolean openProject(String projectName, boolean runAudit) {
         return openProject(new Project(projectName), projectName, runAudit);
     }
@@ -170,22 +169,22 @@ public class Project extends StorageObject {
             if (getProjectStorageType() == IDataAccess.TYPE_EFA_REMOTE) {
                 return;
             }
-        } catch(Exception e) {
+        } catch (Exception e) {
             Logger.logdebug(e);
             return;
         }
-        
+
         // create project id
         try {
             if (isOpen()) {
                 DataKeyIterator it = data().getStaticIterator();
                 for (DataKey k = it.getFirst(); k != null; k = it.getNext()) {
-                    ProjectRecord r = (ProjectRecord)data().get(k);
-                    if (r != null && ProjectRecord.TYPE_CLUB.equals(r.getType()) &&
-                        (r.getProjectId() == null)) {
+                    ProjectRecord r = (ProjectRecord) data().get(k);
+                    if (r != null && ProjectRecord.TYPE_CLUB.equals(r.getType())
+                            && (r.getProjectId() == null)) {
                         setProjectId(r);
                         data().update(r);
-                        Logger.log(Logger.INFO, Logger.MSG_CORE_PROJECTIDGENERATED, 
+                        Logger.log(Logger.INFO, Logger.MSG_CORE_PROJECTIDGENERATED,
                                 "Project ID: " + r.getProjectId());
                     }
                 }
@@ -196,15 +195,15 @@ public class Project extends StorageObject {
             }
             Logger.logdebug(e);
         }
-        
+
         // delete any "emtpy" boathouse records (bugfix)
         try {
             if (isOpen()) {
                 DataKeyIterator it = data().getStaticIterator();
                 for (DataKey k = it.getFirst(); k != null; k = it.getNext()) {
-                    ProjectRecord r = (ProjectRecord)data().get(k);
-                    if (r != null && ProjectRecord.TYPE_BOATHOUSE.equals(r.getType()) &&
-                        (r.getName() == null || r.getName().length() == 0)) {
+                    ProjectRecord r = (ProjectRecord) data().get(k);
+                    if (r != null && ProjectRecord.TYPE_BOATHOUSE.equals(r.getType())
+                            && (r.getName() == null || r.getName().length() == 0)) {
                         data().delete(k);
                     }
                 }
@@ -239,10 +238,24 @@ public class Project extends StorageObject {
                             oldProjectRecordChanged = true;
                         }
 
+                        s = oldProjectRecord.getCurrentClubworkEfaBase();
+                        if (s != null) {
+                            boathouseRecord.setCurrentClubworkEfaBase(s);
+                            oldProjectRecord.setCurrentClubworkEfaBase(null);
+                            oldProjectRecordChanged = true;
+                        }
+
                         s = oldProjectRecord.getCurrentLogbookEfaBoathouse();
                         if (s != null) {
                             boathouseRecord.setCurrentLogbookEfaBoathouse(s);
                             oldProjectRecord.setCurrentLogbookEfaBoathouse(null);
+                            oldProjectRecordChanged = true;
+                        }
+
+                        s = oldProjectRecord.getCurrentClubworkEfaBoathouse();
+                        if (s != null) {
+                            boathouseRecord.setCurrentClubworkEfaBoathouse(s);
+                            oldProjectRecord.setCurrentClubworkEfaBoathouse(null);
                             oldProjectRecordChanged = true;
                         }
 
@@ -257,10 +270,18 @@ public class Project extends StorageObject {
                         if (d != null && d.isSet()) {
                             boathouseRecord.setAutoNewLogbookDate(d);
                         }
+                        d = oldConfigRecord.getAutoNewClubworkDate();
+                        if (d != null && d.isSet()) {
+                            boathouseRecord.setAutoNewClubworkDate(d);
+                        }
 
                         s = oldConfigRecord.getAutoNewLogbookName();
                         if (s != null) {
                             boathouseRecord.setAutoNewLogbookName(s);
+                        }
+                        s = oldConfigRecord.getAutoNewClubworkName();
+                        if (s != null) {
+                            boathouseRecord.setAutoNewClubworkName(s);
                         }
 
                         IDataAccess data = getMyDataAccess(ProjectRecord.TYPE_BOATHOUSE);
@@ -348,13 +369,17 @@ public class Project extends StorageObject {
         try {
             // we might get lots of exceptions, don't log them
             Logger.setLogExceptions(false);
-            
+
             // make sure that persistenceCache is filled properly
             try {
                 openAllData();
                 String[] logbookNames = getAllLogbookNames();
                 for (String logbookName : logbookNames) {
                     getLogbook(logbookName, false);
+                }
+                String[] clubworkNames = getAllClubworkNames();
+                for (String clubworkName : clubworkNames) {
+                    getClubwork(clubworkName, false);
                 }
             } catch (Exception eignore) {
                 Logger.logdebug(eignore);
@@ -419,9 +444,10 @@ public class Project extends StorageObject {
         String[] logbookNames = getAllLogbookNames();
         for (int i = 0; logbookNames != null && i < logbookNames.length; i++) {
             data.add(getLogbook(logbookNames[i], false));
-            if (Daten.NEW_FEATURES) {
-                data.add(getClubwork(logbookNames[i], false));
-            }
+        }
+        String[] clubworkNames = getAllClubworkNames();
+        for (int i = 0; clubworkNames != null && i < clubworkNames.length; i++) {
+            data.add(getClubwork(clubworkNames[i], false));
         }
         return data;
     }
@@ -452,6 +478,13 @@ public class Project extends StorageObject {
                                     description.append((j > 0 ? ", " : "") + logbooks[j]);
                                 }
                             }
+                            String[] clubworkNames = p.getAllClubworkNames();
+                            if (clubworkNames != null) {
+                                description.append(International.getString("Vereinsarbeit") + ": ");
+                                for (int j = 0; j < clubworkNames.length; j++) {
+                                    description.append((j > 0 ? ", " : "") + clubworkNames[j]);
+                                }
+                            }
                             items.put(name, description.toString());
                         } catch (Exception e1) {
                         }
@@ -478,6 +511,21 @@ public class Project extends StorageObject {
         return items;
     }
 
+    public Hashtable<String, String> getClubworks() {
+        Hashtable<String, String> items = new Hashtable<String, String>();
+        String[] clubworks = getAllClubworkNames();
+        for (int i = 0; clubworks != null && i < clubworks.length; i++) {
+            ProjectRecord r = getClubworkBookRecord(clubworks[i]);
+            if (r != null) {
+                String name = "<b>" + International.getString("Vereinsarbeit") + ":</b> <b style=\"color:blue\">" + clubworks[i] + "</b><br>";
+                String description = (r.getDescription() != null && r.getDescription().length() > 0 ? r.getDescription() + " " : "");
+                description += "(" + r.getStartDate().toString() + " - " + r.getEndDate() + ")";
+                items.put(clubworks[i], name + description);
+            }
+        }
+        return items;
+    }
+
     public static ProjectRecord createNewRecordFromStatic(String type) {
         if (MetaData.getMetaData(DATATYPE) == null) {
             ProjectRecord.initialize();
@@ -494,6 +542,9 @@ public class Project extends StorageObject {
         if (type.equals(ProjectRecord.TYPE_LOGBOOK)) {
             p.setName(name);
         }
+        if (type.equals(ProjectRecord.TYPE_CLUBWORK)) {
+            p.setName(name);
+        }
         if (type.equals(ProjectRecord.TYPE_BOATHOUSE)) {
             p.setName(name);
         }
@@ -502,6 +553,10 @@ public class Project extends StorageObject {
 
     public ProjectRecord createNewLogbookRecord(String logbookName) {
         return createProjectRecord(ProjectRecord.TYPE_LOGBOOK, logbookName);
+    }
+
+    public ProjectRecord createNewClubworkBook(String cluworkName) {
+        return createProjectRecord(ProjectRecord.TYPE_CLUBWORK, cluworkName);
     }
 
     public ProjectRecord createNewBoathouseRecord(String boathouseName) {
@@ -513,13 +568,14 @@ public class Project extends StorageObject {
         if (lastid < 0) {
             return null;
         }
-        r.setBoathouseId(lastid+1);
+        r.setBoathouseId(lastid + 1);
         return r;
     }
 
     public IDataAccess getMyDataAccess(String recordType) {
         if (recordType.endsWith(ProjectRecord.TYPE_CLUB)
                 || recordType.endsWith(ProjectRecord.TYPE_LOGBOOK)
+                || recordType.endsWith(ProjectRecord.TYPE_CLUBWORK)
                 || recordType.endsWith(ProjectRecord.TYPE_BOATHOUSE)) {
             if (getProjectStorageType() == IDataAccess.TYPE_EFA_REMOTE) {
                 return (remoteDataAccess != null ? remoteDataAccess : dataAccess);
@@ -556,13 +612,26 @@ public class Project extends StorageObject {
         }
         return true;
     }
-    
+
     private void setProjectId(ProjectRecord r) {
         r.setProjectId(UUID.randomUUID());
     }
-    
+
     public UUID getProjectId() {
         return getClubRecord().getProjectId();
+    }
+
+    public boolean deleteClubworkBook(String clubworkName) {
+        try {
+            getMyDataAccess(ProjectRecord.TYPE_CLUBWORK).delete(createProjectRecord(ProjectRecord.TYPE_CLUBWORK, clubworkName).getKey());
+        } catch (Exception e) {
+            Logger.logdebug(e);
+            if (e instanceof EfaModifyException) {
+                ((EfaModifyException) e).displayMessage();
+            }
+            return false;
+        }
+        return true;
     }
 
     public void setEmptyProject(String name) {
@@ -596,6 +665,10 @@ public class Project extends StorageObject {
 
     public DataKey getLoogbookRecordKey(String logbookName) {
         return ProjectRecord.getDataKey(ProjectRecord.TYPE_LOGBOOK, logbookName);
+    }
+
+    public DataKey getClubworkBookRecordKey(String clubworkName) {
+        return ProjectRecord.getDataKey(ProjectRecord.TYPE_CLUBWORK, clubworkName);
     }
 
     public DataKey getBoathouseRecordKey(String boathouseName) {
@@ -645,6 +718,10 @@ public class Project extends StorageObject {
         return getRecord(getLoogbookRecordKey(logbookName));
     }
 
+    public ProjectRecord getClubworkBookRecord(String clubworkName) {
+        return getRecord(getClubworkBookRecordKey(clubworkName));
+    }
+
     public String getBoathouseName(int id) {
         String name = null;
         try {
@@ -654,12 +731,12 @@ public class Project extends StorageObject {
             if (boathouseIdToNameMapping != null) {
                 name = boathouseIdToNameMapping.get(id);
             }
-        } catch(Exception e) {
+        } catch (Exception e) {
             Logger.logdebug(e);
         }
         return (name != null && name.length() > 0 ? name : International.getString("Bootshaus") + " " + id);
     }
-    
+
     public int getBoathouseId(String boathouseName) {
         ProjectRecord pr = getBoathouseRecord(boathouseName);
         return (pr != null ? pr.getBoathouseId() : -1);
@@ -739,6 +816,10 @@ public class Project extends StorageObject {
         addRecord(rec, ProjectRecord.TYPE_LOGBOOK);
     }
 
+    public void addClubworkBookRecord(ProjectRecord rec) throws EfaException {
+        addRecord(rec, ProjectRecord.TYPE_CLUBWORK);
+    }
+
     private void closePersistence(StorageObject p) {
         try {
             // It's ok to just close the storage object; if it wasn't open at all, close will do nothing
@@ -774,10 +855,10 @@ public class Project extends StorageObject {
             return null;
         }
         if (Logger.isTraceOn(Logger.TT_CORE, (createNewIfDoesntExist ? 5 : 9))) {
-            Logger.log(Logger.DEBUG, Logger.MSG_DEBUG_DATA, "Opening " +
-                    (createNewIfDoesntExist ? "or Creating " : "") +
-                    "Persistence for " +
-                    storageObjectName + "." + storageObjectType +" ...");
+            Logger.log(Logger.DEBUG, Logger.MSG_DEBUG_DATA, "Opening "
+                    + (createNewIfDoesntExist ? "or Creating " : "")
+                    + "Persistence for "
+                    + storageObjectName + "." + storageObjectType + " ...");
         }
         StorageObject p = null;
         try {
@@ -925,13 +1006,27 @@ public class Project extends StorageObject {
         }
     }
 
+    public synchronized boolean isClubworkOpen(String clubworkName) {
+        try {
+            String key = getPersistenceCacheKey(clubworkName, Clubwork.DATATYPE);
+            if (key == null) {
+                return false;
+            }
+            StorageObject p = persistenceCache.get(key);
+            return (p != null && p.isOpen());
+        } catch (Exception e) {
+            Logger.logdebug(e);
+            return false;
+        }
+    }
+
     public Logbook getLogbook(String logbookName, boolean createNewIfDoesntExist) {
         ProjectRecord rec = getLoogbookRecord(logbookName);
         if (rec == null) {
             return null;
         }
         Logbook logbook = (Logbook) getPersistence(Logbook.class, logbookName, Logbook.DATATYPE,
-                createNewIfDoesntExist, International.getString("Fahrtenbuch"), createNewIfDoesntExist);
+                createNewIfDoesntExist, International.getString("Fahrtenbuch"));
         if (logbook != null) {
             logbook.setName(logbookName);
             logbook.setProjectRecord(rec);
@@ -942,6 +1037,25 @@ public class Project extends StorageObject {
             }
         }
         return logbook;
+    }
+
+    public Clubwork getClubwork(String name, boolean createNewIfDoesntExist) {
+        ProjectRecord rec = getClubworkBookRecord(name);
+        if (rec == null) {
+            return null;
+        }
+        Clubwork clubwork = (Clubwork) getPersistence(Clubwork.class, name, Clubwork.DATATYPE,
+                createNewIfDoesntExist, International.getString("Vereinsarbeit"));
+        if (clubwork != null) {
+            clubwork.setName(name);
+            clubwork.setProjectRecord(rec);
+            if (Logger.isTraceOn(Logger.TT_CORE, 9)) {
+                Logger.log(Logger.DEBUG, Logger.MSG_DEBUG_LOGBOOK,
+                        "Project.getCLubwork(" + clubwork + "): hash " + clubwork.hashCode());
+                Thread.currentThread().dumpStack();
+            }
+        }
+        return clubwork;
     }
 
     public String[] getAllLogbookNames() {
@@ -957,6 +1071,31 @@ public class Project extends StorageObject {
                 ProjectRecord r = (ProjectRecord) getMyDataAccess(ProjectRecord.TYPE_LOGBOOK).get(k);
                 if (r != null && r.getType() != null
                         && r.getType().equals(ProjectRecord.TYPE_LOGBOOK)
+                        && r.getName() != null && r.getName().length() > 0) {
+                    a.add(r.getName());
+                }
+                k = it.getNext();
+            }
+            return a.toArray(new String[0]);
+        } catch (Exception e) {
+            Logger.logdebug(e);
+            return null;
+        }
+    }
+
+    public String[] getAllClubworkNames() {
+        try {
+            IDataAccess myAccess = getMyDataAccess(ProjectRecord.TYPE_CLUBWORK);
+            if (myAccess == null) {
+                return null; // happens for remote projects
+            }
+            DataKeyIterator it = myAccess.getStaticIterator();
+            ArrayList<String> a = new ArrayList<String>();
+            DataKey k = it.getFirst();
+            while (k != null) {
+                ProjectRecord r = (ProjectRecord) getMyDataAccess(ProjectRecord.TYPE_CLUBWORK).get(k);
+                if (r != null && r.getType() != null
+                        && r.getType().equals(ProjectRecord.TYPE_CLUBWORK)
                         && r.getName() != null && r.getName().length() > 0) {
                     a.add(r.getName());
                 }
@@ -1035,7 +1174,7 @@ public class Project extends StorageObject {
                 k = it.getNext();
             }
             int[] ia = new int[a.size()];
-            for (int i=0; i<ia.length; i++) {
+            for (int i = 0; i < ia.length; i++) {
                 ia[i] = a.get(i);
             }
             return ia;
@@ -1078,7 +1217,7 @@ public class Project extends StorageObject {
     }
 
     private void refreshBoathouseIdToNameMapping() {
-        boathouseIdToNameMapping = new Hashtable<Integer,String>();
+        boathouseIdToNameMapping = new Hashtable<Integer, String>();
         try {
             String[] names = getAllBoathouseNames();
             for (String name : names) {
@@ -1087,7 +1226,7 @@ public class Project extends StorageObject {
                     boathouseIdToNameMapping.put(r.getBoathouseId(), name);
                 }
             }
-        } catch(Exception e) {
+        } catch (Exception e) {
             Logger.logdebug(e);
         }
     }
@@ -1105,20 +1244,6 @@ public class Project extends StorageObject {
     public Persons getPersons(boolean createNewIfDoesntExist) {
         return (Persons) getPersistence(Persons.class, STORAGEOBJECT_PERSONS, Persons.DATATYPE,
                 createNewIfDoesntExist, International.getString("Personen"));
-    }
-
-    public Clubwork getClubwork(String name, boolean createNewIfDoesntExist) {
-        ProjectRecord rec = getLoogbookRecord(name);
-        if (rec == null) {
-            return null;
-        }
-        Clubwork clubwork = (Clubwork) getPersistence(Clubwork.class, name, Clubwork.DATATYPE,
-                createNewIfDoesntExist, International.getString("Vereinsarbeit"), createNewIfDoesntExist);
-        if (clubwork != null) {
-            clubwork.setName(name);
-            clubwork.setProjectRecord(rec);
-        }
-        return clubwork;
     }
 
     public Status getStatus(boolean createNewIfDoesntExist) {
@@ -1248,10 +1373,30 @@ public class Project extends StorageObject {
         }
     }
 
+    public void setCurrentClubworkBookEfaBase(String currentClubwork) {
+        try {
+            ProjectRecord r = getBoathouseRecord();
+            r.setCurrentClubworkEfaBase(currentClubwork);
+            getMyDataAccess(ProjectRecord.TYPE_BOATHOUSE).update(r);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     public void setCurrentLogbookEfaBoathouse(String currentLogbook) {
         try {
             ProjectRecord r = getBoathouseRecord();
             r.setCurrentLogbookEfaBoathouse(currentLogbook);
+            getMyDataAccess(ProjectRecord.TYPE_BOATHOUSE).update(r);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void setCurrentClubworkEfaBoathouse(String currentClubwork) {
+        try {
+            ProjectRecord r = getBoathouseRecord();
+            r.setCurrentClubworkEfaBoathouse(currentClubwork);
             getMyDataAccess(ProjectRecord.TYPE_BOATHOUSE).update(r);
         } catch (Exception e) {
             e.printStackTrace();
@@ -1278,6 +1423,16 @@ public class Project extends StorageObject {
         }
     }
 
+    public void setAutoNewClubworkDate(DataTypeDate date) {
+        try {
+            ProjectRecord r = getBoathouseRecord();
+            r.setAutoNewClubworkDate(date);
+            getMyDataAccess(ProjectRecord.TYPE_BOATHOUSE).update(r);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     public void setAutoNewLogbookName(String name) {
         try {
             ProjectRecord r = getBoathouseRecord();
@@ -1288,21 +1443,13 @@ public class Project extends StorageObject {
         }
     }
 
-    public void setClubworkCarryOverDate(DataTypeDate date) {
-        long l = 0;
-        IDataAccess access = getMyDataAccess(ProjectRecord.TYPE_CLUB);
-        if (access == null) {
-            return;
-        }
+    public void setAutoNewClubworkName(String name) {
         try {
-            l = access.acquireLocalLock(getClubRecordKey());
-            ProjectRecord r = getClubRecord();
-            r.setClubworkCarryOverDate(date);
-            access.update(r, l);
+            ProjectRecord r = getBoathouseRecord();
+            r.setAutoNewClubworkName(name);
+            getMyDataAccess(ProjectRecord.TYPE_BOATHOUSE).update(r);
         } catch (Exception e) {
             e.printStackTrace();
-        } finally {
-            access.releaseLocalLock(l);
         }
     }
 
@@ -1793,7 +1940,16 @@ public class Project extends StorageObject {
     public String getCurrentLogbookEfaBase() {
         try {
             return getBoathouseRecord().getCurrentLogbookEfaBase();
-        } catch(NullPointerException e) {
+        } catch (NullPointerException e) {
+            Logger.logdebug(e); // can happen when remote project is not yet open
+            return null;
+        }
+    }
+
+    public String getCurrentClubworkEfaBase() {
+        try {
+            return getBoathouseRecord().getCurrentClubworkEfaBase();
+        } catch (NullPointerException e) {
             Logger.logdebug(e); // can happen when remote project is not yet open
             return null;
         }
@@ -1802,7 +1958,16 @@ public class Project extends StorageObject {
     public String getCurrentLogbookEfaBoathouse() {
         try {
             return getBoathouseRecord().getCurrentLogbookEfaBoathouse();
-        } catch(NullPointerException e) {
+        } catch (NullPointerException e) {
+            Logger.logdebug(e); // can happen when remote project is not yet open
+            return null;
+        }
+    }
+
+    public String getCurrentClubworkEfaBoathouse() {
+        try {
+            return getBoathouseRecord().getCurrentClubworkEfaBoathouse();
+        } catch (NullPointerException e) {
             Logger.logdebug(e); // can happen when remote project is not yet open
             return null;
         }
@@ -1818,6 +1983,20 @@ public class Project extends StorageObject {
         }
         if (name != null && name.length() > 0) {
             return getLogbook(name, false);
+        }
+        return null;
+    }
+
+    public Clubwork getCurrentClubwork() {
+        String name = null;
+        if (Daten.applID == Daten.APPL_EFABASE) {
+            name = getCurrentClubworkEfaBase();
+        }
+        if (Daten.applID == Daten.APPL_EFABH) {
+            name = getCurrentClubworkEfaBoathouse();
+        }
+        if (name != null && name.length() > 0) {
+            return getClubwork(name, false);
         }
         return null;
     }
@@ -1906,6 +2085,10 @@ public class Project extends StorageObject {
         return getBoathouseRecord().getAutoNewLogbookDate();
     }
 
+    public DataTypeDate getAutoNewClubworkDate() {
+        return getBoathouseRecord().getAutoNewLogbookDate();
+    }
+
     public String getAutoNewLogbookName() {
         return getBoathouseRecord().getAutoNewLogbookName();
     }
@@ -1914,8 +2097,8 @@ public class Project extends StorageObject {
         return getProjectRecord().getLastLogbookSwitch();
     }
 
-    public DataTypeDate getClubworkCarryOverDate() {
-        return getClubRecord().getClubworkCarryOverDate();
+    public String getAutoNewClubworkName() {
+        return getBoathouseRecord().getAutoNewLogbookName();
     }
 
     public int getClubLastDrvFaYear() {
@@ -1938,14 +2121,15 @@ public class Project extends StorageObject {
         myBoathouseName = null;
         myBoathouseId = -1;
         numberOfBoathouses = -1;
-        Hashtable<Integer,String> boathouseIdToNameMapping = null;
+        Hashtable<Integer, String> boathouseIdToNameMapping = null;
         if (add || update) {
             assertFieldNotEmpty(record, ProjectRecord.TYPE);
             assertUnique(record, ProjectRecord.PROJECTNAME);
-            assertUnique(record, ProjectRecord.NAME);
+            assertUnique(record, new String[]{ProjectRecord.TYPE, ProjectRecord.NAME});
             assertUnique(record, ProjectRecord.BOATHOUSEID);
-            if (((ProjectRecord) record).getType().equals(ProjectRecord.TYPE_LOGBOOK) ||
-                ((ProjectRecord) record).getType().equals(ProjectRecord.TYPE_BOATHOUSE)) {
+            if (((ProjectRecord) record).getType().equals(ProjectRecord.TYPE_LOGBOOK)
+                    || ((ProjectRecord) record).getType().equals(ProjectRecord.TYPE_CLUBWORK)
+                    || ((ProjectRecord) record).getType().equals(ProjectRecord.TYPE_BOATHOUSE)) {
                 assertFieldNotEmpty(record, ProjectRecord.NAME);
             }
             if (((ProjectRecord) record).getType().equals(ProjectRecord.TYPE_BOATHOUSE)) {
@@ -1969,6 +2153,16 @@ public class Project extends StorageObject {
                             Thread.currentThread().getStackTrace());
                 }
             }
+            if (((ProjectRecord) record).getType().equals(ProjectRecord.TYPE_CLUBWORK)) {
+                ProjectRecord r = (ProjectRecord) record;
+                String lName = getAutoNewClubworkName();
+                if (lName != null && lName.length() > 0 && r.getName().equals(lName)) {
+                    throw new EfaModifyException(Logger.MSG_DATA_MODIFYEXCEPTION,
+                            International.getMessage("Der Datensatz kann nicht gelöscht werden, da er noch von {listtype} '{record}' genutzt wird.",
+                            International.getString("Vereinsarbeitsbuchwechsel"), lName),
+                            Thread.currentThread().getStackTrace());
+                }
+            }
             if (((ProjectRecord) record).getType().equals(ProjectRecord.TYPE_BOATHOUSE)) {
                 if (getNumberOfBoathouses(true) == 1) {
                     throw new EfaModifyException(Logger.MSG_DATA_MODIFYEXCEPTION,
@@ -1980,26 +2174,26 @@ public class Project extends StorageObject {
                 try {
                     Destinations dest = getDestinations(false);
                     DataKey[] k = dest.data().getByFields(new String[]{DestinationRecord.ONLYINBOATHOUSEID},
-                            new Object[]{ Integer.toString(bid) }, System.currentTimeMillis());
+                            new Object[]{Integer.toString(bid)}, System.currentTimeMillis());
                     if (k != null && k.length > 0) {
-                        DestinationRecord dr = (DestinationRecord)dest.data().get(k[0]);
+                        DestinationRecord dr = (DestinationRecord) dest.data().get(k[0]);
                         throw new EfaModifyException(Logger.MSG_DATA_MODIFYEXCEPTION,
                                 International.getMessage("Der Datensatz kann nicht gelöscht werden, da er noch von {listtype} '{record}' genutzt wird.",
                                 International.getString("Ziel"), (dr != null ? dr.getQualifiedName() : "<unknown>")),
                                 Thread.currentThread().getStackTrace());
                     }
                     BoatStatus status = getBoatStatus(false);
-                    k = status.data().getByFields(new String[]{ BoatStatusRecord.ONLYINBOATHOUSEID},
-                            new Object[]{ Integer.toString(bid) });
+                    k = status.data().getByFields(new String[]{BoatStatusRecord.ONLYINBOATHOUSEID},
+                            new Object[]{Integer.toString(bid)});
                     if (k != null && k.length > 0) {
-                        BoatStatusRecord br = (BoatStatusRecord)status.data().get(k[0]);
+                        BoatStatusRecord br = (BoatStatusRecord) status.data().get(k[0]);
                         throw new EfaModifyException(Logger.MSG_DATA_MODIFYEXCEPTION,
                                 International.getMessage("Der Datensatz kann nicht gelöscht werden, da er noch von {listtype} '{record}' genutzt wird.",
                                 International.getString("Bootsstatus"), (br != null ? br.getQualifiedName() : "<unknown>")),
                                 Thread.currentThread().getStackTrace());
                     }
 
-                } catch(Exception e) {
+                } catch (Exception e) {
                     Logger.logdebug(e);
                     throw new EfaModifyException(Logger.MSG_DATA_MODIFYEXCEPTION,
                             e.toString(),
@@ -2011,24 +2205,23 @@ public class Project extends StorageObject {
 
     public String[] makeBoathouseArray(int type) {
         String[] bh = Daten.project.getAllBoathouseNames();
-        switch(type) {
+        switch (type) {
             case EfaTypes.ARRAY_STRINGLIST_VALUES:
                 String[] v = new String[bh == null ? 1 : bh.length + 1];
                 v[0] = "";
-                for (int i=0; bh != null && i<bh.length; i++) {
+                for (int i = 0; bh != null && i < bh.length; i++) {
                     ProjectRecord r = Daten.project.getBoathouseRecord(bh[i]);
-                    v[i+1] = (r != null ? Integer.toString(r.getBoathouseId()) : "-1");
+                    v[i + 1] = (r != null ? Integer.toString(r.getBoathouseId()) : "-1");
                 }
                 return v;
             case EfaTypes.ARRAY_STRINGLIST_DISPLAY:
                 String[] d = new String[bh == null ? 1 : bh.length + 1];
                 d[0] = International.getString("alle");
-                for (int i=0; bh != null && i<bh.length; i++) {
-                    d[i+1] = bh[i];
+                for (int i = 0; bh != null && i < bh.length; i++) {
+                    d[i + 1] = bh[i];
                 }
                 return d;
         }
         return null;
     }
-
 }

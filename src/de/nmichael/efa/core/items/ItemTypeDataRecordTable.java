@@ -22,6 +22,9 @@ import de.nmichael.efa.gui.BaseDialog;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
+import javax.swing.table.AbstractTableModel;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableModel;
 import java.util.*;
 
 // @i18n complete
@@ -61,7 +64,7 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
     protected IItemListenerDataRecordTable itemListenerActionTable;
     protected ItemTypeString searchField;
     protected ItemTypeBoolean filterBySearch;
-
+	protected JTable aggregationTable = null;
 
     protected JPanel myPanel;
     protected JPanel tablePanel;
@@ -278,6 +281,7 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
                     it.setDisabled(true);
                 }
             }
+
             items.put(r.getKey().toString(), content);
             mappingKeyToRecord.put(r.getKey().toString(), r);
         }
@@ -513,11 +517,59 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
         filterBySearch.getValueFromGui();
         if (filterBySearch.isChanged() || (filterBySearch.getValue() && searchField.isChanged())) {
             updateData();
+			updateAggregations();
             showValue();
         }
         filterBySearch.setUnchanged();
         searchField.setUnchanged();
     }
+
+	protected void updateAggregations() {
+		if(aggregationTable != null) {
+			tablePanel.remove(aggregationTable);
+		}
+
+		if(filterBySearch.getValue() && data != null) {
+			int size = data.size();
+			if(size > 0) {
+				String[] aggregationStrings = new String[header.length];
+				for (int i=0; i < header.length; i++) {
+					aggregationStrings[i] = "";
+				}
+
+				HashMap<String, Object> overallInfo = new HashMap<String, Object>();
+				for (int i=0; i < size && aggregationStrings != null; i++) {
+					DataRecord r = data.get(i);
+					aggregationStrings = r.getGuiTableAggregations(aggregationStrings, i, size, overallInfo);
+				}
+
+				if(aggregationStrings != null) {
+					int length = 0;
+					for (int i=0; i < header.length; i++) {
+						if(!aggregationStrings[i].equals("")) {
+							length++;
+						}
+					}
+
+					//create table
+					TableModel dataModel = new DefaultTableModel(1, length);
+					for (int i=0, j=0; i < header.length; i++) {
+						if(!aggregationStrings[i].equals("")) {
+							dataModel.setValueAt(aggregationStrings[i], 0, j++);
+						}
+					}
+					aggregationTable = new JTable(dataModel);
+
+					tablePanel.add(aggregationTable, new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0,
+							GridBagConstraints.SOUTH, GridBagConstraints.HORIZONTAL, new Insets(1, 1, 1, 1), 0, 0));
+					tablePanel.setComponentZOrder(aggregationTable, 0);
+				}
+			}
+		}
+
+		tablePanel.revalidate();
+		tablePanel.repaint();
+	}
 
     protected void updateData() {
         if (persistence == null) {

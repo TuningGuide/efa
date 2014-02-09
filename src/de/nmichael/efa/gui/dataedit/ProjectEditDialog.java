@@ -39,20 +39,22 @@ public class ProjectEditDialog extends UnversionizedDataEditDialog implements II
 
     Project project;
     String logbookName;
+    String clubworkBookName;
     
     public enum Type {
         project,
-        logbook
+        logbook,
+	clubwork
     }
 
-    public ProjectEditDialog(Frame parent, Project p, String projectRecordName, int subtype, AdminRecord admin) {
+    public ProjectEditDialog(Frame parent, Project p, int subtype, AdminRecord admin) {
         super(parent, International.getString("Projekt"), null, false, admin);
-        iniItems(p, logbookName, subtype);
+        iniItems(p, null, subtype);
     }
 
-    public ProjectEditDialog(JDialog parent, Project p, String logbookName, int subtype, AdminRecord admin) {
+    public ProjectEditDialog(JDialog parent, Project p, int subtype, AdminRecord admin) {
         super(parent, International.getString("Projekt"), null, false, admin);
-        iniItems(p, logbookName, subtype);
+        iniItems(p, null, subtype);
     }
     
     public ProjectEditDialog(Frame parent, Project p, Type type, String projectRecordName, int subtype, AdminRecord admin) {
@@ -63,6 +65,28 @@ public class ProjectEditDialog extends UnversionizedDataEditDialog implements II
     public ProjectEditDialog(JDialog parent, Project p, Type type, String projectRecordName, int subtype, AdminRecord admin) {
         super(parent, International.getString("Projekt"), null, false, admin);
         iniItems(p, projectRecordName, type, subtype);
+    }
+
+    public ProjectEditDialog(Frame parent, Project p, ProjectRecord projectRecord, int subtype, AdminRecord admin) {
+        super(parent, International.getString(projectRecord.getType()), null, false, admin);
+        iniItems(p, projectRecord.getName(), typeMapping(projectRecord.getType()), subtype);
+    }
+
+    public ProjectEditDialog(JDialog parent, Project p, ProjectRecord projectRecord, int subtype, AdminRecord admin) {
+        super(parent, International.getString(projectRecord.getType()), null, false, admin);
+        iniItems(p, projectRecord.getName(), typeMapping(projectRecord.getType()), subtype);
+    }
+
+    public Type typeMapping(String strType) {
+        Type type;
+        if (strType.equals(ProjectRecord.TYPE_PROJECT)) {
+            type = Type.project;
+        } else if (strType.equals(ProjectRecord.TYPE_LOGBOOK)) {
+            type = Type.logbook;
+        } else {
+            type = Type.clubwork;
+        }
+        return type;
     }
 
     public ProjectEditDialog(JDialog parent, Project p, String logbookName, int subtype,
@@ -87,20 +111,29 @@ public class ProjectEditDialog extends UnversionizedDataEditDialog implements II
             _alwaysCheckValues = true;
         }
     }
-    
-    private void iniItems(Project p, String projectRecordName, Type type, int subtype) {
-   		iniItems(p, projectRecordName, subtype);
-    }
 
     private void iniItems(Project p, String logbookName, int subtype) {
+        iniItems(p, logbookName, null, subtype);
+    }
+
+    private void iniItems(Project p, String projectRecordName, Type type, int subtype) {
         this.project = p;
-        this.logbookName = logbookName;
+        if (type == null || type == Type.logbook) {
+            this.logbookName = projectRecordName;
+        } else if (type == Type.clubwork) {
+            this.clubworkBookName = projectRecordName;
+        }
         removePrintButton();
 
         Vector<IItemType> guiItems = new Vector<IItemType>();
         try {
             ProjectRecord r;
-            if (logbookName != null) {
+            if (type == Type.clubwork) {
+                r = p.getClubworkBookRecord(clubworkBookName);
+                if (r != null) {
+                    guiItems.addAll(r.getGuiItems(admin, subtype, null, false));
+                }
+            } else if (type == Type.logbook) {
                 r = p.getLoogbookRecord(logbookName);
                 if (r != null) {
                     guiItems.addAll(r.getGuiItems(admin, subtype, null, false));

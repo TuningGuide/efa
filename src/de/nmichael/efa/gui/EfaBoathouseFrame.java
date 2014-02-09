@@ -121,6 +121,7 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
     CrontabThread crontabThread;
     EfaBaseFrame efaBaseFrame;
     Logbook logbook;
+    Clubwork clubwork;
     BoatStatus boatStatus;
     volatile long lastUserInteraction = System.currentTimeMillis();
     volatile boolean inUpdateBoatList = false;
@@ -314,6 +315,7 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
             if (logbook == null) {
                 Logger.log(Logger.ERROR, Logger.MSG_ERR_NOLOGBOOKOPENED, International.getString("Kein Fahrtenbuch geöffnet."));
             }
+            openClubwork((AdminRecord) null);
         }
 
         updateBoatLists(true);
@@ -540,18 +542,16 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
         centerPanel.add(finishSessionButton, new GridBagConstraints(1, 3, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 0), 0, 0));
         centerPanel.add(abortSessionButton, new GridBagConstraints(1, 4, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(10, 0, 0, 0), 0, 0));
         centerPanel.add(lateEntryButton, new GridBagConstraints(1, 5, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(10, 0, 0, 0), 0, 0));
-        centerPanel.add(boatReservationButton, new GridBagConstraints(1, 6, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(10, 0, 0, 0), 0, 0));
-        centerPanel.add(showLogbookButton, new GridBagConstraints(1, 7, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(10, 0, 0, 0), 0, 0));
-        centerPanel.add(statisticsButton, new GridBagConstraints(1, 8, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 0), 0, 0));
-        if (Daten.NEW_FEATURES) {
-            centerPanel.add(clubworkButton, new GridBagConstraints(1, 9, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(10, 0, 0, 0), 0, 0));
-        }
+        centerPanel.add(clubworkButton, new GridBagConstraints(1, 6, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(10, 0, 0, 0), 0, 0));
+        centerPanel.add(boatReservationButton, new GridBagConstraints(1, 7, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(10, 0, 0, 0), 0, 0));
+        centerPanel.add(showLogbookButton, new GridBagConstraints(1, 8, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(10, 0, 0, 0), 0, 0));
+        centerPanel.add(statisticsButton, new GridBagConstraints(1, 9, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 0), 0, 0));
         centerPanel.add(messageToAdminButton, new GridBagConstraints(1, 10, 1, 1, 0.0, 0.0, GridBagConstraints.NORTH, GridBagConstraints.HORIZONTAL, new Insets(10, 0, 0, 0), 0, 0));
-        centerPanel.add(adminButton, new GridBagConstraints(1, 12, 1, 1, 0.0, 0.0, GridBagConstraints.NORTH, GridBagConstraints.HORIZONTAL, new Insets(10, 0, 0, 0), 0, 0));
-        centerPanel.add(specialButton, new GridBagConstraints(1, 13, 1, 1, 0.0, 0.0, GridBagConstraints.NORTH, GridBagConstraints.HORIZONTAL, new Insets(10, 0, 0, 0), 0, 0));
-        centerPanel.add(helpButton, new GridBagConstraints(1, 14, 1, 1, 0.0, 0.0, GridBagConstraints.SOUTH, GridBagConstraints.NONE, new Insets(10, 0, 0, 0), 0, 0));
-        centerPanel.add(efaButton, new GridBagConstraints(1, 15, 1, 1, 0.0, 0.0, GridBagConstraints.SOUTH, GridBagConstraints.NONE, new Insets(10, 0, 0, 0), 0, 0));
-        centerPanel.add(clock.getGuiComponent(), new GridBagConstraints(1, 16, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(10, 10, 10, 10), 0, 0));
+        centerPanel.add(adminButton, new GridBagConstraints(1, 11, 1, 1, 0.0, 0.0, GridBagConstraints.NORTH, GridBagConstraints.HORIZONTAL, new Insets(10, 0, 0, 0), 0, 0));
+        centerPanel.add(specialButton, new GridBagConstraints(1, 12, 1, 1, 0.0, 0.0, GridBagConstraints.NORTH, GridBagConstraints.HORIZONTAL, new Insets(10, 0, 0, 0), 0, 0));
+        centerPanel.add(helpButton, new GridBagConstraints(1, 13, 1, 1, 0.0, 0.0, GridBagConstraints.SOUTH, GridBagConstraints.NONE, new Insets(10, 0, 0, 0), 0, 0));
+        centerPanel.add(efaButton, new GridBagConstraints(1, 14, 1, 1, 0.0, 0.0, GridBagConstraints.SOUTH, GridBagConstraints.NONE, new Insets(10, 0, 0, 0), 0, 0));
+        centerPanel.add(clock.getGuiComponent(), new GridBagConstraints(1, 15, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(10, 10, 10, 10), 0, 0));
     }
 
     private void updateGuiLogo() {
@@ -681,9 +681,7 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
         this.boatReservationButton.setVisible(Daten.efaConfig.getValueEfaDirekt_butBootsreservierungen().getValueShow());
         this.showLogbookButton.setVisible(Daten.efaConfig.getValueEfaDirekt_butFahrtenbuchAnzeigen().getValueShow());
         this.statisticsButton.setVisible(Daten.efaConfig.getValueEfaDirekt_butStatistikErstellen().getValueShow());
-        if (Daten.NEW_FEATURES) {
-            this.clubworkButton.setVisible(Daten.efaConfig.getValueEfaDirekt_butVereinsarbeit().getValueShow());
-        }
+        this.clubworkButton.setVisible(Daten.efaConfig.getValueEfaDirekt_butVereinsarbeit().getValueShow() && clubwork != null && clubwork.isOpen());
         this.messageToAdminButton.setVisible(Daten.efaConfig.getValueEfaDirekt_butNachrichtAnAdmin().getValueShow());
         this.adminButton.setVisible(Daten.efaConfig.getValueEfaDirekt_butAdminModus().getValueShow());
         this.specialButton.setVisible(Daten.efaConfig.getValueEfaDirekt_butSpezial().getValueShow());
@@ -696,9 +694,7 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
         setButtonLAF(boatReservationButton, Daten.efaConfig.getValueEfaDirekt_butBootsreservierungen(), "action_boatReservations.png");
         setButtonLAF(showLogbookButton, Daten.efaConfig.getValueEfaDirekt_butFahrtenbuchAnzeigen(), "action_logbook.png");
         setButtonLAF(statisticsButton, Daten.efaConfig.getValueEfaDirekt_butStatistikErstellen(), "action_statistics.png");
-        if (Daten.NEW_FEATURES) {
-            setButtonLAF(clubworkButton, Daten.efaConfig.getValueEfaDirekt_butVereinsarbeit(), "action_clubwork.png");
-        }
+        setButtonLAF(clubworkButton, Daten.efaConfig.getValueEfaDirekt_butVereinsarbeit(), "action_clubwork.png");
         setButtonLAF(messageToAdminButton, Daten.efaConfig.getValueEfaDirekt_butNachrichtAnAdmin(), "action_message.png");
         setButtonLAF(adminButton, Daten.efaConfig.getValueEfaDirekt_butAdminModus(), "action_admin.png");
         setButtonLAF(specialButton, Daten.efaConfig.getValueEfaDirekt_butSpezial(), "action_special.png");
@@ -713,9 +709,7 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
         this.abortSessionButton.setText(International.getString("Fahrt abbrechen") + (fkey ? " [F4]" : ""));
         this.lateEntryButton.setText(International.getString("Nachtrag") + (fkey ? " [F5]" : ""));
         this.boatReservationButton.setText(International.getString("Bootsreservierungen") + (fkey ? " [F6]" : ""));
-        if (Daten.NEW_FEATURES) {
-            this.clubworkButton.setText(International.getString("Vereinsarbeit") + (fkey ? " [Alt-F6]" : ""));
-        }
+        this.clubworkButton.setText(International.getString("Vereinsarbeit") + (fkey ? " [Alt-F6]" : ""));
         this.showLogbookButton.setText(International.getString("Fahrtenbuch anzeigen") + (fkey ? " [F7]" : ""));
         this.statisticsButton.setText(International.getString("Statistik erstellen") + (fkey ? " [F8]" : ""));
         this.messageToAdminButton.setText(International.getString("Nachricht an Admin") + (fkey ? " [F9]" : ""));
@@ -1005,8 +999,7 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
      * 5 - cancel session
      * 6 - boat reservations
      * @param listnr
-     * @param list
-     * @param name
+     * @param r
      * @return
      */
     private String[] getListActions(int listnr, DataRecord r) {
@@ -1218,6 +1211,57 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
         }
     }
 
+    public Clubwork openClubwork(AdminRecord admin) {
+        try {
+            if (Daten.project == null) {
+                return null;
+            }
+
+            // close any other clubworkBook first
+            String clubworkNameBefore = (clubwork != null ? clubwork.getName() : null);
+            if (clubwork != null) {
+                try {
+                    clubwork.close();
+                } catch (Exception e) {
+                    String msg = LogString.fileCloseFailed(Daten.project.getProjectName(), International.getString("Vereinsarbeit"), e.toString());
+                    Logger.log(Logger.ERROR, Logger.MSG_DATA_CLOSEFAILED, msg);
+                    Logger.logdebug(e);
+                    Dialog.error(msg);
+                    clubwork = null;
+                }
+            }
+
+            // clubwork to open
+            String clubworkName = null;
+            if (admin == null && Daten.project.getCurrentClubworkEfaBoathouse() != null) {
+                clubworkName = Daten.project.getCurrentClubworkEfaBoathouse();
+            }
+
+            if (clubworkName == null || clubworkName.length() == 0) {
+                if (admin != null && admin.isAllowedAdministerProjectClubwork()) {
+                    OpenProjectOrLogbookDialog dlg = new OpenProjectOrLogbookDialog(this, OpenProjectOrLogbookDialog.Type.clubwork, admin);
+                    clubworkName = dlg.openDialog();
+                }
+            }
+            if ((clubworkName == null || clubworkName.length() == 0)
+                    && clubworkNameBefore != null && clubworkNameBefore.length() > 0 && admin != null) {
+                // Admin-Mode: There was a clubwork opened before, but admin aborted dialog and didn't
+                // open a new one. So let's open the old one again!
+                clubworkName = clubworkNameBefore;
+            }
+            if (clubworkName == null || clubworkName.length() == 0) {
+                return null;
+            }
+            if (!openClubwork(clubworkName)) {
+                clubwork = null;
+                return null;
+            }
+            return clubwork;
+        } finally {
+            // current clubwork not shown yet updateProjectLogbookInfo();
+        }
+    }
+
     public boolean openLogbook(String logbookName) {
         try {
             if (Daten.project == null) {
@@ -1249,11 +1293,46 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
             updateProjectLogbookInfo();
         }
     }
-    
+
+    public boolean openClubwork(String clubworkName) {
+        try {
+            if (Daten.project == null) {
+                return false;
+            }
+            try {
+                if (clubwork != null && clubwork.isOpen()) {
+                    clubwork.close();
+                }
+            } catch (Exception e) {
+                Logger.log(e);
+                Dialog.error(e.toString());
+            }
+            if (clubworkName != null && clubworkName.length() > 0) {
+                clubwork = Daten.project.getClubwork(clubworkName, false);
+                if (clubwork != null) {
+                    Daten.project.setCurrentClubworkEfaBoathouse(clubworkName);
+                    Logger.log(Logger.INFO, Logger.MSG_EVT_CLUBWORKOPENED, LogString.fileOpened(clubworkName, International.getString("Vereinsarbeit")));
+                    if (efaBoathouseBackgroundTask != null) {
+                        efaBoathouseBackgroundTask.interrupt();
+                    }
+                    return true;
+                } else {
+                    Dialog.error(LogString.fileOpenFailed(clubworkName, International.getString("Vereinarbeit")));
+                }
+            }
+            return false;
+        } finally {
+            // clubwork not shown yet updateProjectLogbookInfo();
+        }
+    }
+
     public Logbook getLogbook() {
         return logbook;
     }
 
+    public Clubwork getClubwork() {
+        return clubwork;
+    }
 
     // synchronizing this method can cause deadlock!!!!
     public void updateBoatLists(boolean listChanged) {

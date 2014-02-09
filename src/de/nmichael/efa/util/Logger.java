@@ -284,6 +284,7 @@ public class Logger {
     public static final String MSG_EVT_ONLINEUPDATEFINISHED = "EVT045";
     public static final String MSG_EVT_ERRORRECORDINVALIDATTIME = "EVT046";
     public static final String MSG_EVT_PERSONADDED = "EVT047";
+    public static final String MSG_EVT_CLUBWORKOPENED = "EVT048";
 
     // Backup
     public static final String MSG_BCK_BACKUPSTARTED = "BCK001";
@@ -317,6 +318,7 @@ public class Logger {
     public static final String MSG_ERR_DATALOCK_FAILED = "ERR026";
     public static final String MSG_ERR_DATALOCK_CONFLICT = "ERR027";
     public static final String MSG_ERR_KEYSTORE          = "ERR028";
+    public static final String MSG_ERR_NOWORKBOOKOPENED = "ERR028";
 
     // efa in the Boat House - Warnings
     public static final String MSG_WARN_EFARUNNING_FAILED = "WRN001";

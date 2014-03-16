@@ -192,7 +192,7 @@ public class AdminDialog extends BaseDialog implements IItemListener {
         AdminTask.startAdminTask(admin, this);
     }
 
-    private void updateInfos() {
+    public void updateInfos() {
         projectName.setText(International.getString("Projekt") + ": " +
                 (Daten.project != null ? Daten.project.getProjectName() : "- " + International.getString("Kein Projekt geöffnet.") + " -"));
 		logbookName.setText(International.getString("Fahrtenbuch") + ": " +

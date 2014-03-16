@@ -234,6 +234,14 @@ public abstract class DataListDialog extends BaseDialog implements IItemListener
             table.setDefaultActionForDoubleclick(-1);
         }
 
+        iniControlPanel();
+        mainPanel.add(mainTablePanel, BorderLayout.CENTER);
+
+        setRequestFocus(table);
+        this.validate();
+    }
+
+    protected void iniControlPanel() {
         if (persistence != null && persistence.data().getMetaData().isVersionized()) {
             JPanel mainControlPanel = new JPanel();
             mainControlPanel.setLayout(new GridBagLayout());
@@ -259,10 +267,6 @@ public abstract class DataListDialog extends BaseDialog implements IItemListener
 
             mainPanel.add(mainControlPanel, BorderLayout.NORTH);
         }
-        mainPanel.add(mainTablePanel, BorderLayout.CENTER);
-
-        setRequestFocus(table);
-        this.validate();
     }
 
     public void setPersistence(StorageObject persistence, long validAt) {

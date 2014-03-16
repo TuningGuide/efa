@@ -12,6 +12,7 @@ package de.nmichael.efa.data;
 
 import de.nmichael.efa.Daten;
 import de.nmichael.efa.ex.EfaException;
+import de.nmichael.efa.gui.EfaBoathouseFrame;
 import de.nmichael.efa.gui.NewClubworkBookDialog;
 import de.nmichael.efa.util.*;
 import de.nmichael.efa.data.storage.*;
@@ -31,6 +32,7 @@ public class Clubwork extends StorageObject {
 	//    public ClubworkRecord staticClubworkRecord;
 	private String name;
 	private ProjectRecord projectRecord;
+    private EfaBoathouseFrame efaBoathouseFrame;
 
 	public Clubwork(int storageType,
 					String storageLocation,
@@ -48,7 +50,11 @@ public class Clubwork extends StorageObject {
 		return new ClubworkRecord(this, MetaData.getMetaData(DATATYPE));
 	}
 
-	public void setName(String name) {
+    public void setEfaBoathouseFrame(EfaBoathouseFrame efaBoathouseFrame) {
+        this.efaBoathouseFrame = efaBoathouseFrame;
+    }
+
+    public void setName(String name) {
 		this.name = name;
 	}
 
@@ -276,7 +282,7 @@ public class Clubwork extends StorageObject {
 					ClubworkRecord record = to.createClubworkRecord(UUID.randomUUID());
 					record.setPersonId(personId);
 					record.setWorkDate(DataTypeDate.today());
-					record.setDescription(International.getString("Übertrag")+" ("+DataTypeDate.today()+")");
+					record.setDescription(International.getString("Übertrag"));
 					record.setFlag(ClubworkRecord.Flags.CarryOver);
 
 					if(hours == null) {
@@ -301,6 +307,7 @@ public class Clubwork extends StorageObject {
 				}
 				if(successSaved > 0) {
 					Dialog.infoDialog(International.getMessage("{thing} erfolgreich berechnet.", International.getString("Übertrag")));
+                    efaBoathouseFrame.openClubwork(to.getName());
 				}
 				else {
 					Dialog.error(International.getMessage("{thing} konnte nicht berechnet werden!", International.getString("Übertrag")));

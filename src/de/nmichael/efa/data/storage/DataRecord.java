@@ -567,7 +567,7 @@ public abstract class DataRecord implements Cloneable, Comparable {
     }
 
     public long getInvalidFrom() {
-        long t = (metaData.versionized ? getLong(INVALIDFROM) : Long.MAX_VALUE);
+         long t = (metaData.versionized ? getLong(INVALIDFROM) : Long.MAX_VALUE);
         if (t == IDataAccess.UNDEFINED_LONG || t < 0) {
             return Long.MAX_VALUE;
         }

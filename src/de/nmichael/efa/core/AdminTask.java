@@ -13,6 +13,7 @@ import de.nmichael.efa.Daten;
 import de.nmichael.efa.core.config.AdminRecord;
 import de.nmichael.efa.data.Clubwork;
 import de.nmichael.efa.data.types.DataTypeDate;
+import de.nmichael.efa.gui.AdminDialog;
 import de.nmichael.efa.util.Dialog;
 import de.nmichael.efa.util.International;
 import de.nmichael.efa.util.Logger;
@@ -99,6 +100,7 @@ public class AdminTask extends Thread {
 						clubwork.getName()));
 					if(res == Dialog.YES) {
 						clubwork.doCarryOver(1, parent);
+                        ((AdminDialog)parent).updateInfos();
 					}
 				}
 			}

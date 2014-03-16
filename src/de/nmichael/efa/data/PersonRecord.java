@@ -583,6 +583,23 @@ public class PersonRecord extends DataRecord implements IItemFactory {
         return (value.equals(getAsText(fieldName)));
     }
 
+    public Integer getPersonMemberMonth(DataTypeDate startDate, DataTypeDate endDate) {
+        long fromLong = this.getValidFrom();
+        if(fromLong == 0) { return 0; }
+        DataTypeDate from = new DataTypeDate(fromLong);
+
+        long toLong = this.getInvalidFrom();
+        DataTypeDate to;
+        if(toLong == Long.MAX_VALUE) {
+            to = endDate;
+        }
+        else {
+            to = new DataTypeDate(toLong);
+        }
+
+        return DataTypeDate.getMonthIntersect(from, to, startDate, endDate);
+    }
+
     public IItemType[] getDefaultItems(String itemName) {
         if (itemName.equals(PersonRecord.GUIITEM_GROUPS)) {
             IItemType[] items = new IItemType[1];

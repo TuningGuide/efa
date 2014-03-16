@@ -47,7 +47,8 @@ public class ClubworkRecord extends DataRecord implements IItemFactory {
 	public enum Flags {
 		UNDEFINED,
 		Normal,
-		CarryOver
+		CarryOver,
+        Credit
 	}
 
 	private static String CAT_BASEDATA = "%01%" + International.getString("Basisdaten");
@@ -323,13 +324,14 @@ public class ClubworkRecord extends DataRecord implements IItemFactory {
 			((ItemTypeItemList) item).setPadYbetween(0);
 		}
 
-		v.add(item = new ItemTypeDate(WORKDATE, getWorkDate(),
+        DataTypeDate date = getWorkDate();
+		v.add(new ItemTypeDate(WORKDATE, date != null ? date : DataTypeDate.today(),
 				IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Datum")));
 
-		v.add(item = new ItemTypeString(DESCRIPTION, getDescription(),
+		v.add(new ItemTypeString(DESCRIPTION, getDescription(),
 				IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Beschreibung")));
 
-		v.add(item = new ItemTypeDouble(HOURS, getHours(), ItemTypeDouble.MIN, ItemTypeDouble.MAX,
+		v.add(new ItemTypeDouble(HOURS, getHours(), ItemTypeDouble.MIN, ItemTypeDouble.MAX,
 				IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Stunden")));
 
 		return v;
@@ -408,7 +410,7 @@ public class ClubworkRecord extends DataRecord implements IItemFactory {
 
 	public String[] getGuiTableAggregations(String[] aggregations, int index, int size, HashMap<String, Object> sideInfo) {
 		if(index == 0) {
-			sideInfo.put("uniquePeople", new HashSet<String>(){{add(getFirstLastName());}});
+			sideInfo.put("uniquePeople", new HashSet<UUID>(){{add(getPersonId());}});
 			sideInfo.put("earliestDate", getWorkDate());
 			sideInfo.put("latestDate", getWorkDate());
 			aggregations[4] = String.valueOf(getHours());
@@ -427,8 +429,8 @@ public class ClubworkRecord extends DataRecord implements IItemFactory {
 			aggregations[4] = String.valueOf(Double.valueOf(aggregations[4]) + getHours());
 		}
 
-		HashSet<String> uniquePeople = (HashSet<String>)sideInfo.get("uniquePeople");
-		uniquePeople.add(getFirstLastName());
+		HashSet<UUID> uniquePeople = (HashSet<UUID>)sideInfo.get("uniquePeople");
+		uniquePeople.add(getPersonId());
 
 		if(index == size-1) {
 			int uniqueSize = uniquePeople.size();
@@ -439,7 +441,22 @@ public class ClubworkRecord extends DataRecord implements IItemFactory {
 			Clubwork clubwork = Daten.project.getCurrentClubwork();
 			if(clubwork != null) {
 				ProjectRecord clubworkBook = Daten.project.getClubworkBookRecord(clubwork.getName());
-				aggregations[4] += "/"+clubworkBook.getDefaultClubworkTargetHours()*uniqueSize;
+                Persons personContainer = Daten.project.getPersons(false);
+                int groupMonth = 0;
+                for(UUID id : uniquePeople) {
+                    try {
+                        DataRecord[] personRecords = personContainer.data().getValidAny(new DataKey<UUID,Long,String>(id,null, null));
+                        for(DataRecord personRecord : personRecords) {
+                            if(((PersonRecord)personRecord).isStatusMember()) {
+                                groupMonth += ((PersonRecord)personRecord).getPersonMemberMonth(clubwork.getStartDate(), clubwork.getEndDate());
+                            }
+                        }
+                    } catch (EfaException e) {
+                        e.printStackTrace();
+                    }
+                }
+
+				aggregations[4] += "/"+clubworkBook.getDefaultClubworkTargetHours()/12*groupMonth;
 			}
 		}
 

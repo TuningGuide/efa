@@ -390,6 +390,21 @@ public class DataTypeDate implements Cloneable, Comparable<DataTypeDate> {
 		return Math.abs(m2 - m1) + 1;
 	}
 
+    public static int getMonthIntersect(DataTypeDate from, DataTypeDate to, DataTypeDate from2, DataTypeDate to2) {
+        if(from2.isAfter(from)) {
+            from = from2;
+        }
+
+        if(to2.isBefore(to)) {
+            to = to2;
+        }
+
+        int m1 = from.getYear() * 12 + from.getMonth();
+        int m2 = to.getYear() * 12 + to.getMonth();
+        int month = m2 - m1 + 1;
+        return month > 0 ? month : 0;
+    }
+
     public static String getDateTimeString(DataTypeDate date, DataTypeTime time) {
         String s = null;
         if (date != null && date.isSet()) {

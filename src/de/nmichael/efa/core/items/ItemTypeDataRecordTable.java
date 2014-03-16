@@ -517,19 +517,19 @@ public class ItemTypeDataRecordTable extends ItemTypeTable implements IItemListe
         filterBySearch.getValueFromGui();
         if (filterBySearch.isChanged() || (filterBySearch.getValue() && searchField.isChanged())) {
             updateData();
-			updateAggregations();
+			updateAggregations(filterBySearch.getValue());
             showValue();
         }
         filterBySearch.setUnchanged();
         searchField.setUnchanged();
     }
 
-	protected void updateAggregations() {
+	protected void updateAggregations(boolean create) {
 		if(aggregationTable != null) {
 			tablePanel.remove(aggregationTable);
 		}
 
-		if(filterBySearch.getValue() && data != null) {
+		if(create && data != null) {
 			int size = data.size();
 			if(size > 0) {
 				String[] aggregationStrings = new String[header.length];

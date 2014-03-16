@@ -11,7 +11,12 @@
 package de.nmichael.efa.core.items;
 
 import de.nmichael.efa.data.storage.IDataAccess;
+import de.nmichael.efa.util.International;
 import de.nmichael.efa.util.Logger;
+import sun.misc.Regexp;
+
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 // @i18n complete
 
@@ -61,6 +66,8 @@ public class ItemTypeDouble extends ItemTypeLabelTextfield {
             if (value.length() == 0 && !isNotNullSet()) {
                 this.value = UNSET;
             } else {
+                // for german input format
+                value = value.replaceFirst("^(-?\\d+(?:\\.\\d{3})*)?,(\\d*)$", "$1.$2");
                 this.value = Double.parseDouble(value);
                 if (this.value < min) {
                     this.value = min;
@@ -81,7 +88,14 @@ public class ItemTypeDouble extends ItemTypeLabelTextfield {
         if (value == UNSET) {
             return "";
         }
-        return Double.toString(value);
+        //Pattern pattern = Pattern.compile("^(-?\\d+)(?:\\.(\\d+))?$");
+        String strValue = Double.toString(value);
+        /*Matcher matcher = pattern.matcher(strValue);
+        if(matcher.matches()) {
+            return International.getMessage("{Double-fullpart},{Double-decpart}", matcher.group(1),
+                    matcher.groupCount() >= 2 ? matcher.group(2) : "0");
+        }*/
+        return strValue;
     }
 
     public double getValue() {

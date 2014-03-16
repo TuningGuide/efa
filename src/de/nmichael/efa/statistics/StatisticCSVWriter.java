@@ -135,7 +135,10 @@ public class StatisticCSVWriter extends StatisticWriter {
                             write(f, sd[i].sDamageAvgDuration);
                         }
                         if (sr.sIsAggrClubwork) {
-                            write(f, sd[i].sClubwork);   
+                            write(f, sd[i].sClubwork);
+                        }
+                        if (sr.sIsAggrClubworkTarget) {
+                            write(f, sd[i].sClubworkTarget);
                         }
                         if (sr.sIsAggrClubworkRelativeToTarget) {
                             write(f, sd[i].sClubworkRelativeToTarget);   

@@ -378,7 +378,7 @@ public class StatisticsData implements Comparable {
             if (sr.sIgnoreNullValues && clubworkOverUnderCarryOver == 0) {
                 this.sClubworkTarget = "";
             } else {
-                this.sClubworkTarget = this.clubworkTargetHours+"";
+                this.sClubworkTarget = Math.round(this.clubworkTargetHours*100)/100d+"";
             }
         }
         if (sr.sIsAggrClubworkRelativeToTarget) {
@@ -386,14 +386,14 @@ public class StatisticsData implements Comparable {
                 this.sClubworkRelativeToTarget = "";
             } else {
                 this.clubworkRelativeToTarget = this.clubwork - this.clubworkTargetHours;
-                this.sClubworkRelativeToTarget = ""+this.clubworkRelativeToTarget;
+                this.sClubworkRelativeToTarget = ""+Math.round(this.clubworkRelativeToTarget*100)/100d;
             }
         }
         if (sr.sIsAggrClubworkOverUnderCarryOver) {
             if (this.isSummary || (sr.sIgnoreNullValues && clubworkOverUnderCarryOver == 0)) {
                 this.sClubworkOverUnderCarryOver = "";
             } else {
-                this.sClubworkOverUnderCarryOver = ""+this.clubworkOverUnderCarryOver;
+                this.sClubworkOverUnderCarryOver = ""+Math.round(this.clubworkOverUnderCarryOver*100)/100d;
             }
         }
         if (sr.sIsAggrClubworkCredit) {

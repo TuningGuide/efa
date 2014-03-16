@@ -12,8 +12,7 @@ package de.nmichael.efa.gui.dataedit;
 
 import java.awt.Frame;
 import java.awt.event.ActionEvent;
-import java.util.Hashtable;
-import java.util.Vector;
+import java.util.*;
 
 import javax.swing.JDialog;
 
@@ -21,6 +20,7 @@ import de.nmichael.efa.core.config.AdminRecord;
 import de.nmichael.efa.core.items.IItemListener;
 import de.nmichael.efa.core.items.IItemType;
 import de.nmichael.efa.core.items.ItemTypeString;
+import de.nmichael.efa.data.PersonRecord;
 import de.nmichael.efa.data.Project;
 import de.nmichael.efa.data.ProjectRecord;
 import de.nmichael.efa.data.efawett.WettDefs;
@@ -47,6 +47,22 @@ public class ProjectEditDialog extends UnversionizedDataEditDialog implements II
 		clubwork
     }
 
+    public static String getInternationalProjectTypeString(String PROJECT_TYPE) {
+        if(PROJECT_TYPE == ProjectRecord.TYPE_PROJECT) {
+            return International.getString("Project");
+        } else if(PROJECT_TYPE == ProjectRecord.TYPE_CLUB) {
+            return International.getString("Club");
+        } else if(PROJECT_TYPE == ProjectRecord.TYPE_BOATHOUSE) {
+            return International.getString("Boathouse");
+        } else if(PROJECT_TYPE == ProjectRecord.TYPE_LOGBOOK) {
+            return International.getString("Logbook");
+        } else if(PROJECT_TYPE == ProjectRecord.TYPE_CLUBWORK) {
+            return International.getString("CLubwork");
+        } else {
+            return "International Project Type not found.";
+        }
+    }
+
     public ProjectEditDialog(Frame parent, Project p, int subtype, AdminRecord admin) {
         super(parent, International.getString("Projekt"), null, false, admin);
         iniItems(p, null, subtype);
@@ -68,12 +84,12 @@ public class ProjectEditDialog extends UnversionizedDataEditDialog implements II
     }
 
 	public ProjectEditDialog(Frame parent, Project p, ProjectRecord projectRecord, int subtype, AdminRecord admin) {
-		super(parent, International.getString(projectRecord.getType()), null, false, admin);
+		super(parent, getInternationalProjectTypeString(projectRecord.getType()), null, false, admin);
 		iniItems(p, projectRecord.getName(), typeMapping(projectRecord.getType()), subtype);
 	}
 
 	public ProjectEditDialog(JDialog parent, Project p, ProjectRecord projectRecord, int subtype, AdminRecord admin) {
-		super(parent, International.getString(projectRecord.getType()), null, false, admin);
+		super(parent, getInternationalProjectTypeString(projectRecord.getType()), null, false, admin);
 		iniItems(p, projectRecord.getName(), typeMapping(projectRecord.getType()), subtype);
 	}
 

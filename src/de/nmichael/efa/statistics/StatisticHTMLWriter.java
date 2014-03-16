@@ -284,6 +284,7 @@ public class StatisticHTMLWriter extends StatisticWriter {
                         outHTML(f, sd[i].sDamageDuration, 0, 0, null, 0);
                         outHTML(f, sd[i].sDamageAvgDuration, 0, 0, null, 0);
                         outHTML(f, sd[i].sClubwork, "entry_data");
+                        outHTML(f, sd[i].sClubworkTarget, "entry_data");
                         if (sd[i].sClubworkRelativeToTarget != null) {
                             outHTML(f, sd[i].sClubworkRelativeToTarget,
                                     (!sd[i].sClubworkRelativeToTarget.equals("") && !sd[i].isSummary

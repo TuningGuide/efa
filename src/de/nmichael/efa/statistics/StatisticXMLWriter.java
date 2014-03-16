@@ -56,6 +56,7 @@ public class StatisticXMLWriter extends StatisticWriter {
     public static final String FIELD_ITEM_DAMAGEDURATION = "DamageDuration";
     public static final String FIELD_ITEM_DAMAGEAVGDURATION = "DamageAvgDuration";
     public static final String FIELD_ITEM_CLUBWORK = "Clubwork";
+    public static final String FIELD_ITEM_CLUBWORKTARGET = "ClubworkTarget";
     public static final String FIELD_ITEM_CLUBWORKRELTARGET = "ClubworkRelTarget";
     public static final String FIELD_ITEM_CLUBWORKCARRYOVER = "ClubworkCarryOver";
     public static final String FIELD_ITEM_CLUBWORKCREDIT = "ClubworkCredit";
@@ -305,6 +306,7 @@ public class StatisticXMLWriter extends StatisticWriter {
                         write(f, indent, xmltag(FIELD_ITEM_DAMAGEDURATION, sd[i].sDamageDuration));
                         write(f, indent, xmltag(FIELD_ITEM_DAMAGEAVGDURATION, sd[i].sDamageAvgDuration));
                         write(f, indent, xmltag(FIELD_ITEM_CLUBWORK, sd[i].sClubwork));
+                        write(f, indent, xmltag(FIELD_ITEM_CLUBWORKTARGET, sd[i].sClubworkTarget));
                         write(f, indent, xmltag(FIELD_ITEM_CLUBWORKRELTARGET, sd[i].sClubworkRelativeToTarget));
                         write(f, indent, xmltag(FIELD_ITEM_CLUBWORKCARRYOVER, sd[i].sClubworkOverUnderCarryOver));
                         write(f, indent, xmltag(FIELD_ITEM_CLUBWORKCREDIT, sd[i].sClubworkCredit));

@@ -245,6 +245,7 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
     public static final String AGGR_DAMAGEDURATION = "DamageDuration";
     public static final String AGGR_DAMAGEAVGDUR   = "DamageAvgDuration";
     public static final String AGGR_CLUBWORK       = "Clubwork";
+    public static final String AGGR_CLUBWORKTARGET = "ClubworkTarget";
     public static final String AGGR_CBRELTOTARGET  = "ClubworkRelativeToTarget";
     public static final String AGGR_CBOVERUNDERCARRYOVER = "ClubworkRelativeToTargetOverUnder";
     public static final String AGGR_CLUBWORKCREDIT = "ClubworkCredit";
@@ -476,6 +477,7 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
     public boolean sIsAggrDamageDuration;
     public boolean sIsAggrDamageAvgDuration;
     public boolean sIsAggrClubwork;
+    public boolean sIsAggrClubworkTarget;
     public boolean sIsAggrClubworkRelativeToTarget;
     public boolean sIsAggrClubworkOverUnderCarryOver;
     public boolean sIsAggrClubworkCredit;
@@ -691,7 +693,7 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
         }));
         setShowOtherFields(new DataTypeList<String>(new String[0]));
         setAggregations(new DataTypeList<String>(new String[] { AGGR_DISTANCE, AGGR_SESSIONS, AGGR_AVGDISTANCE, 
-             AGGR_DAMAGECOUNT, AGGR_DAMAGEDURATION, AGGR_CLUBWORK, AGGR_CBRELTOTARGET }));
+             AGGR_DAMAGECOUNT, AGGR_DAMAGEDURATION, AGGR_CLUBWORK, AGGR_CLUBWORKTARGET, AGGR_CBRELTOTARGET }));
         setAggrDistanceBarSize(200);
         setAggrRowDistanceBarSize(0);
         setAggrCoxDistanceBarSize(0);
@@ -1984,7 +1986,8 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
                 International.getString("Tage") + ")");
         allKeys.put(AGGR_DAMAGEAVGDUR, International.getString("Reparaturdauer") + "/" +
                 International.getString("Schaden"));
-            allKeys.put(AGGR_CLUBWORK, International.getString("Vereinsarbeit"));
+        allKeys.put(AGGR_CLUBWORK, International.getString("Vereinsarbeit"));
+        allKeys.put(AGGR_CLUBWORKTARGET, International.getString("Vereinsarbeit")+"-"+International.getString("Soll"));
         allKeys.put(AGGR_CBRELTOTARGET, International.getString("Vereinsarbeit")
                 + " (" + International.getString("relativ zum Soll") + ")");
         allKeys.put(AGGR_CBOVERUNDERCARRYOVER, International.getString("Vereinsarbeit")
@@ -2015,6 +2018,7 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
         }
         if (type == StatisticType.clubwork) {
             selectedKeys.add(AGGR_CLUBWORK);
+            selectedKeys.add(AGGR_CLUBWORKTARGET);
             selectedKeys.add(AGGR_CBRELTOTARGET);
             selectedKeys.add(AGGR_CBOVERUNDERCARRYOVER);
             selectedKeys.add(AGGR_CLUBWORKCREDIT);
@@ -2930,6 +2934,7 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
         sIsAggrDamageDuration = false;
         sIsAggrDamageAvgDuration = false;
         sIsAggrClubwork = false;
+        sIsAggrClubworkTarget = false;
         sIsAggrClubworkRelativeToTarget = false;
         sIsAggrClubworkOverUnderCarryOver = false;
         sIsAggrClubworkCredit = false;
@@ -3259,6 +3264,8 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
                 sIsAggrDamageAvgDuration = true;
             } else if (s.equals(AGGR_CLUBWORK) && sStatisticTypeEnum == StatisticType.clubwork) {
                 sIsAggrClubwork = true;
+            } else if (s.equals(AGGR_CLUBWORKTARGET) && sStatisticTypeEnum == StatisticType.clubwork) {
+                sIsAggrClubworkTarget = true;
             } else if (s.equals(AGGR_CBRELTOTARGET) && sStatisticTypeEnum == StatisticType.clubwork) {
                 sIsAggrClubworkRelativeToTarget = true;
             } else if (s.equals(AGGR_CBOVERUNDERCARRYOVER) && sStatisticTypeEnum == StatisticType.clubwork) {
@@ -3524,16 +3531,19 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
                 International.getString("Schaden"));
             }
             if (sIsAggrClubwork) {
-                pTableColumns.add(International.getString("Vereinsarbeit in h"));
+                pTableColumns.add(International.getString("Vereinsarbeit"));
+            }
+            if (sIsAggrClubworkTarget) {
+                pTableColumns.add(International.getString("Soll"));
             }
             if (sIsAggrClubworkRelativeToTarget) {
-                pTableColumns.add(International.getString("relativ zum Soll in h"));
+                pTableColumns.add(International.getString("relativ zum Soll"));
             }
             if (sIsAggrClubworkOverUnderCarryOver) {
-                pTableColumns.add(International.getString("abzgl. Übertrag in h"));
+                pTableColumns.add(International.getString("abzgl. Übertrag"));
             }
             if (sIsAggrClubworkCredit) {
-                pTableColumns.add(International.getString("Gutschriften in h"));
+                pTableColumns.add(International.getString("Gutschriften"));
             }
         }
         if (sStatisticCategory == StatisticCategory.matrix) {

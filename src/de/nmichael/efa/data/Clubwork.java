@@ -275,7 +275,7 @@ public class Clubwork extends StorageObject {
 						}
 					}
 
-					double clubworkTargetHours = sDefaultClubworkTargetHours/12*month;
+					double clubworkTargetHours = Math.round( sDefaultClubworkTargetHours*month/(12*100) ) / 100d;
 					double max = clubworkTargetHours+sTransferableClubworkHours;
 					double min = clubworkTargetHours-sTransferableClubworkHours;
 

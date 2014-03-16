@@ -456,7 +456,7 @@ public class ClubworkRecord extends DataRecord implements IItemFactory {
                     }
                 }
 
-				aggregations[4] += "/"+clubworkBook.getDefaultClubworkTargetHours()/12*groupMonth;
+				aggregations[4] += "/"+Math.round( clubworkBook.getDefaultClubworkTargetHours()*groupMonth/(12*100) ) / 100d;
 			}
 		}
 

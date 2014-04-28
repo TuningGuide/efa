@@ -43,7 +43,8 @@ public class AutoCompletePopupWindow extends JWindow {
             }
             scrollPane.setHorizontalScrollBar(null);
             // Bugfix: AutoCompletePopupWindow muß unter Windows ebenfalls alwaysOnTop sein, wenn EfaDirektFrame alwaysOnTop ist, da sonst die Popup-Liste nicht erscheint
-            if (Daten.osName.startsWith("Windows") && Daten.efaConfig.getValueEfaDirekt_immerImVordergrund()) {
+            if (Daten.osName.startsWith("Windows") && Daten.efaConfig != null &&
+                Daten.efaConfig.getValueEfaDirekt_immerImVordergrund()) {
                 de.nmichael.efa.java15.Java15.setAlwaysOnTop(this, true);
             }
         } catch (Exception e) {

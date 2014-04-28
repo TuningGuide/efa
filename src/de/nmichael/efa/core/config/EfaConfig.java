@@ -8,6 +8,7 @@ package de.nmichael.efa.core.config;
 import de.nmichael.efa.core.EfaSec;
 import de.nmichael.efa.Daten;
 import de.nmichael.efa.core.items.*;
+import de.nmichael.efa.data.BoatRecord;
 import de.nmichael.efa.data.MessageRecord;
 import de.nmichael.efa.data.storage.*;
 import de.nmichael.efa.data.types.*;
@@ -147,7 +148,8 @@ public class EfaConfig extends StorageObject implements IItemFactory {
     private ItemTypeBoolean efaDirekt_zielBeiFahrtbeginnPflicht;
     private ItemTypeBoolean efaDirekt_gewaesserBeiUnbekanntenZielenPflicht;
     private ItemTypeBoolean efaDirekt_eintragErzwingeObmann;
-    private ItemTypeBoolean efaDirekt_checkAllowedPersonsInBoat;
+    private ItemTypeBoolean efaDirekt_checkAllowedGroupsForBoat;
+    private ItemTypeBoolean efaDirekt_checkAllowedMinGroupForBoat;
     private ItemTypeBoolean efaDirekt_eintragErlaubeNurMaxRudererzahl;
     private ItemTypeBoolean efaDirekt_eintragNichtAenderbarUhrzeit;
     private ItemTypeBoolean efaDirekt_eintragNichtAenderbarKmBeiBekanntenZielen;
@@ -264,6 +266,7 @@ public class EfaConfig extends StorageObject implements IItemFactory {
     private ItemTypeHashtable<String> typesStatus;
     private ItemTypeString kanuEfb_urlLogin;
     private ItemTypeString kanuEfb_urlRequest;
+    private ItemTypeMultiSelectList<String> kanuEfb_boatTypes;
     private ItemTypeBoolean dataPreModifyRecordCallbackEnabled;
     private ItemTypeBoolean dataAuditCorrectErrors;
     private ItemTypeLong dataFileSaveInterval;
@@ -317,17 +320,17 @@ public class EfaConfig extends StorageObject implements IItemFactory {
         iniParameters(custSettings);
     }
 
-    private void getMyEfaTypes() {
+    private EfaTypes getMyEfaTypes() {
         if (myEfaTypes != null && myEfaTypes.data().getStorageType() == data().getStorageType()) {
-            return;
+            return myEfaTypes;
         }
         if (data().getStorageType() == IDataAccess.TYPE_EFA_REMOTE && Daten.project != null) {
-            myEfaTypes = new EfaTypes(Daten.project.getProjectStorageType(),
+            return new EfaTypes(Daten.project.getProjectStorageType(),
                                       Daten.project.getProjectStorageLocation(),
                                       Daten.project.getProjectStorageUsername(),
                                       Daten.project.getProjectStoragePassword());
         } else {
-            myEfaTypes = Daten.efaTypes;
+            return Daten.efaTypes;
         }
     }
 
@@ -694,9 +697,12 @@ public class EfaConfig extends StorageObject implements IItemFactory {
                     IItemType.TYPE_PUBLIC,BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_INPUT),
                     International.getMessage("Beim Eintrag von Fahrten nur bekannte Namen erlauben für {type}",
                     International.getString("Gewässer"))));
-            addParameter(efaDirekt_checkAllowedPersonsInBoat = new ItemTypeBoolean("InputCheckAllowedPersonsInBoat", true,
+            addParameter(efaDirekt_checkAllowedGroupsForBoat = new ItemTypeBoolean("InputCheckAllowedPersonsInBoat", true,
                     IItemType.TYPE_EXPERT,BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_INPUT),
                     International.getString("Bei Bootsbenutzung von nicht erlaubten Personen warnen")));
+            addParameter(efaDirekt_checkAllowedMinGroupForBoat = new ItemTypeBoolean("InputCheckMinGroupPersonsInBoat", true,
+                    IItemType.TYPE_EXPERT,BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_INPUT),
+                    International.getString("Bei Bootsbenutzung warnen, wenn nicht mindestens eine Person aus geforderter Gruppe")));
             addParameter(efaDirekt_eintragErlaubeNurMaxRudererzahl = new ItemTypeBoolean("InputAllowOnlyMaxCrewNumber", true,
                     IItemType.TYPE_PUBLIC,BaseTabbedDialog.makeCategory(CATEGORY_BOATHOUSE, CATEGORY_INPUT),
                     International.getString("Nur für das Boot maximal mögliche Anzahl an Personen erlauben")));
@@ -1435,7 +1441,11 @@ public class EfaConfig extends StorageObject implements IItemFactory {
     }
 
     public boolean getValueCheckAllowedPersonsInBoat() {
-        return efaDirekt_checkAllowedPersonsInBoat.getValue();
+        return efaDirekt_checkAllowedGroupsForBoat.getValue();
+    }
+    
+    public boolean getValueCheckMinOnePersonsFromGroupInBoat() {
+        return efaDirekt_checkAllowedMinGroupForBoat.getValue();
     }
 
     public boolean getValueEfaDirekt_eintragErlaubeNurMaxRudererzahl() {
@@ -2088,7 +2098,7 @@ public class EfaConfig extends StorageObject implements IItemFactory {
         }
 
         // Types
-        getMyEfaTypes();
+        myEfaTypes = getMyEfaTypes();
         if (myEfaTypes != null) {
             boolean changed = false;
             if (updateTypes(myEfaTypes, EfaTypes.CATEGORY_GENDER, typesGender)) {
@@ -2259,7 +2269,7 @@ public class EfaConfig extends StorageObject implements IItemFactory {
     }
 
     public void buildTypes() {
-        getMyEfaTypes();
+        myEfaTypes = getMyEfaTypes();
         if (myEfaTypes == null) {
             return;
         }
@@ -2284,6 +2294,17 @@ public class EfaConfig extends StorageObject implements IItemFactory {
         addParameter(typesStatus = new ItemTypeHashtable<String>("_TYPES_STATUS", "", true,
                 IItemType.TYPE_EXPERT,BaseTabbedDialog.makeCategory(CATEGORY_TYPES,CATEGORY_TYPES_STAT),
                 International.getString("Status")));
+        
+        addParameter(kanuEfb_boatTypes = new ItemTypeMultiSelectList<String>("KanuEfbBoatTypes", getCanoeBoatTypes(),
+                Daten.efaTypes.makeBoatTypeArray(EfaTypes.ARRAY_STRINGLIST_VALUES), Daten.efaTypes.makeBoatTypeArray(EfaTypes.ARRAY_STRINGLIST_DISPLAY),
+                getValueUseFunctionalityCanoeingGermany() ? IItemType.TYPE_PUBLIC : IItemType.TYPE_EXPERT,
+                BaseTabbedDialog.makeCategory(CATEGORY_SYNC, CATEGORY_KANUEFB),
+                International.onlyFor("Fahrten mit folgenden Bootstypen mit Kanu-eFB synchronisieren", "de")));
+        String myValue = getValue("KanuEfbBoatTypes");
+        if (myValue != null && myValue.length() > 0) {
+            kanuEfb_boatTypes.parseValue(myValue);
+        }
+        
         typesStatus.setAllowed(false, false);
         iniTypes(typesGender, EfaTypes.CATEGORY_GENDER);
         iniTypes(typesBoat, EfaTypes.CATEGORY_BOAT);
@@ -2354,6 +2375,26 @@ public class EfaConfig extends StorageObject implements IItemFactory {
             return item;
         }
         return null;
+    }
+    
+    public DataTypeList<String> getCanoeBoatTypes() {
+        EfaTypes t = getMyEfaTypes();
+        if (t == null) {
+            return new DataTypeList<String>(new String[0]); // happens during startup
+        }
+        return new DataTypeList<String>(t.getDefaultCanoeBoatTypes());
+    }
+    
+    public boolean isCanoeBoatType(BoatRecord r) {
+        Object[] types = kanuEfb_boatTypes.getValues();
+        for (int i=0; r != null && i<r.getNumberOfVariants(); i++) {
+            for (int j=0; types != null && j<types.length; j++) {
+                if (types[j] != null && types[j].toString().equals(r.getTypeType(i))) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     class ConfigValueUpdateThread extends Thread {

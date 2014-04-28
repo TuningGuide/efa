@@ -45,8 +45,8 @@ public class ItemTypeMultiSelectList<T> extends ItemType implements ActionListen
     }
 
     public ItemTypeMultiSelectList copyOf() {
-        ItemTypeMultiSelectList list = new ItemTypeMultiSelectList(name, new DataTypeList<T>(value), keyData.clone(), displayData.clone(), type, category, description);
-        return list;
+        ItemTypeMultiSelectList mylist = new ItemTypeMultiSelectList(name, new DataTypeList<T>(value), keyData.clone(), displayData.clone(), type, category, description);
+        return mylist;
     }
 
     public int size() {

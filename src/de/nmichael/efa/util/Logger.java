@@ -194,9 +194,10 @@ public class Logger {
     public static final String MSG_DATA_AUDIT_OBJECTCREATED = "DAT049";
     public static final String MSG_DATA_AUDIT_OBJECTCREATIONFAILED = "DAT050";
     public static final String MSG_DATA_AUDIT_NOTCORRECTERRORSSET = "DAT051";
-    public static final String MSG_DATA_REPLAYINCOMPLETE  = "DAT052";
-    public static final String MSG_DATA_DATAACCESS  = "DAT053";
-    public static final String MSG_DATA_NOLOCKHELD  = "DAT054";
+    public static final String MSG_DATA_AUDIT_NAMECORRECTED = "DAT052";
+    public static final String MSG_DATA_REPLAYINCOMPLETE  = "DAT053";
+    public static final String MSG_DATA_DATAACCESS  = "DAT054";
+    public static final String MSG_DATA_NOLOCKHELD  = "DAT055";
     
     public static final String MSG_REFA_SERVERSTATUS                 = "RMT001";
     public static final String MSG_REFA_SERVERERROR                  = "RMT002";

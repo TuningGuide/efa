@@ -220,8 +220,8 @@ public class PDFOutput {
 
             f.write("      <fo:block space-before=\"4mm\">Für das Meldegeld" + s + " ergibt sich eine Summe in Höhe von " + EfaUtil.cent2euro(meldegeld, true)
                     + " (Nettobetrag " + EfaUtil.cent2euro(netto, true) + " zzgl. " + EfaUtil.cent2euro(mwst, true) + " gesetzl. MwSt. 7% gem. § 12 Abs. 8 UStG). "
-                    + "Der Betrag ist innerhalb von 14 Tagen unter Angabe der Vereins-Nr., der Rechnungs-Nr. und dem Hinweis \"Fahrtenwettbewerb\" auf das Konto Nr. 123 862, "
-                    + "BLZ 250 501 80, Sparkasse Hannover (IBAN: DE06 2505 0180 0000 123862, BIC: SPKHDE2HXXX) zu überweisen. Ist dies bereits erfolgt, betrachten Sie diese Rechnung als gegenstandslos. "
+                    + "Der Betrag ist innerhalb von 14 Tagen unter Angabe der Vereins-Nr., der Rechnungs-Nr. und dem Hinweis \"Fahrtenwettbewerb\" auf das Konto IBAN: DE06 2505 0180 0000 123862, BIC: SPKHDE2HXXX "
+                    + "der Sparkasse Hannover zu überweisen. Ist dies bereits erfolgt, betrachten Sie diese Rechnung als gegenstandslos. "
                     + "Unsere UID lautet DE 115665464 / St.-Nr. 25/206/21626.</fo:block>\n");
 
             f.write("      <fo:block space-before=\"4mm\">Im Meldesystem efaWett (http://efa.rudern.de) liegen"

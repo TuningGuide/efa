@@ -112,6 +112,8 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
     public static final String FILTERCOMMENTSEXCLUDE     = "FilterCommentsExclude";
     public static final String FILTERMINSESSIONDISTANCE  = "FilterMinSessionDistance";
     public static final String FILTERONLYOPENDAMAGES     = "FilterOnlyOpenDamages";
+    public static final String FILTERALSOOPENSESSIONS    = "FilterAlsoOpenSessions";
+    public static final String FILTERONLYLOGBOOK         = "FilterOnlyLogbook";
     public static final String SHOWFIELDS                = "ShowFields";  // like Name, Status, Gender, BoatType, ...
     public static final String SHOWLOGBOOKFIELDS         = "ShowLogbookFields";  // like EntryNo, Date, Boat, Cox, Crew, ...
     public static final String SHOWOTHERFIELDS           = "ShowOtherFields";  // like boat damages, reservations, ...
@@ -426,6 +428,8 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
     public String sFilterCommentsExclude;
     public DataTypeDistance sFilterMinSessionDistance;
     public boolean sFilterOnlyOpenDamages;
+    public boolean sFilterAlsoOpenSessions;
+    public String sFilterOnlyLogbook;
     // --- Field Settings
     public boolean sIsFieldsPosition;
     public boolean sIsFieldsName;
@@ -611,6 +615,8 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
         f.add(FILTERCOMMENTSEXCLUDE);             t.add(IDataAccess.DATA_STRING);
         f.add(FILTERMINSESSIONDISTANCE);          t.add(IDataAccess.DATA_DISTANCE);
         f.add(FILTERONLYOPENDAMAGES);             t.add(IDataAccess.DATA_BOOLEAN);
+        f.add(FILTERALSOOPENSESSIONS);            t.add(IDataAccess.DATA_BOOLEAN);
+        f.add(FILTERONLYLOGBOOK);                 t.add(IDataAccess.DATA_STRING);
         f.add(SHOWFIELDS);                        t.add(IDataAccess.DATA_LIST_STRING);
         f.add(SHOWLOGBOOKFIELDS);                 t.add(IDataAccess.DATA_LIST_STRING);
         f.add(SHOWOTHERFIELDS);                   t.add(IDataAccess.DATA_LIST_STRING);
@@ -1679,6 +1685,20 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
     public boolean getFilterOnlyOpenDamages() {
         return getBool(FILTERONLYOPENDAMAGES);
     }
+    
+    public void setFilterAlsoOpenSessions(boolean openSessions) {
+        setBool(FILTERALSOOPENSESSIONS, openSessions);
+    }
+    public boolean getFilterAlsoOpenSessions() {
+        return getBool(FILTERALSOOPENSESSIONS);
+    }
+
+    public void setFilterOnlyLogbook(String logbookName) {
+        setString(FILTERONLYLOGBOOK, logbookName);
+    }
+    public String getFilterOnlyLogbook() {
+        return getString(FILTERONLYLOGBOOK);
+    }
 
     public String getFilterByGroupIdAsString(long validAt) {
         try {
@@ -1765,9 +1785,17 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
                     International.getString("Mindestentfernung") + ": " +
                     sFilterMinSessionDistance.getAsFormattedString();
         }
+        if (sFilterAlsoOpenSessions) {
+            filter = (filter == null ? "" : filter + "\n") +
+                    International.getString("inkl. offener Fahrten");
+        }
         if (sFilterOnlyOpenDamages) {
             filter = (filter == null ? "" : filter + "\n") +
                     International.getString("nur offene Bootsschäden");
+        }
+        if (sFilterOnlyLogbook != null) {
+            filter = (filter == null ? "" : filter + "\n") +
+                    International.getMessage("nur Fahrtenbuch {logbook}", sFilterOnlyLogbook);
         }
         return filter;
     }
@@ -2635,10 +2663,16 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
         v.add(item = new ItemTypeDistance(StatisticsRecord.FILTERMINSESSIONDISTANCE, getFilterMinDessionDistance(),
                     IItemType.TYPE_PUBLIC, BaseTabbedDialog.makeCategory(CAT_FILTER,CAT_FILTERVARIOUS),
                     International.getString("Mindestentfernung")));
+        v.add(item = new ItemTypeBoolean(StatisticsRecord.FILTERALSOOPENSESSIONS, getFilterAlsoOpenSessions(),
+                    IItemType.TYPE_PUBLIC, BaseTabbedDialog.makeCategory(CAT_FILTER,CAT_FILTERVARIOUS),
+                    International.getString("auch offene Fahrten berücksichtigen")));
         v.add(item = new ItemTypeBoolean(StatisticsRecord.FILTERONLYOPENDAMAGES, getFilterOnlyOpenDamages(),
                     IItemType.TYPE_PUBLIC, BaseTabbedDialog.makeCategory(CAT_FILTER,CAT_FILTERVARIOUS),
                     International.getString("nur offene Bootsschäden")));
-
+        v.add(item = new ItemTypeStringList(StatisticsRecord.FILTERONLYLOGBOOK, null,
+                    getLogbookNames(ARRAY_STRINGLIST_VALUES), getLogbookNames(ARRAY_STRINGLIST_DISPLAY),
+                    IItemType.TYPE_PUBLIC, BaseTabbedDialog.makeCategory(CAT_FILTER,CAT_FILTERVARIOUS),
+                    International.getString("nur Fahrtenbuch")));
 
         // CAT_FIELDS
         v.add(item = new ItemTypeMultiSelectList<String>(StatisticsRecord.AGGREGATIONS, getAggregations(),
@@ -2940,16 +2974,35 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
             sPublicStatistic = getPubliclyAvailable();
         }
 
+        sFilterOnlyLogbook = getFilterOnlyLogbook();
+        if (sFilterOnlyLogbook != null && sFilterOnlyLogbook.trim().length() == 0) {
+            sFilterOnlyLogbook = null;
+        }
+
         sStartDate = getDateFrom();
         if (sStartDate == null || !sStartDate.isSet()) {
-            sStartDate = DataTypeDate.today();
-            sStartDate.setDay(1);
-            sStartDate.setMonth(1);
+            if (sFilterOnlyLogbook != null) {
+                Logbook l = Daten.project.getLogbook(sFilterOnlyLogbook, false);
+                if (l != null) {
+                    sStartDate = l.getStartDate();
+                }
+            } else {
+                sStartDate = DataTypeDate.today();
+                sStartDate.setDay(1);
+                sStartDate.setMonth(1);
+            }
         }
 
         sEndDate = getDateTo();
         if (sEndDate == null || !sEndDate.isSet()) {
-            sEndDate = DataTypeDate.today();
+            if (sFilterOnlyLogbook != null) {
+                Logbook l = Daten.project.getLogbook(sFilterOnlyLogbook, false);
+                if (l != null) {
+                    sEndDate = l.getEndDate();
+                }
+            } else {
+                sEndDate = DataTypeDate.today();
+            }
         }
 
         sTimestampBegin = sStartDate.getTimestamp(new DataTypeTime(0,0,0));
@@ -3063,6 +3116,7 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
             sFilterMinSessionDistance = null;
         }
         sFilterOnlyOpenDamages = getFilterOnlyOpenDamages();
+        sFilterAlsoOpenSessions = getFilterAlsoOpenSessions();
 
         if (getFilterPromptPerson() && Daten.isGuiAppl()) {
             Object o = promptForInput(sFilterByPersonId, sFilterByPersonText,
@@ -3877,4 +3931,21 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
         }
     }
 
+    public String[] getLogbookNames(int valuesOrDisplay) {
+        String[] lb = (Daten.project != null ? Daten.project.getAllLogbookNames() : null);
+        if (lb == null) {
+            lb = new String[0];
+        }
+        String[] all = new String[lb.length + 1];
+        if (valuesOrDisplay == ARRAY_STRINGLIST_VALUES) {
+            all[0] = "";
+        } else {
+            all[0] = "--- " + International.getString("alle") + " ---";
+        }
+        for (int i=0; i<lb.length; i++) {
+            all[i+1] = lb[i];
+        }
+        return all;
+    }
+    
 }

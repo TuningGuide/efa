@@ -2,6 +2,18 @@
 <efaOnlineUpdate>
 
     <Version>
+        <VersionID>2.1.1_07</VersionID>
+        <ReleaseDate>16.02.2015</ReleaseDate>
+        <DownloadUrl>http://efa.nmichael.de/download/efa2drv.zip</DownloadUrl>
+        <DownloadSize>3531658</DownloadSize>
+
+        <!-- Changes (deutsch) -->
+        <Changes lang="de">
+            <ChangeItem>Bugfix (NullPointerException) für AutoCompletePopup behoben</ChangeItem>
+        </Changes>
+    </Version>
+
+    <Version>
         <VersionID>2.1.1_06</VersionID>
         <ReleaseDate>05.02.2015</ReleaseDate>
         <DownloadUrl>http://efa.nmichael.de/download/efa2drv.zip</DownloadUrl>

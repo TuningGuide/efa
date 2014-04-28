@@ -1,12 +1,9 @@
 Item
 ============================================================================================================
 
-Filtermöglichkeit nach bestimmtem Fahrtenbuch für Statistik - http://forum.nmichael.de/posting.php?mode=reply&f=9&t=727
-Schlüsselfeld für Import konfigurierbar machen: http://forum.nmichael.de/viewtopic.php?f=9&t=680&p=2764#p2764
 Beim Weiterleiten von Nachrichten diese Nachricht editieren können (http://forum.nmichael.de/viewtopic.php?f=9&t=699)
 Vereinsnamen optional hinter Personennamen einblenden (http://forum.nmichael.de/viewtopic.php?f=9&t=693&p=2867#p2867)
 Wenn beim beginnen oder beenden einer Fahrt 2 Warnungen/Hinweise angezeigt werden sollen, diese beide zeitgleich nebeneinander anzeigen und nicht nacheinander
-Bei Fahrtenbuchstatistik optional auch offene Fahrten mit ausgeben
 Fahrten ohne Kilometerangabe für Paddler (http://forum.nmichael.de/viewtopic.php?f=9&t=744&p=3078#p3078)
 
 Button für "Fahrt beenden" bei offenen Fahrten auch in efaBasis (inkl. Korrektur des Bootsstatus): http://forum.nmichael.de/posting.php?mode=reply&f=15&t=656

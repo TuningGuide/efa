@@ -10,6 +10,7 @@
 package de.nmichael.efa.core.config;
 
 import de.nmichael.efa.*;
+import de.nmichael.efa.data.BoatRecord;
 import de.nmichael.efa.data.LogbookRecord;
 import de.nmichael.efa.util.*;
 import de.nmichael.efa.data.storage.*;
@@ -401,7 +402,36 @@ public class EfaTypes extends StorageObject {
                 type.equals(TYPE_BOAT_TRIMMY)
                 );
     }
-
+    
+    public ArrayList<String> getDefaultCanoeBoatTypes() {
+        ArrayList<String> list = new ArrayList<String>();
+        if (isConfigured(CATEGORY_BOAT, TYPE_BOAT_SEAKAYAK)) {
+            list.add(TYPE_BOAT_SEAKAYAK);
+        }
+        if (isConfigured(CATEGORY_BOAT, TYPE_BOAT_RACINGKAYAK)) {
+            list.add(TYPE_BOAT_RACINGKAYAK);
+        }
+        if (isConfigured(CATEGORY_BOAT, TYPE_BOAT_WHITEWATERKAYAK)) {
+            list.add(TYPE_BOAT_WHITEWATERKAYAK);
+        }
+        if (isConfigured(CATEGORY_BOAT, TYPE_BOAT_CANADIANTOURINGCANOE)) {
+            list.add(TYPE_BOAT_CANADIANTOURINGCANOE);
+        }
+        if (isConfigured(CATEGORY_BOAT, TYPE_BOAT_POLOBOAT)) {
+            list.add(TYPE_BOAT_POLOBOAT);
+        }
+        if (isConfigured(CATEGORY_BOAT, TYPE_BOAT_FOLDINGCANOE)) {
+            list.add(TYPE_BOAT_FOLDINGCANOE);
+        }
+        if (isConfigured(CATEGORY_BOAT, TYPE_BOAT_CANADIANTEAMCANOE)) {
+            list.add(TYPE_BOAT_CANADIANTEAMCANOE);
+        }
+        if (isConfigured(CATEGORY_BOAT, TYPE_BOAT_DRAGONBOAT)) {
+            list.add(TYPE_BOAT_DRAGONBOAT);
+        }
+        return list;
+    }
+    
     public static int getNumberOfRowers(String key) {
         if (key == null) {
             return LogbookRecord.CREW_MAX;

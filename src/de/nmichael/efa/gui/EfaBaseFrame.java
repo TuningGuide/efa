@@ -2686,7 +2686,7 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
             }
 
             // Prüfen, ob mind 1 Ruderer (oder Stm) der Gruppe "mind 1 aus Gruppe" im Boot sitzt
-            if (Daten.efaConfig.getValueCheckAllowedPersonsInBoat() &&
+            if (Daten.efaConfig.getValueCheckMinOnePersonsFromGroupInBoat() &&
                 currentBoat.getRequiredGroupId() != null) {
                 GroupRecord g = groups.findGroupRecord(currentBoat.getRequiredGroupId(), tstmp);
                 boolean found = false;

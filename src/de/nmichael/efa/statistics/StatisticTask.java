@@ -946,7 +946,7 @@ public class StatisticTask extends ProgressTask {
         getEntryBasic(r);
         if (!isInRange(r)
                 || !isInFilter(r)
-                || r.getSessionIsOpen()) {
+                || (r.getSessionIsOpen() && !sr.sFilterAlsoOpenSessions)) {
             if (Logger.isTraceOn(Logger.TT_STATISTICS, 5)) {
                 Logger.log(Logger.DEBUG, Logger.MSG_STAT_IGNOREDENTRIES, "ignored (1): " + r.toString());
             }
@@ -1299,7 +1299,7 @@ public class StatisticTask extends ProgressTask {
     private boolean getEntryDistance(LogbookRecord r) {
         entryDistanceInDefaultUnit = (r.getDistance() != null
                 ? r.getDistance().getValueInDefaultUnit() : 0);
-        return entryDistanceInDefaultUnit != 0;
+        return (entryDistanceInDefaultUnit != 0 || sr.sFilterAlsoOpenSessions);
     }
 
     private boolean isInRange(LogbookRecord r) {
@@ -1507,6 +1507,13 @@ public class StatisticTask extends ProgressTask {
     private Vector<Logbook> getAllLogbooks() {
         Vector<Logbook> logbooks = new Vector<Logbook>();
         if (Daten.project == null) {
+            return logbooks;
+        }
+        if (sr.sFilterOnlyLogbook != null) {
+            Logbook l = Daten.project.getLogbook(sr.sFilterOnlyLogbook, false);
+            if (l != null) {
+                logbooks.add(l);
+            }
             return logbooks;
         }
         String[] names = Daten.project.getAllLogbookNames();

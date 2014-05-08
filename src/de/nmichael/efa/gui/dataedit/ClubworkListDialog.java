@@ -13,17 +13,11 @@ package de.nmichael.efa.gui.dataedit;
 import de.nmichael.efa.*;
 import de.nmichael.efa.core.config.AdminRecord;
 import de.nmichael.efa.core.items.IItemType;
-import de.nmichael.efa.core.items.ItemTypeBoolean;
 import de.nmichael.efa.core.items.ItemTypeDataRecordTable;
-import de.nmichael.efa.core.items.ItemTypeDateTime;
 import de.nmichael.efa.data.*;
 import de.nmichael.efa.data.storage.*;
-import de.nmichael.efa.data.types.DataTypeDate;
-import de.nmichael.efa.data.types.DataTypeTime;
 import de.nmichael.efa.gui.BaseDialog;
-import de.nmichael.efa.gui.util.TableItem;
 import de.nmichael.efa.util.*;
-import de.nmichael.efa.util.Dialog;
 
 import java.util.*;
 import java.awt.*;
@@ -35,17 +29,17 @@ import javax.swing.border.EmptyBorder;
 // @i18n complete
 public class ClubworkListDialog extends DataListDialog {
 
-	public static final int ACTION_CARRYOVER = 4;
+    public static final int ACTION_CARRYOVER = 4;
 
-	public ClubworkListDialog(Frame parent, AdminRecord admin) {
-		super(parent, International.getString("Vereinsarbeit"), Daten.project.getCurrentClubwork(), 0, admin);
+    public ClubworkListDialog(Frame parent, AdminRecord admin) {
+        super(parent, International.getString("Vereinsarbeit"), Daten.project.getCurrentClubwork(), 0, admin);
         iniValues();
-	}
+    }
 
-	public ClubworkListDialog(JDialog parent, AdminRecord admin) {
-		super(parent, International.getString("Vereinsarbeit"), Daten.project.getCurrentClubwork(), 0, admin);
+    public ClubworkListDialog(JDialog parent, AdminRecord admin) {
+        super(parent, International.getString("Vereinsarbeit"), Daten.project.getCurrentClubwork(), 0, admin);
         iniValues();
-	}
+    }
 
     private void iniValues() {
         super.sortByColumn = 2;
@@ -54,52 +48,49 @@ public class ClubworkListDialog extends DataListDialog {
         super.filterFieldValue = ""+ClubworkRecord.Flags.Normal.ordinal();
     }
 
-	public void keyAction(ActionEvent evt) {
-		_keyAction(evt);
-	}
+    public void keyAction(ActionEvent evt) {
+        _keyAction(evt);
+    }
 
-	protected void iniActions() {
-		if(admin == null) {
-			actionText = new String[] {
-					ItemTypeDataRecordTable.ACTIONTEXT_NEW,
-					International.getString("Liste ausgeben")
-			};
+    protected void iniActions() {
+        if(admin == null) {
+            actionText = new String[] {
+                    International.getString("Erfassen")
+            };
 
-			actionType = new int[] {
-					ItemTypeDataRecordTable.ACTION_NEW,
-					ACTION_PRINTLIST
-			};
+            actionType = new int[] {
+                    ItemTypeDataRecordTable.ACTION_NEW
+            };
 
-			actionImage = new String[] {
-					BaseDialog.IMAGE_ADD,
-					BaseDialog.IMAGE_LIST
-			};
-		}
-		else {
-			actionText = new String[] {
-					ItemTypeDataRecordTable.ACTIONTEXT_NEW,
-					ItemTypeDataRecordTable.ACTIONTEXT_EDIT,
-					ItemTypeDataRecordTable.ACTIONTEXT_DELETE,
-					International.getString("Liste ausgeben"),
-					International.getString("Übertrag berechnen")
-			};
+            actionImage = new String[] {
+                    BaseDialog.IMAGE_ADD
+            };
+        }
+        else {
+            actionText = new String[] {
+                    ItemTypeDataRecordTable.ACTIONTEXT_NEW,
+                    ItemTypeDataRecordTable.ACTIONTEXT_EDIT,
+                    ItemTypeDataRecordTable.ACTIONTEXT_DELETE,
+                    International.getString("Liste ausgeben"),
+                    International.getString("Übertrag berechnen")
+            };
 
-			actionType = new int[] {
-					ItemTypeDataRecordTable.ACTION_NEW,
-					ItemTypeDataRecordTable.ACTION_EDIT,
-					ItemTypeDataRecordTable.ACTION_DELETE,
-					ACTION_PRINTLIST,
-					ACTION_CARRYOVER
-			};
+            actionType = new int[] {
+                    ItemTypeDataRecordTable.ACTION_NEW,
+                    ItemTypeDataRecordTable.ACTION_EDIT,
+                    ItemTypeDataRecordTable.ACTION_DELETE,
+                    ACTION_PRINTLIST,
+                    ACTION_CARRYOVER
+            };
 
-			actionImage = new String[] {
-					BaseDialog.IMAGE_ADD,
-					BaseDialog.IMAGE_EDIT,
-					BaseDialog.IMAGE_DELETE,
-					BaseDialog.IMAGE_LIST,
-					BaseDialog.IMAGE_MERGE
-			};
-		}
+            actionImage = new String[] {
+                    BaseDialog.IMAGE_ADD,
+                    BaseDialog.IMAGE_EDIT,
+                    BaseDialog.IMAGE_DELETE,
+                    BaseDialog.IMAGE_LIST,
+                    BaseDialog.IMAGE_MERGE
+            };
+        }
 	}
 
     protected void iniDialog() throws Exception {
@@ -156,21 +147,21 @@ public class ClubworkListDialog extends DataListDialog {
         this.validate();
     }
 
-	public DataEditDialog createNewDataEditDialog(JDialog parent, StorageObject persistence, DataRecord record) {
-		boolean newRecord = (record == null);
-		if (record == null) {
-			record = Daten.project.getClubwork(Daten.project.getCurrentClubwork().getName(), false).createClubworkRecord(UUID.randomUUID());
-		}
-		return new ClubworkEditDialog(parent, (ClubworkRecord)record, newRecord, admin);
-	}
+    public DataEditDialog createNewDataEditDialog(JDialog parent, StorageObject persistence, DataRecord record) {
+        boolean newRecord = (record == null);
+        if (record == null) {
+            record = Daten.project.getClubwork(Daten.project.getCurrentClubwork().getName(), false).createClubworkRecord(UUID.randomUUID());
+        }
+        return new ClubworkEditDialog(parent, (ClubworkRecord)record, newRecord, admin);
+    }
 
-	public void itemListenerActionTable(int actionId, DataRecord[] records) {
-		if(actionId == ACTION_CARRYOVER) {
-			Clubwork clubwork = Daten.project.getCurrentClubwork();
-			clubwork.doCarryOver(this);
-		}
-		else {
-			super.itemListenerActionTable(actionId, records);
-		}
-	}
+    public void itemListenerActionTable(int actionId, DataRecord[] records) {
+        if(actionId == ACTION_CARRYOVER) {
+            Clubwork clubwork = Daten.project.getCurrentClubwork();
+            clubwork.doCarryOver(this);
+        }
+        else {
+            super.itemListenerActionTable(actionId, records);
+        }
+    }
 }

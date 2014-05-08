@@ -91,7 +91,7 @@ Mildenitz;Goldberger See
 ;Rothener See
 ;Trentsee
 Trebel;
-Peene ;Ostpeene
+Peene;Ostpeene
 ;Malchiner See
 ;Dahmer Kanal
 ;Teterower Peene
@@ -220,7 +220,7 @@ Mirower Gewässer;Bolter Kanal
 ;Drosedower Bek 
 ;Gobenowsee
 ;Klenzsee
-Rheinberger Gewässer;Hüttenkanal
+Rheinsberger Gewässer;Hüttenkanal
 ;Jagowkanal
 ;Prebelowsee
 ;Tietzowsee
@@ -335,7 +335,7 @@ EHK;Elbe-Havel-Kanal
 ;Kühnes Loch
 ;Niegripper See
 ;Niegripper Verbindungskanal
-Elbe ;Magdeburger Alte Elbe
+Elbe;Magdeburger Alte Elbe
 ;Alberthafen
 ;Werfthafen Roßlau
 ;Mönchsgraben
@@ -724,7 +724,7 @@ Ruhr;Hengsteyse
 ;Kemnader See
 ;Baldeneysee
 Murg;
-Forgensee;
+Forggensee;
 Donau;
 Altmühl;
 Naab;

@@ -550,6 +550,20 @@ public class EfaUtil {
         return aa;
     }
 
+    public static String arr2string(String[] a) {
+        String s = "";
+        if (a == null) {
+            return s;
+        }
+        for (int i = 0; i < a.length; i++) {
+            s = s + a[i];
+            if (i + 1 < a.length) {
+                s = s + " ";
+            }
+        }
+        return s;
+    }
+
     // Array of String in eine Komma-Liste umwandeln
     public static String arr2KommaList(String[] a) {
         String s = "";

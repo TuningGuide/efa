@@ -54,8 +54,8 @@ public class PersonRecord extends DataRecord implements IItemFactory {
     public static final String DISABILITY          = "Disability";
     public static final String EXCLUDEFROMSTATISTIC= "ExcludeFromStatistics";
     public static final String EXCLUDEFROMCOMPETE  = "ExcludeFromCompetition";
-	public static final String EXCLUDEFROMCLUBWORK = "ExcludeFromClubwork";
-    public static final String BOATUSAGEBAN        = "BoatUsageBan";
+    public static final String EXCLUDEFROMCLUBWORK = "ExcludeFromClubwork";
+    public static final String BOATUSAGEBAN = "BoatUsageBan";
     public static final String INPUTSHORTCUT       = "InputShortcut";
     public static final String DEFAULTBOATID       = "DefaultBoatId";
     public static final String FREEUSE1            = "FreeUse1";
@@ -99,7 +99,7 @@ public class PersonRecord extends DataRecord implements IItemFactory {
         f.add(DISABILITY);                        t.add(IDataAccess.DATA_BOOLEAN);
         f.add(EXCLUDEFROMSTATISTIC);              t.add(IDataAccess.DATA_BOOLEAN);
         f.add(EXCLUDEFROMCOMPETE);                t.add(IDataAccess.DATA_BOOLEAN);
-		f.add(EXCLUDEFROMCLUBWORK);                t.add(IDataAccess.DATA_BOOLEAN);
+        f.add(EXCLUDEFROMCLUBWORK);               t.add(IDataAccess.DATA_BOOLEAN);
         f.add(BOATUSAGEBAN);                      t.add(IDataAccess.DATA_BOOLEAN);
         f.add(INPUTSHORTCUT);                     t.add(IDataAccess.DATA_STRING);
         f.add(DEFAULTBOATID);                     t.add(IDataAccess.DATA_UUID);
@@ -361,12 +361,13 @@ public class PersonRecord extends DataRecord implements IItemFactory {
         return getBool(EXCLUDEFROMCOMPETE);
     }
 
-	public void setExcludeFromClubwork(boolean exclude) {
-		setBool(EXCLUDEFROMCLUBWORK, exclude);
-	}
-	public boolean getExcludeFromClubwork() {
-		return getBool(EXCLUDEFROMCLUBWORK);
-	}
+    public void setExcludeFromClubwork(boolean exclude) {
+        setBool(EXCLUDEFROMCLUBWORK, exclude);
+    }
+
+    public boolean getExcludeFromClubwork() {
+        return getBool(EXCLUDEFROMCLUBWORK);
+    }
 
     public void setBoatUsageBan(boolean banned) {
         setBool(BOATUSAGEBAN, banned);
@@ -487,13 +488,13 @@ public class PersonRecord extends DataRecord implements IItemFactory {
         Matcher m = qnamePattern.matcher(qname);
         if (m.matches()) {
             return new String[] {
-                getFirstLastName(m.group(1).trim()),
-                m.group(2).trim()
+                    getFirstLastName(m.group(1).trim()),
+                    m.group(2).trim()
             };
         } else {
             return new String[] {
-                getFirstLastName(qname.trim()),
-                null
+                    getFirstLastName(qname.trim()),
+                    null
             };
         }
     }
@@ -656,8 +657,8 @@ public class PersonRecord extends DataRecord implements IItemFactory {
                     IItemType.TYPE_PUBLIC, CAT_MOREDATA, International.getString("von allgemein verfügbaren Statistiken ausnehmen")));
             v.add(item = new ItemTypeBoolean(PersonRecord.EXCLUDEFROMCOMPETE, getExcludeFromCompetition(),
                     IItemType.TYPE_PUBLIC, CAT_MOREDATA, International.getString("von Wettbewerbsmeldungen ausnehmen")));
-			v.add(item = new ItemTypeBoolean(PersonRecord.EXCLUDEFROMCLUBWORK, getExcludeFromClubwork(),
-					IItemType.TYPE_PUBLIC, CAT_MOREDATA, International.getString("von Vereinsarbeit ausnehmen")));
+            v.add(item = new ItemTypeBoolean(PersonRecord.EXCLUDEFROMCLUBWORK, getExcludeFromClubwork(),
+                    IItemType.TYPE_PUBLIC, CAT_MOREDATA, International.getString("von Vereinsarbeit ausnehmen")));
             v.add(item = new ItemTypeBoolean(PersonRecord.BOATUSAGEBAN, getBoatUsageBan(),
                     IItemType.TYPE_PUBLIC, CAT_MOREDATA, International.getString("Bootsbenutzungs-Sperre")));
             v.add(item = new ItemTypeString(PersonRecord.INPUTSHORTCUT, getInputShortcut(),
@@ -721,7 +722,7 @@ public class PersonRecord extends DataRecord implements IItemFactory {
                 IItemType.TYPE_INTERNAL, "",
                 getPersistence(), getValidFrom(), getInvalidFrom() - 1,
                 International.getString("Name")));
-        
+
         return v;
     }
 
@@ -777,5 +778,5 @@ public class PersonRecord extends DataRecord implements IItemFactory {
         }
         return items;
     }
-    
+
 }

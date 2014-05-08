@@ -38,6 +38,7 @@ public class DataImport extends ProgressTask {
     private IDataAccess dataAccess;
     private String[] fields;
     private String[] keyFields;
+    private String overrideKeyField;
     private boolean versionized;
     private String filename;
     private String encoding;
@@ -227,11 +228,19 @@ public class DataImport extends ProgressTask {
             }
 
             DataKey key = r.getKey();
-            if (key.getKeyPart1() == null) {
-                // first key field is *not* set
-                // -> search for record by QualifiedName
-                DataKey[] keys = dataAccess.getByFields(r.getQualifiedNameFields(), r.getQualifiedNameValues(r.getQualifiedName()),
-                        (versionized ? validAt : -1));
+            if (key.getKeyPart1() == null || overrideKeyField != null) {
+                // first key field is *not* set, or we're overriding the default key field
+                DataKey[] keys = null;
+                if (overrideKeyField == null) {
+                    // -> search for record by QualifiedName
+                    keys = dataAccess.getByFields(r.getQualifiedNameFields(), r.getQualifiedNameValues(r.getQualifiedName()),
+                            (versionized ? validAt : -1));
+                } else {
+                    // -> search for record by user-specified key field
+                    keys = dataAccess.getByFields(new String[] { overrideKeyField }, 
+                            new String[] { r.getAsString(overrideKeyField) },
+                            (versionized ? validAt : -1));
+                }
                 if (keys != null && keys.length > 0) {
                     for (int i = 0; i < keyFields.length; i++) {
                         if (!keyFields[i].equals(DataRecord.VALIDFROM)) {
@@ -340,7 +349,11 @@ public class DataImport extends ProgressTask {
                         header = new String[fields.size()];
                         for (int i=0; i<fields.size(); i++) {
                             header[i] = fields.get(i);
-                            String[] equivFields = dummyRecord.getEquivalentFields(fields.get(i));
+                            if (header[i].startsWith("#") && header[i].endsWith("#") && header.length > 2) {
+                                header[i] = header[i].substring(1, header[i].length()-1).trim();
+                                overrideKeyField = header[i];
+                            }
+                            String[] equivFields = dummyRecord.getEquivalentFields(header[i]);
                             for (String ef : equivFields) {
                                 fieldsInImport.add(ef);
                             }
@@ -433,12 +446,15 @@ public class DataImport extends ProgressTask {
             if (localName.equals(DataExport.FIELD_EXPORT)) {
                 String type = atts.getValue(DataExport.EXPORT_TYPE);
                 textImport = (type != null && type.equals(DataExport.EXPORT_TYPE_TEXT));
-            }
-            if (localName.equals(DataRecord.ENCODING_RECORD)) {
+            } else if (localName.equals(DataRecord.ENCODING_RECORD)) {
                 // begin of record
                 record = dataAccess.getPersistence().createNewRecord();
                 fieldsInImport = new ArrayList<String>();
                 return;
+            } else {
+                if (atts.getValue("key") != null && atts.getValue("key").equalsIgnoreCase("true")) {
+                    overrideKeyField = localName;
+                }
             }
 
         }

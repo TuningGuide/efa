@@ -367,7 +367,7 @@ public class KanuEfbSyncTask extends ProgressTask {
             Hashtable<String,UUID> efaIds = new Hashtable<String,UUID>();
             while (k != null) {
                 BoatRecord r = (BoatRecord)boats.data().get(k);
-                if (r != null && r.isValidAt(thisSync) &&
+                if (r != null && r.isValidAt(thisSync) && Daten.efaConfig.isCanoeBoatType(r) &&
                     (r.getLastModified() > lastSync || r.getEfbId() == null || r.getEfbId().length() == 0)) {
                     if (Logger.isTraceOn(Logger.TT_SYNC)) {
                         logInfo(Logger.DEBUG, Logger.MSG_SYNC_SYNCINFO, "  erstelle Synchronisierungs-Anfrage für Boot: " + r.getQualifiedName());
@@ -533,8 +533,8 @@ public class KanuEfbSyncTask extends ProgressTask {
                 LogbookRecord r = (LogbookRecord)logbook.data().get(k);
                 if (r != null &&
                     (r.getLastModified() > r.getSyncTime() || r.getSyncTime() <= 0) &&
-                     r.isRowingOrCanoeingSession()
-                        ) {
+                     r.isRowingOrCanoeingSession() && 
+                     Daten.efaConfig.isCanoeBoatType(r.getBoatRecord(r.getValidAtTimestamp())) ) {
                     for (int i=0; i<=LogbookRecord.CREW_MAX; i++) {
                         UUID pId = r.getCrewId(i);
                         if (pId != null) {

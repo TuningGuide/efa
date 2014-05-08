@@ -22,7 +22,7 @@ public class Logger {
     private static final int LOGGING_THRESHOLD_ERR  = 100;  // max LOGGING_THRESHOLD logging messages per second
     private static final int LOGGING_CHECK_FILESIZE = 1000; // number of log messages after which to check file size
     private static final int MAX_LOG_FILE_SIZE = 1048576;
-    
+
     private static final int MAX_LOGMSG_SIZE = 10*1024; // max. 10 Kb for log message
     private static final int MAX_LASTLOGMSG_SIZE = 1024; // max. 1 Kb to remember last log messages
     private static final int MAX_STACK_DEPTH = 20; // max stack depth for exceptions
@@ -194,10 +194,11 @@ public class Logger {
     public static final String MSG_DATA_AUDIT_OBJECTCREATED = "DAT049";
     public static final String MSG_DATA_AUDIT_OBJECTCREATIONFAILED = "DAT050";
     public static final String MSG_DATA_AUDIT_NOTCORRECTERRORSSET = "DAT051";
-    public static final String MSG_DATA_REPLAYINCOMPLETE  = "DAT052";
-    public static final String MSG_DATA_DATAACCESS  = "DAT053";
-    public static final String MSG_DATA_NOLOCKHELD  = "DAT054";
-    
+    public static final String MSG_DATA_AUDIT_NAMECORRECTED = "DAT052";
+    public static final String MSG_DATA_REPLAYINCOMPLETE  = "DAT053";
+    public static final String MSG_DATA_DATAACCESS  = "DAT054";
+    public static final String MSG_DATA_NOLOCKHELD  = "DAT055";
+
     public static final String MSG_REFA_SERVERSTATUS                 = "RMT001";
     public static final String MSG_REFA_SERVERERROR                  = "RMT002";
     public static final String MSG_REFA_SERVERLOG                    = "RMT003";
@@ -284,7 +285,7 @@ public class Logger {
     public static final String MSG_EVT_ONLINEUPDATEFINISHED = "EVT045";
     public static final String MSG_EVT_ERRORRECORDINVALIDATTIME = "EVT046";
     public static final String MSG_EVT_PERSONADDED = "EVT047";
-	public static final String MSG_EVT_CLUBWORKOPENED = "EVT048";
+    public static final String MSG_EVT_CLUBWORKOPENED = "EVT048";
 
     // Backup
     public static final String MSG_BCK_BACKUPSTARTED = "BCK001";
@@ -317,7 +318,8 @@ public class Logger {
     public static final String MSG_ERR_NOLOGBOOKOPENED = "ERR025";
     public static final String MSG_ERR_DATALOCK_FAILED = "ERR026";
     public static final String MSG_ERR_DATALOCK_CONFLICT = "ERR027";
-	public static final String MSG_ERR_NOWORKBOOKOPENED = "ERR028";
+    public static final String MSG_ERR_KEYSTORE          = "ERR028";
+    public static final String MSG_ERR_NOWORKBOOKOPENED = "ERR028";
 
     // efa in the Boat House - Warnings
     public static final String MSG_WARN_EFARUNNING_FAILED = "WRN001";
@@ -517,7 +519,7 @@ public class Logger {
                 Logger.log(Logger.ERROR,
                         Logger.MSG_LOGGER_FAILEDCREATELOG,
                         International.getString("Fehler") + ": "
-                        + LogString.fileCreationFailed(Daten.efaLogfile, International.getString("Logdatei")));
+                                + LogString.fileCreationFailed(Daten.efaLogfile, International.getString("Logdatei")));
             }
         }
 
@@ -648,7 +650,7 @@ public class Logger {
                     if (f.length() > 10*MAX_LOG_FILE_SIZE) {
                         log(ERROR, MSG_LOGGER_STOPLOGGING,
                                 Daten.efaLogfile + " has reached size of " + f.length() +
-                                ". STOP LOGGING.");
+                                        ". STOP LOGGING.");
                         stopLogging = true;
                     }
                 } catch(Exception eignore) {
@@ -681,10 +683,10 @@ public class Logger {
 
             if (msgToAdmin && Daten.project != null) {
 
-                Messages messages = (Daten.project != null && 
+                Messages messages = (Daten.project != null &&
                         !Daten.project.isInOpeningProject() &&
                         Daten.project.getProjectStorageType() != IDataAccess.TYPE_EFA_REMOTE ?
-                           Daten.project.getMessages(false) : null);
+                        Daten.project.getMessages(false) : null);
                 if (messages == null || !messages.isOpen()) {
                     inLogging = false;
                     return t;
@@ -826,7 +828,7 @@ public class Logger {
     public static void setLoggingToStdOut(boolean logToStdOut) {
         logAllToStdOut = logToStdOut;
     }
-    
+
     public static void setLogExceptions(boolean logEx) {
         logExceptions = logEx;
     }

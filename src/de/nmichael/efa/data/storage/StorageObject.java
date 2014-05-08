@@ -44,7 +44,11 @@ public abstract class StorageObject {
                 Logger.log(Logger.DEBUG, Logger.MSG_DEBUG_DATA, "Opening StorageObject "
                         + getUID() + " ...");
             }
-            dataAccess.openStorageObject();
+            if (createNewIfNotExists && !dataAccess.existsStorageObject()) {
+                dataAccess.createStorageObject();
+            } else {
+                dataAccess.openStorageObject();
+            }
             if (Logger.isTraceOn(Logger.TT_CORE, 5)) {
                 Logger.log(Logger.DEBUG, Logger.MSG_DEBUG_DATA, "StorageObject "
                         + getUID() + " opened.");

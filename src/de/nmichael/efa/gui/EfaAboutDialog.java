@@ -212,6 +212,7 @@ public class EfaAboutDialog extends BaseDialog {
                 + "* Kay Hannay (efaLive)\n"
                 + "* Martin Grüning (Documentation)\n"
                 + "* Thilo Coblenzer (efa Kiosk Howto)\n"
+                + "* Velten Heyn (Vereinsarbeit)\n"
                 + "\n"
                 + International.getString("Unterstützung, Zusammenarbeit und Technologie") + ":\n"
                 + "* Apache Software Foundation (FOP Plugin, XML Plugin)\n"

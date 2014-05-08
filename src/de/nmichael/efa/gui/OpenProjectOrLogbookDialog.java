@@ -31,7 +31,7 @@ public class OpenProjectOrLogbookDialog extends BaseDialog implements IItemListe
     public enum Type {
         project,
         logbook,
-		clubwork
+        clubwork
     }
 
     private String name;
@@ -41,10 +41,10 @@ public class OpenProjectOrLogbookDialog extends BaseDialog implements IItemListe
     private ItemTypeHtmlList list;
 
     public OpenProjectOrLogbookDialog(Frame parent, Type type, AdminRecord admin) {
-        super(parent, 
+        super(parent,
                 (type == Type.project ? International.getString("Projekt öffnen") :
-						(type == Type.logbook ? International.getString("Fahrtenbuch öffnen") :
-						International.getString("Vereinsarbeitsbuch öffnen"))
+                        (type == Type.logbook ? International.getString("Fahrtenbuch öffnen") :
+                                International.getString("Vereinsarbeitsbuch öffnen"))
                 ),
                 International.getStringWithMnemonic("Abbruch"));
         this.admin = admin;
@@ -53,10 +53,9 @@ public class OpenProjectOrLogbookDialog extends BaseDialog implements IItemListe
 
     public OpenProjectOrLogbookDialog(JDialog parent, Type type, AdminRecord admin) {
         super(parent,
-				(type == Type.project ? International.getString("Projekt öffnen") :
-						(type == Type.logbook ? International.getString("Fahrtenbuch öffnen") :
-								International.getString("Vereinsarbeitsbuch öffnen"))
-				),
+                (type == Type.project ? International.getString("Projekt öffnen")
+                        : (type == Type.logbook ? International.getString("Fahrtenbuch öffnen")
+                        : International.getString("Vereinsarbeitsbuch öffnen"))),
                 International.getStringWithMnemonic("Abbruch"));
         this.admin = admin;
         this.type = type;
@@ -77,17 +76,17 @@ public class OpenProjectOrLogbookDialog extends BaseDialog implements IItemListe
         if (type == Type.logbook) {
             label.setText(International.getString("vorhandene Fahrtenbücher"));
         }
-		if(type == Type.clubwork) {
-			label.setText(International.getString("vorhandene Vereinsarbeitsbücher"));
-		}
+        if (type == Type.clubwork) {
+            label.setText(International.getString("vorhandene Vereinsarbeitsbücher"));
+        }
         mainPanel.add(label, new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0,
-                                    GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(10, 10, 0, 0), 0, 0));
+                GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(10, 10, 0, 0), 0, 0));
 
         list = new ItemTypeHtmlList("LIST", null, null, null, IItemType.TYPE_PUBLIC, null, label.getText());
         String[] actions = {
-            International.getString("Öffnen"),
-            International.getString("Einstellungen"),
-            International.getString("Löschen")
+                International.getString("Öffnen"),
+                International.getString("Einstellungen"),
+                International.getString("Löschen")
         };
         list.setPopupActions(actions);
         list.registerItemListener(this);
@@ -104,7 +103,7 @@ public class OpenProjectOrLogbookDialog extends BaseDialog implements IItemListe
             }
         });
         mainPanel.add(newButton, new GridBagConstraints(1, 1, 1, 1, 0.0, 0.0,
-                                    GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(0, 5, 5, 10), 0, 0));
+                GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(0, 5, 5, 10), 0, 0));
         JButton openButton = new JButton();
         Mnemonics.setButton(this, openButton, International.getString("Öffnen"),
                 BaseDialog.IMAGE_OPEN);
@@ -114,7 +113,7 @@ public class OpenProjectOrLogbookDialog extends BaseDialog implements IItemListe
             }
         });
         mainPanel.add(openButton, new GridBagConstraints(1, 2, 1, 1, 0.0, 0.0,
-                                    GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(0, 5, 5, 10), 0, 0));
+                GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(0, 5, 5, 10), 0, 0));
 
         JButton configureButton = new JButton();
         Mnemonics.setButton(this, configureButton, International.getString("Einstellungen"),
@@ -125,7 +124,7 @@ public class OpenProjectOrLogbookDialog extends BaseDialog implements IItemListe
             }
         });
         mainPanel.add(configureButton, new GridBagConstraints(1, 3, 1, 1, 0.0, 0.0,
-                                    GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(0, 5, 5, 10), 0, 0));
+                GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(0, 5, 5, 10), 0, 0));
 
         JButton deleteButton = new JButton();
         Mnemonics.setButton(this, deleteButton, International.getString("Löschen"),
@@ -136,7 +135,7 @@ public class OpenProjectOrLogbookDialog extends BaseDialog implements IItemListe
             }
         });
         mainPanel.add(deleteButton, new GridBagConstraints(1, 4, 1, 1, 0.0, 0.0,
-                                    GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(0, 5, 5, 10), 0, 0));
+                GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(0, 5, 5, 10), 0, 0));
 
         updateGui();
     }
@@ -150,9 +149,9 @@ public class OpenProjectOrLogbookDialog extends BaseDialog implements IItemListe
         if (type == Type.logbook && Daten.project != null) {
             items = Daten.project.getLogbooks();
         }
-		if(type == Type.clubwork && Daten.project != null) {
-			items = Daten.project.getClubworks();
-		}
+        if(type == Type.clubwork && Daten.project != null) {
+            items = Daten.project.getClubworks();
+        }
 
         keys = items.keySet().toArray(new String[0]);
         Arrays.sort(keys);
@@ -181,7 +180,7 @@ public class OpenProjectOrLogbookDialog extends BaseDialog implements IItemListe
                             deleteButton_actionPerformed(e);
                             break;
                     }
-                    
+
                 }
             }
         }
@@ -200,12 +199,12 @@ public class OpenProjectOrLogbookDialog extends BaseDialog implements IItemListe
             updateGui();
             return;
         }
-		if(type == Type.clubwork) {
-			NewClubworkBookDialog dlg = new NewClubworkBookDialog(this);
-			dlg.newClubworkBookDialog();
-			updateGui();
-			return;
-		}
+        if (type == Type.clubwork) {
+            NewClubworkBookDialog dlg = new NewClubworkBookDialog(this);
+            dlg.newClubworkBookDialog();
+            updateGui();
+            return;
+        }
     }
 
     void openButton_actionPerformed(ActionEvent e) {
@@ -225,7 +224,7 @@ public class OpenProjectOrLogbookDialog extends BaseDialog implements IItemListe
             Project prj = null;
             try {
                 if (Daten.project != null && Daten.project.getProjectName() != null &&
-                    Daten.project.getProjectName().equals(name)) {
+                        Daten.project.getProjectName().equals(name)) {
                     prj = Daten.project;
                 } else {
                     prj = new Project(name);
@@ -241,7 +240,7 @@ public class OpenProjectOrLogbookDialog extends BaseDialog implements IItemListe
         }
 
         if (type == Type.logbook) {
-			ProjectRecord logbook = Daten.project.getLoogbookRecord(name);
+            ProjectRecord logbook = Daten.project.getLoogbookRecord(name);
             if (Daten.project == null || logbook == null) {
                 return;
             }
@@ -249,14 +248,14 @@ public class OpenProjectOrLogbookDialog extends BaseDialog implements IItemListe
             dlg.showDialog();
         }
 
-		if (type == Type.clubwork) {
-			ProjectRecord clubwork = Daten.project.getClubworkBookRecord(name);
-			if (Daten.project == null || clubwork == null) {
-				return;
-			}
-			ProjectEditDialog dlg = new ProjectEditDialog(this, Daten.project, clubwork, ProjectRecord.GUIITEMS_SUBTYPE_ALL, admin);
-			dlg.showDialog();
-		}
+        if (type == Type.clubwork) {
+            ProjectRecord clubwork = Daten.project.getClubworkBookRecord(name);
+            if (Daten.project == null || clubwork == null) {
+                return;
+            }
+            ProjectEditDialog dlg = new ProjectEditDialog(this, Daten.project, clubwork, ProjectRecord.GUIITEMS_SUBTYPE_ALL, admin);
+            dlg.showDialog();
+        }
     }
 
     void deleteButton_actionPerformed(ActionEvent e) {
@@ -277,17 +276,17 @@ public class OpenProjectOrLogbookDialog extends BaseDialog implements IItemListe
             }
             message = International.getMessage("Möchtest Du das Projekt '{name}' wirklich löschen?", name) + "\n" +
                     (prj.getProjectStorageType() == IDataAccess.TYPE_FILE_XML ?
-                        International.getString("Alle Daten des Projekts gehen damit unwiederbringlich verloren!") :
-                        International.getString("Es wird nur die Projektkonfiguration gelöscht. Die Daten selbst bleiben erhalten.") );
+                            International.getString("Alle Daten des Projekts gehen damit unwiederbringlich verloren!") :
+                            International.getString("Es wird nur die Projektkonfiguration gelöscht. Die Daten selbst bleiben erhalten.") );
         }
         if (type == Type.logbook) {
             message = International.getMessage("Möchtest Du das Fahrtenbuch '{name}' wirklich löschen?", name) + "\n" +
                     International.getString("Alle Fahrten des Fahrtenbuchs gehen damit unwiederbringlich verloren!");
         }
-		if (type == Type.clubwork) {
-			message = International.getMessage("Möchtest Du das Vereinsarbeitsbuch '{name}' wirklich löschen?", name) + "\n" +
-					International.getString("Alle Einträge des Vereinsarbeitsbuch gehen damit unwiederbringlich verloren!");
-		}
+        if (type == Type.clubwork) {
+            message = International.getMessage("Möchtest Du das Vereinsarbeitsbuch '{name}' wirklich löschen?", name) + "\n"
+                    + International.getString("Alle Einträge des Vereinsarbeitsbuch gehen damit unwiederbringlich verloren!");
+        }
         if (message == null) {
             return;
         }
@@ -301,14 +300,14 @@ public class OpenProjectOrLogbookDialog extends BaseDialog implements IItemListe
                 if (prj.getProjectStorageType() == IDataAccess.TYPE_FILE_XML) {
                     res = Dialog.yesNoDialog(International.getString("Bist Du sicher?"),
                             International.getString("Sämtliche Daten dieses Projekts (Fahrtenbücher, Mitglieder, Boote, Ziele etc.) werden unwiederbringlich gelöscht!") + "\n"+
-                            International.getString("Möchtest Du wirklich fortfahren?"));
+                                    International.getString("Möchtest Du wirklich fortfahren?"));
                     if (res != Dialog.YES) {
                         return;
                     }
                 }
                 boolean success = false;
                 if (Daten.project != null && Daten.project.getProjectName() != null &&
-                    Daten.project.getProjectName().equals(prj.getProjectName())) {
+                        Daten.project.getProjectName().equals(prj.getProjectName())) {
                     success = Daten.project.deleteProject();
                     Daten.project = null;
                 } else {
@@ -328,24 +327,24 @@ public class OpenProjectOrLogbookDialog extends BaseDialog implements IItemListe
                     logbook.data().deleteStorageObject();
                 }
                 updateGui();
-            } catch(Exception ex) {
+            } catch (Exception ex) {
                 Dialog.error(ex.toString());
                 Logger.logdebug(ex);
             }
         }
 
-		if (type == Type.clubwork) {
-			try {
-				Clubwork clubwork = Daten.project.getClubwork(name, false);
-				if (Daten.project.deleteClubworkBook(name)) {
-					clubwork.data().deleteStorageObject();
-				}
-				updateGui();
-			} catch(Exception ex) {
-				Dialog.error(ex.toString());
-				Logger.logdebug(ex);
-			}
-		}
+        if (type == Type.clubwork) {
+            try {
+                Clubwork clubwork = Daten.project.getClubwork(name, false);
+                if (Daten.project.deleteClubworkBook(name)) {
+                    clubwork.data().deleteStorageObject();
+                }
+                updateGui();
+            } catch (Exception ex) {
+                Dialog.error(ex.toString());
+                Logger.logdebug(ex);
+            }
+        }
     }
 
     public void closeButton_actionPerformed(ActionEvent e) {
@@ -356,5 +355,5 @@ public class OpenProjectOrLogbookDialog extends BaseDialog implements IItemListe
         showDialog();
         return name;
     }
-    
+
 }

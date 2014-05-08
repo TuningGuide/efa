@@ -26,8 +26,11 @@ import de.nmichael.efa.util.*;
 import de.nmichael.efa.util.Dialog;
 import de.nmichael.efa.core.*;
 import de.nmichael.efa.core.items.IItemType;
+import de.nmichael.efa.core.items.ItemTypeStringAutoComplete;
 import de.nmichael.efa.core.items.ItemTypeTextArea;
+import static de.nmichael.efa.data.Waters.getResourceTemplate;
 import de.nmichael.efa.gui.SimpleInputDialog;
+import de.nmichael.efa.gui.util.AutoCompleteList;
 import javax.swing.event.*;
 import java.security.PrivateKey;
 
@@ -52,6 +55,7 @@ public class MeldungEditFrame extends JDialog implements ActionListener {
     Hashtable hGruppe = new Hashtable();
     Hashtable hAbzeichen = new Hashtable();
     Hashtable hAequator = new Hashtable();
+    AutoCompleteList waterList;
     JPanel mainPanel = new JPanel();
     BorderLayout borderLayout1 = new BorderLayout();
     JPanel northPanel = new JPanel();
@@ -219,6 +223,7 @@ public class MeldungEditFrame extends JDialog implements ActionListener {
     JTextField fStrecke = new JTextField();
     JLabel jLabel10 = new JLabel();
     JTextField fGewaesser = new JTextField();
+    JButton addGewaesser = new JButton();
     JLabel jLabel11 = new JLabel();
     JTextField fKilometer = new JTextField();
     JLabel jLabel55 = new JLabel();
@@ -280,6 +285,7 @@ public class MeldungEditFrame extends JDialog implements ActionListener {
         try {
             jbInit();
             iniFields();
+            iniWaterList();
             ew.durchDRVbearbeitet = true;
             readMeldedatei();
             setVFields();
@@ -743,6 +749,14 @@ public class MeldungEditFrame extends JDialog implements ActionListener {
             fStartZiel.setPreferredSize(new Dimension(600, 17));
             fStrecke.setPreferredSize(new Dimension(600, 17));
             fGewaesser.setPreferredSize(new Dimension(600, 17));
+            addGewaesser.setText("+");
+            addGewaesser.setMargin(new Insets(0,0,0,0));
+            addGewaesser.setPreferredSize(new Dimension(20, 17));
+            addGewaesser.addActionListener(new java.awt.event.ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+                    addGewaesser_actionPerformed(e);
+                }
+            });
             fUnblockButton.setText("Felder zum Bearbeiten freigeben");
             fUnblockButton.addActionListener(new java.awt.event.ActionListener() {
 
@@ -1003,6 +1017,7 @@ public class MeldungEditFrame extends JDialog implements ActionListener {
             fahrtenDataPanel.add(fStrecke, new GridBagConstraints(1, 2, 6, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 0), 0, 0));
             fahrtenDataPanel.add(jLabel10, new GridBagConstraints(0, 3, 1, 1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
             fahrtenDataPanel.add(fGewaesser, new GridBagConstraints(1, 3, 6, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 0), 0, 0));
+            fahrtenDataPanel.add(addGewaesser, new GridBagConstraints(7, 3, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 0), 0, 0));
             fahrtenDataPanel.add(jLabel11, new GridBagConstraints(0, 4, 1, 1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
             fahrtenDataPanel.add(fKilometer, new GridBagConstraints(5, 4, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
             fahrtenDataPanel.add(fTage, new GridBagConstraints(2, 4, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
@@ -1262,6 +1277,44 @@ public class MeldungEditFrame extends JDialog implements ActionListener {
                 this.vMeldegeldEingegangen.setVisible(false);
 
                 break;
+        }
+    }
+    
+    void iniWaterList() {
+        try {
+            waterList = new AutoCompleteList();
+            BufferedReader f = new BufferedReader(
+                    new InputStreamReader(
+                    getResourceTemplate("de").openStream(),
+                    Daten.ENCODING_UTF));
+            String s;
+            String water = null;
+            ArrayList<String> waters = new ArrayList<String>();
+            while ((s = f.readLine()) != null) {
+                s = s.trim();
+                if (s.length() == 0 || s.startsWith("#")) {
+                    continue;
+                }
+                int pos = s.indexOf(";");
+                if (pos <= 0) {
+                    continue;
+                }
+                if (pos > 0) {
+                    water = s.substring(0, pos);
+                } else {
+                    water = s;
+                }
+                if (water != null) {
+                    waters.add(water);
+                }
+            }
+            String [] wa = waters.toArray(new String[0]);
+            Arrays.sort(wa);
+            for (String w : wa) {
+                waterList.add(w, null, true, null);
+            }
+        } catch (Exception e) {
+
         }
     }
 
@@ -2764,6 +2817,25 @@ public class MeldungEditFrame extends JDialog implements ActionListener {
             setMFields(ewmNr, true);
         } else {
             mBlock(!mBlocked);
+        }
+    }
+    
+    void addGewaesser_actionPerformed(ActionEvent e) {
+        if (!fGewaesser.isEditable()) {
+            return;
+        }
+        ItemTypeStringAutoComplete item = new ItemTypeStringAutoComplete("WATERS", "",
+                IItemType.TYPE_PUBLIC, "", "Gewässer", false, waterList);
+        if (SimpleInputDialog.showInputDialog(this, "Gewässer", item)) {
+            String w = item.getValueFromField();
+            if (w != null) {
+                w = w.trim();
+                if (w.length() > 0) {
+                    String s = fGewaesser.getText().trim();
+                    s = s + (s.length() > 0 ? "," : "") + w;
+                    fGewaesser.setText(s);
+                }
+            }
         }
     }
 

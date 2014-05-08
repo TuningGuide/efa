@@ -36,6 +36,7 @@ public class ItemTypeStringAutoComplete extends ItemTypeString implements AutoCo
     }
 
     protected boolean showButton;
+    protected boolean popupComplete;
     protected JButton button;
     protected Color originalButtonColor;
     protected AutoCompleteList autoCompleteList;
@@ -56,6 +57,7 @@ public class ItemTypeStringAutoComplete extends ItemTypeString implements AutoCo
             String category, String description, boolean showButton) {
         super(name, value, type, category, description);
         this.showButton = showButton;
+        this.popupComplete = Daten.efaConfig == null || Daten.efaConfig.getValuePopupComplete();
     }
 
     public ItemTypeStringAutoComplete(String name, String value, int type,
@@ -63,6 +65,7 @@ public class ItemTypeStringAutoComplete extends ItemTypeString implements AutoCo
             AutoCompleteList autoCompleteList) {
         super(name, value, type, category, description);
         this.showButton = showButton;
+        this.popupComplete = Daten.efaConfig == null || Daten.efaConfig.getValuePopupComplete();
         setAutoCompleteData(autoCompleteList);
     }
 
@@ -181,17 +184,17 @@ public class ItemTypeStringAutoComplete extends ItemTypeString implements AutoCo
             // avoid that the popup window disappears when showing on a JDialog: with JDialog, we receive temporary focusLost events all the time...
             return;
         }
-        if (Daten.efaConfig.getValuePopupComplete()) {
+        if (popupComplete) {
             AutoCompletePopupWindow.hideWindow();
         }
-        if (isCheckSpelling && Daten.efaConfig.getValueCorrectMisspelledNames()) {
+        if (isCheckSpelling && Daten.efaConfig != null && Daten.efaConfig.getValueCorrectMisspelledNames()) {
             checkSpelling();
         }
         super.field_focusLost(e);
     }
 
     public void showOrRemoveAutoCompletePopupWindow() {
-        if (Daten.efaConfig.getValuePopupComplete()) {
+        if (popupComplete) {
             JTextField f = (JTextField)field;
             if (f.isEnabled() && f.isEditable()) {
                 if (!AutoCompletePopupWindow.isShowingAt(f)) {
@@ -284,7 +287,7 @@ public class ItemTypeStringAutoComplete extends ItemTypeString implements AutoCo
             }
 
             if (e != null && e.getKeyCode() == KeyEvent.VK_DOWN) {
-                if (withPopup && Daten.efaConfig.getValuePopupComplete() && AutoCompletePopupWindow.isShowingAt(field)) {
+                if (withPopup && popupComplete && AutoCompletePopupWindow.isShowingAt(field)) {
                     complete = list.getNext();
                 } else {
                     complete = list.getNext(prefix);
@@ -314,7 +317,7 @@ public class ItemTypeStringAutoComplete extends ItemTypeString implements AutoCo
                 }
                 matching = true;
             }
-            if (withPopup && Daten.efaConfig.getValuePopupComplete() && e != null && mode != Mode.none) {
+            if (withPopup && popupComplete && e != null && mode != Mode.none) {
                 AutoCompletePopupWindow.showAndSelect(field, list, (complete != null ? complete : ""), null);
             }
         }
@@ -326,7 +329,7 @@ public class ItemTypeStringAutoComplete extends ItemTypeString implements AutoCo
                 prefix = field.getText().toLowerCase();
             }
 
-            if (withPopup && Daten.efaConfig.getValuePopupComplete() && AutoCompletePopupWindow.isShowingAt(field)) {
+            if (withPopup && popupComplete && AutoCompletePopupWindow.isShowingAt(field)) {
                 complete = list.getPrev();
             } else {
                 complete = list.getPrev(prefix);
@@ -340,7 +343,7 @@ public class ItemTypeStringAutoComplete extends ItemTypeString implements AutoCo
                 field.select(prefix.length(), complete.length());
                 matching = true;
             }
-            if (withPopup && Daten.efaConfig.getValuePopupComplete()) {
+            if (withPopup && popupComplete) {
                 AutoCompletePopupWindow.showAndSelect(field, list, (complete != null ? complete : ""), null);
             }
         }
@@ -423,13 +426,13 @@ public class ItemTypeStringAutoComplete extends ItemTypeString implements AutoCo
         if (mode == Mode.enter) {
             field.select(-1, -1);
             field.setCaretPosition(field.getText().length());
-            if (withPopup && Daten.efaConfig.getValuePopupComplete()) {
+            if (withPopup && popupComplete) {
                 AutoCompletePopupWindow.hideWindow();
             }
         }
 
         if (mode == Mode.escape) {
-            if (withPopup && Daten.efaConfig.getValuePopupComplete()) {
+            if (withPopup && popupComplete) {
                 AutoCompletePopupWindow.hideWindow();
             }
         }

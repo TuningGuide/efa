@@ -461,7 +461,7 @@ public class WettDefs extends DatenListe {
         efw_drv_fa_nadel_jug_gold = 300;
         efw_drv_fa_stoff_erw = 481;
         efw_drv_fa_stoff_jug = 348;
-        efw_drv_konto = "Sparkasse Hannover, Kto. 123 862, BLZ 250 501 80";
+        efw_drv_konto = "Sparkasse Hannover, Kto. 123 862, BLZ 250 501 80 (IBAN: DE06 2505 0180 0000 123862, BIC: SPKHDE2HXXX)";
         efw_drv_anschrift = "Deutscher Ruderverband, Ferdinand-Wilhelm-Fricke-Weg 10, 30169 Hannover";
         efw_lrvbln_somm_meld_erw = 850;
         efw_lrvbln_somm_meld_jug = 850;

@@ -99,8 +99,10 @@ public class MetaData {
         try {
             return FIELDIDX.get(fieldName).intValue();
         } catch(Exception e) {
-            Logger.log(Logger.ERROR, Logger.MSG_DATA_FIELDDOESNOTEXIST, 
+            if (Logger.isTraceOn(Logger.TT_XMLFILE, 1)) {
+                Logger.log(Logger.DEBUG, Logger.MSG_DATA_FIELDDOESNOTEXIST, 
                     "MetaData.getIndex(\""+fieldName+"\") - Field does not exist for DataType " + dataType + "!");
+            }
             Logger.logdebug(e);
             return -1;
         }

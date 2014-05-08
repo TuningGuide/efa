@@ -12,7 +12,8 @@ package de.nmichael.efa.gui.dataedit;
 
 import java.awt.Frame;
 import java.awt.event.ActionEvent;
-import java.util.*;
+import java.util.Hashtable;
+import java.util.Vector;
 
 import javax.swing.JDialog;
 
@@ -39,12 +40,12 @@ public class ProjectEditDialog extends UnversionizedDataEditDialog implements II
 
     Project project;
     String logbookName;
-	String clubworkBookName;
-    
+    String clubworkBookName;
+
     public enum Type {
         project,
         logbook,
-		clubwork
+        clubwork
     }
 
     public static String getInternationalProjectTypeString(String PROJECT_TYPE) {
@@ -72,7 +73,7 @@ public class ProjectEditDialog extends UnversionizedDataEditDialog implements II
         super(parent, International.getString("Projekt"), null, false, admin);
         iniItems(p, null, subtype);
     }
-    
+
     public ProjectEditDialog(Frame parent, Project p, Type type, String projectRecordName, int subtype, AdminRecord admin) {
         super(parent, International.getString("Projekt"), null, false, admin);
         iniItems(p, projectRecordName, type, subtype);
@@ -83,71 +84,73 @@ public class ProjectEditDialog extends UnversionizedDataEditDialog implements II
         iniItems(p, projectRecordName, type, subtype);
     }
 
-	public ProjectEditDialog(Frame parent, Project p, ProjectRecord projectRecord, int subtype, AdminRecord admin) {
+    public ProjectEditDialog(Frame parent, Project p, ProjectRecord projectRecord, int subtype, AdminRecord admin) {
 		super(parent, getInternationalProjectTypeString(projectRecord.getType()), null, false, admin);
-		iniItems(p, projectRecord.getName(), typeMapping(projectRecord.getType()), subtype);
-	}
+        iniItems(p, projectRecord.getName(), typeMapping(projectRecord.getType()), subtype);
+    }
 
-	public ProjectEditDialog(JDialog parent, Project p, ProjectRecord projectRecord, int subtype, AdminRecord admin) {
+    public ProjectEditDialog(JDialog parent, Project p, ProjectRecord projectRecord, int subtype, AdminRecord admin) {
 		super(parent, getInternationalProjectTypeString(projectRecord.getType()), null, false, admin);
-		iniItems(p, projectRecord.getName(), typeMapping(projectRecord.getType()), subtype);
-	}
+        iniItems(p, projectRecord.getName(), typeMapping(projectRecord.getType()), subtype);
+    }
 
-	public Type typeMapping(String strType) {
-		Type type;
-		if(strType.equals(ProjectRecord.TYPE_PROJECT)) { type = Type.project; }
-		else if(strType.equals(ProjectRecord.TYPE_LOGBOOK)) { type = Type.logbook; }
-		else { type = Type.clubwork; }
-		return type;
-	}
+    public Type typeMapping(String strType) {
+        Type type;
+        if (strType.equals(ProjectRecord.TYPE_PROJECT)) {
+            type = Type.project;
+        } else if (strType.equals(ProjectRecord.TYPE_LOGBOOK)) {
+            type = Type.logbook;
+        } else {
+            type = Type.clubwork;
+        }
+        return type;
+    }
 
     public ProjectEditDialog(JDialog parent, Project p, String logbookName, int subtype,
-            String compName, AdminRecord admin) {
+                             String compName, AdminRecord admin) {
         super(parent, International.getString("Projekt"), null, false, admin);
         iniItems(p, logbookName, subtype);
         if (compName != null &&
-             (compName.equals(WettDefs.STR_DRV_FAHRTENABZEICHEN) ||
-              compName.equals(WettDefs.STR_DRV_WANDERRUDERSTATISTIK))
-             &&getItem(ProjectRecord.ASSOCIATIONGLOBALLOGIN) != null) {
+                (compName.equals(WettDefs.STR_DRV_FAHRTENABZEICHEN) ||
+                        compName.equals(WettDefs.STR_DRV_WANDERRUDERSTATISTIK))
+                &&getItem(ProjectRecord.ASSOCIATIONGLOBALLOGIN) != null) {
             IItemType item = getItem(ProjectRecord.ASSOCIATIONGLOBALLOGIN);
             item.setNotNull(true);
             _alwaysCheckValues = true;
         }
         if (compName != null &&
-             (compName.equals(WettDefs.STR_LRVBERLIN_SOMMER) ||
-              compName.equals(WettDefs.STR_LRVBERLIN_WINTER) ||
-              compName.equals(WettDefs.STR_LRVBERLIN_BLAUERWIMPEL))
-             &&getItem(ProjectRecord.ASSOCIATIONREGIONALLOGIN) != null) {
+                (compName.equals(WettDefs.STR_LRVBERLIN_SOMMER) ||
+                        compName.equals(WettDefs.STR_LRVBERLIN_WINTER) ||
+                        compName.equals(WettDefs.STR_LRVBERLIN_BLAUERWIMPEL))
+                &&getItem(ProjectRecord.ASSOCIATIONREGIONALLOGIN) != null) {
             IItemType item = getItem(ProjectRecord.ASSOCIATIONREGIONALLOGIN);
             item.setNotNull(true);
             _alwaysCheckValues = true;
         }
     }
 
-	private void iniItems(Project p, String logbookName, int subtype) {
-   		iniItems(p, logbookName, null, subtype);
-	}
+    private void iniItems(Project p, String logbookName, int subtype) {
+        iniItems(p, logbookName, null, subtype);
+    }
 
     private void iniItems(Project p, String projectRecordName, Type type, int subtype) {
         this.project = p;
-		if(type == null || type == Type.logbook) {
-       		this.logbookName = projectRecordName;
-		}
-		else if(type == Type.clubwork) {
-			this.clubworkBookName = projectRecordName;
-		}
+        if (type == null || type == Type.logbook) {
+            this.logbookName = projectRecordName;
+        } else if (type == Type.clubwork) {
+            this.clubworkBookName = projectRecordName;
+        }
         removePrintButton();
 
         Vector<IItemType> guiItems = new Vector<IItemType>();
         try {
             ProjectRecord r;
-			if (type == Type.clubwork) {
-				r = p.getClubworkBookRecord(clubworkBookName);
-				if (r != null) {
-					guiItems.addAll(r.getGuiItems(admin, subtype, null, false));
-				}
-			}
-        	else if (type == Type.logbook) {
+            if (type == Type.clubwork) {
+                r = p.getClubworkBookRecord(clubworkBookName);
+                if (r != null) {
+                    guiItems.addAll(r.getGuiItems(admin, subtype, null, false));
+                }
+            } else if (type == Type.logbook) {
                 r = p.getLoogbookRecord(logbookName);
                 if (r != null) {
                     guiItems.addAll(r.getGuiItems(admin, subtype, null, false));
@@ -208,7 +211,7 @@ public class ProjectEditDialog extends UnversionizedDataEditDialog implements II
 
     public void itemListenerAction(IItemType itemType, AWTEvent event) {
         if (itemType.getName().endsWith(ProjectRecord.GUIITEM_BOATHOUSE_ADD) &&
-            event.getID() == ActionEvent.ACTION_PERFORMED) {
+                event.getID() == ActionEvent.ACTION_PERFORMED) {
             String boathouseName = Dialog.inputDialog(International.getString("Bootshaus hinzufügen"),
                     International.getString("Name des Bootshauses"));
             if (boathouseName != null) {
@@ -249,11 +252,11 @@ public class ProjectEditDialog extends UnversionizedDataEditDialog implements II
             }
         }
         if (itemType.getName().endsWith(ProjectRecord.GUIITEM_BOATHOUSE_DELETE) &&
-            event.getID() == ActionEvent.ACTION_PERFORMED) {
+                event.getID() == ActionEvent.ACTION_PERFORMED) {
             ProjectRecord r = project.getRecord(itemType.getDataKey());
             if (r != null && Dialog.yesNoDialog(International.getString("Bootshaus entfernen"),
                     International.getMessage("Möchtest Du das Bootshaus '{name}' wirklich entfernen?",
-                    r.getName())) != Dialog.YES) {
+                            r.getName())) != Dialog.YES) {
                 return;
             }
             try {
@@ -273,7 +276,7 @@ public class ProjectEditDialog extends UnversionizedDataEditDialog implements II
             }
         }
         if (itemType.getName().endsWith(ProjectRecord.GUIITEM_BOATHOUSE_SETDEFAULT) &&
-            event.getID() == ActionEvent.ACTION_PERFORMED) {
+                event.getID() == ActionEvent.ACTION_PERFORMED) {
             String name = itemType.getName();
             int pos = name.indexOf(":");
             if (pos > 0) {
@@ -283,7 +286,7 @@ public class ProjectEditDialog extends UnversionizedDataEditDialog implements II
                     ((ItemTypeString)item).parseAndShowValue(project.getMyIdentifier());
                 }
             }
-            
+
         }
     }
 

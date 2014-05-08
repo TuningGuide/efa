@@ -710,8 +710,53 @@ public class Audit extends Thread {
         } catch (Exception e) {
             Logger.logdebug(e);
             auditError(Logger.MSG_DATA_AUDIT,
-                    "runAuditBoats() Caught Exception: " + e.toString());
+                    "runAuditDestinations() Caught Exception: " + e.toString());
             return ++destinationErr;
+        }
+    }
+
+    private int runAuditWaters() {
+        int watersErr = 0;
+        try {
+            Waters waters = project.getWaters(false);
+            if (waters.dataAccess.getNumberOfRecords() == 0) {
+                return watersErr; // don't run check agains empty list (could be due to error opening list)
+            }
+            DataKeyIterator it = waters.data().getStaticIterator();
+            DataKey k = it.getFirst();
+            while (k != null) {
+                boolean updated = false;
+                WatersRecord water = (WatersRecord) waters.data().get(k);
+                String name = water.getName();
+                if (name != null) {
+                    if (name.equals("Rheinberger Gewässer")) {
+                        water.setName("Rheinsberger Gewässer");
+                        updated = true;
+                    }
+                    if (name.equals("Forgensee")) {
+                        water.setName("Forggensee");
+                        updated = true;
+                    }
+                    if (updated) {
+                        auditWarning(Logger.MSG_DATA_AUDIT_NAMECORRECTED,
+                                "runAuditWaters(): Misspelled name fixed (" +
+                                name + " -> " + water.getName() + ")");
+                    }
+                }
+                if (updated) {
+                    if (correctErrors) {
+                        waters.dataAccess.update(water);
+                    }
+                }
+                k = it.getNext();
+            }
+
+            return watersErr;
+        } catch (Exception e) {
+            Logger.logdebug(e);
+            auditError(Logger.MSG_DATA_AUDIT,
+                    "runAuditWaters() Caught Exception: " + e.toString());
+            return ++watersErr;
         }
     }
 
@@ -1216,9 +1261,9 @@ public class Audit extends Thread {
 
     private int runAuditClubworks() {
         int clubworkErr = 0;
-        String[] logbookNames = project.getAllLogbookNames();
-        if (logbookNames != null) {
-            for (String s : logbookNames) {
+        String[] clubworkNames = project.getAllClubworkNames();
+        if (clubworkNames != null) {
+            for (String s : clubworkNames) {
                 try {
                     Clubwork c = Daten.project.getClubwork(s, true);
                     if (c == null) {
@@ -1309,6 +1354,7 @@ public class Audit extends Thread {
                 runAuditCrews();
                 runAuditGroups();
                 runAuditDestinations();
+                runAuditWaters();
                 runAuditPersons();
                 runAuditFahrtenabzeichen();
                 runAuditMessages();
@@ -1327,9 +1373,7 @@ public class Audit extends Thread {
                     runAuditPurgeDeletedRecords(project.getGroups(false),
                             International.getString("Gruppe"));
                 }
-                if (Daten.NEW_FEATURES) {
-                    runAuditClubworks();
-                }
+                runAuditClubworks();
             } catch (Exception e) {
                 Logger.logdebug(e);
                 auditError(Logger.MSG_DATA_AUDIT,

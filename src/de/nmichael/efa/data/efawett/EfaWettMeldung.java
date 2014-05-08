@@ -165,10 +165,14 @@ public class EfaWettMeldung {
         if (jahre < 5) {
             return null;
         }
-        if (erwachsene) {
-            return ABZEICHEN_ERW_GOLD_LIST[jahre / 5];
-        } else {
-            return ABZEICHEN_JUG_GOLD_LIST[jahre / 5];
+        try {
+            if (erwachsene) {
+                return ABZEICHEN_ERW_GOLD_LIST[jahre / 5];
+            } else {
+                return ABZEICHEN_JUG_GOLD_LIST[jahre / 5];
+            }
+        } catch (ArrayIndexOutOfBoundsException e) {
+            return null;
         }
     }
 

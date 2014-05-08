@@ -773,6 +773,19 @@ public class EfaBoathouseBackgroundTask extends Thread {
             // we have already changed the logbook --> nothing to do
             return;
         }
+        
+        // Logswitch Key (to identify whether we already switched logbooks)
+        String date = (Daten.project.getAutoNewLogbookDate() != null && 
+                       Daten.project.getAutoNewLogbookDate().isSet() ?
+                       Daten.project.getAutoNewLogbookDate().toString() : "");
+        String key = newLogbookName + "~" + date;
+        if (key.equals(Daten.project.getLastLogbookSwitch())) {
+            // it seems the admin has explicitly opened another (maybe the previous) logbook
+            // again, but we have already completed the switch into the configured logbook
+            // in this efa instance.
+            return;
+        }
+        
         Logger.log(Logger.INFO, Logger.MSG_EVT_AUTOSTARTNEWLOGBOOK,
                 International.getString("Fahrtenbuchwechsel wird begonnen ..."));
 
@@ -824,6 +837,7 @@ public class EfaBoathouseBackgroundTask extends Thread {
             if (efaBoathouseFrame.openLogbook(newLogbook.getName())) {
                 Logger.log(Logger.INFO, Logger.MSG_EVT_AUTOSTARTNEWLBDONE,
                         LogString.operationSuccessfullyCompleted(International.getString("Fahrtenbuchwechsel")));
+                Daten.project.setLastLogbookSwitch(key);
             } else {
                 throw new Exception("Failed to open new Logbook");
             }

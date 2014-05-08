@@ -66,7 +66,7 @@ public class EfaUtil {
      * @param text String to do search and replace in
      * @param repl String to search for
      * @param with String to replace with
-     * @param n    int    values to replace
+     * @param max  int    values to replace
      *
      * @return String with n values replacEd
      */

@@ -418,40 +418,37 @@ public class ClubworkRecord extends DataRecord implements IItemFactory {
      * @return
      */
     public String[] getGuiTableAggregations(String[] aggregations, int index, int size, HashMap<String, Object> sideInfo) {
-        if (index == 0) {
-            sideInfo.put("uniquePeople", new HashSet<String>() {
-                {
-                    add(getFirstLastName());
-                }
-            });
+        if(index == 0) {
+            sideInfo.put("uniquePeople", new HashSet<UUID>(){{add(getPersonId());}});
             sideInfo.put("earliestDate", getWorkDate());
             sideInfo.put("latestDate", getWorkDate());
             aggregations[4] = String.valueOf(getHours());
-        } else {
-            DataTypeDate earliestDate = (DataTypeDate) sideInfo.get("earliestDate");
-            if (getWorkDate().isBefore(earliestDate)) {
+        }
+        else {
+            DataTypeDate earliestDate = (DataTypeDate)sideInfo.get("earliestDate");
+            if(getWorkDate().isBefore(earliestDate)) {
                 sideInfo.put("earliestDate", getWorkDate());
             }
 
-            DataTypeDate latestDate = (DataTypeDate) sideInfo.get("latestDate");
-            if (getWorkDate().isAfter(latestDate)) {
+            DataTypeDate latestDate = (DataTypeDate)sideInfo.get("latestDate");
+            if(getWorkDate().isAfter(latestDate)) {
                 sideInfo.put("latestDate", getWorkDate());
             }
 
             aggregations[4] = String.valueOf(Double.valueOf(aggregations[4]) + getHours());
         }
 
-        HashSet<String> uniquePeople = (HashSet<String>) sideInfo.get("uniquePeople");
-        uniquePeople.add(getFirstLastName());
+        HashSet<UUID> uniquePeople = (HashSet<UUID>)sideInfo.get("uniquePeople");
+        uniquePeople.add(getPersonId());
 
-        if (index == size - 1) {
+        if(index == size-1) {
             int uniqueSize = uniquePeople.size();
             aggregations[0] = uniqueSize + International.getString("Person(s)");
-            aggregations[1] = ((DataTypeDate) sideInfo.get("earliestDate")).toString() + "-"
-                    + ((DataTypeDate) sideInfo.get("latestDate")).toString();
+            aggregations[1] = (sideInfo.get("earliestDate")).toString() + "-" +
+                    (sideInfo.get("latestDate")).toString();
             aggregations[3] = International.getString("Sum");
             Clubwork clubwork = Daten.project.getCurrentClubwork();
-            if (clubwork != null) {
+            if(clubwork != null) {
                 ProjectRecord clubworkBook = Daten.project.getClubworkBookRecord(clubwork.getName());
                 Persons personContainer = Daten.project.getPersons(false);
                 int groupMonth = 0;
@@ -468,7 +465,7 @@ public class ClubworkRecord extends DataRecord implements IItemFactory {
                     }
                 }
 
-				aggregations[4] += "/"+Math.round( clubworkBook.getDefaultClubworkTargetHours()*groupMonth*100/12 ) / 100d;
+                aggregations[4] += "/"+Math.round( clubworkBook.getDefaultClubworkTargetHours()*groupMonth*100/12 ) / 100d;
             }
         }
 

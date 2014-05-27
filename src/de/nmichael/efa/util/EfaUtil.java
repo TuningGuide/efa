@@ -54,6 +54,22 @@ public class EfaUtil {
         return str;
     }
 
+    public static String escapeHtmlGetString(String str) {
+        if (str == null) {
+            return null;
+        }
+        str = EfaUtil.replace(str, "Ä", "AE");
+        str = EfaUtil.replace(str, "Ö", "Oe");
+        str = EfaUtil.replace(str, "Ü", "Ue");
+        str = EfaUtil.replace(str, "ä", "ae");
+        str = EfaUtil.replace(str, "ö", "oe");
+        str = EfaUtil.replace(str, "ü", "ue");
+        str = EfaUtil.replace(str, "ß", "ss");
+        str = EfaUtil.replaceNotAllowedCharacters(str.trim(),
+                    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789.", null, "_");
+        return str;
+    }
+
     // from StringW
     public static String replaceString(String text, String repl, String with) {
         return replaceString(text, repl, with, -1);

@@ -44,7 +44,8 @@ public class ClubworkRecord extends DataRecord implements IItemFactory {
 
         UNDEFINED,
         Normal,
-        CarryOver
+        CarryOver,
+        Credit
     }
     private static String CAT_BASEDATA = "%01%" + International.getString("Basisdaten");
     public static final String INPUTSHORTCUT = "InputShortcut";
@@ -189,6 +190,19 @@ public class ClubworkRecord extends DataRecord implements IItemFactory {
         } else {
             return Flags.UNDEFINED;
         }
+    }
+    
+    public String getFlagAsText() {
+        switch(getFlag()) {
+            case Normal:
+                return International.getString("normal");
+            case CarryOver:
+                return International.getString("Übertrag");
+            case Credit:
+                return International.getString("Kredit");
+
+        }
+        return International.getString("unbekannt");
     }
 
     public String getQualifiedName(boolean firstFirst) {
@@ -406,7 +420,7 @@ public class ClubworkRecord extends DataRecord implements IItemFactory {
         items[2] = new TableItem(getWorkDate());
         items[3] = new TableItem(getDescription());
         items[4] = new TableItem(getHours());
-        items[5] = new TableItem(International.getString(getFlag().toString()));
+        items[5] = new TableItem(getFlagAsText());
         return items;
     }
 
@@ -418,9 +432,9 @@ public class ClubworkRecord extends DataRecord implements IItemFactory {
      */
     public String[] getGuiTableAggregations(String[] aggregations, int index, int size, HashMap<String, Object> sideInfo) {
         if (index == 0) {
-            sideInfo.put("uniquePeople", new HashSet<String>() {
+            sideInfo.put("uniquePeople", new HashSet<UUID>() {
                 {
-                    add(getFirstLastName());
+                    add(getPersonId());
                 }
             });
             sideInfo.put("earliestDate", getWorkDate());
@@ -440,19 +454,34 @@ public class ClubworkRecord extends DataRecord implements IItemFactory {
             aggregations[4] = String.valueOf(Double.valueOf(aggregations[4]) + getHours());
         }
 
-        HashSet<String> uniquePeople = (HashSet<String>) sideInfo.get("uniquePeople");
-        uniquePeople.add(getFirstLastName());
+        HashSet<UUID> uniquePeople = (HashSet<UUID>) sideInfo.get("uniquePeople");
+        uniquePeople.add(getPersonId());
 
         if (index == size - 1) {
             int uniqueSize = uniquePeople.size();
             aggregations[0] = uniqueSize + International.getString("Person(s)");
-            aggregations[1] = ((DataTypeDate) sideInfo.get("earliestDate")).toString() + "-"
-                    + ((DataTypeDate) sideInfo.get("latestDate")).toString();
+            aggregations[1] = (sideInfo.get("earliestDate")).toString() + "-"
+                    + (sideInfo.get("latestDate")).toString();
             aggregations[3] = International.getString("Sum");
             Clubwork clubwork = Daten.project.getCurrentClubwork();
             if (clubwork != null) {
                 ProjectRecord clubworkBook = Daten.project.getClubworkBookRecord(clubwork.getName());
-                aggregations[4] += "/" + clubworkBook.getDefaultClubworkTargetHours() * uniqueSize;
+                Persons personContainer = Daten.project.getPersons(false);
+                int groupMonth = 0;
+                for (UUID id : uniquePeople) {
+                    try {
+                        DataRecord[] personRecords = personContainer.data().getValidAny(new DataKey<UUID, Long, String>(id, null, null));
+                        for (DataRecord personRecord : personRecords) {
+                            if (((PersonRecord) personRecord).isStatusMember()) {
+                                groupMonth += ((PersonRecord) personRecord).getPersonMemberMonth(clubwork.getStartDate(), clubwork.getEndDate());
+                            }
+                        }
+                    } catch (EfaException e) {
+                        e.printStackTrace();
+                    }
+                }
+
+                aggregations[4] += "/" + Math.round(clubworkBook.getDefaultClubworkTargetHours() * groupMonth * 100 / 12) / 100d;
             }
         }
 

@@ -85,19 +85,19 @@ public class ClubworkEditDialog extends UnversionizedDataEditDialog implements I
             }
         }
         if (itemType.getName().equals(ClubworkRecord.WORKDATE) &&
-            event instanceof FocusEvent && ((FocusEvent)event).getID() == FocusEvent.FOCUS_GAINED) {
-                ItemTypeDate item = (ItemTypeDate)getItem(ClubworkRecord.WORKDATE);
-                if (item != null) {
-                    item.setSelection(0, Integer.MAX_VALUE);
-                }
+                event instanceof FocusEvent && ((FocusEvent)event).getID() == FocusEvent.FOCUS_GAINED) {
+            ItemTypeDate item = (ItemTypeDate)getItem(ClubworkRecord.WORKDATE);
+            if (item != null) {
+                item.setSelection(0, Integer.MAX_VALUE);
+            }
         }
         if (itemType.getName().equals(ClubworkRecord.HOURS) &&
-            event instanceof FocusEvent && ((FocusEvent)event).getID() == FocusEvent.FOCUS_GAINED) {
-                ItemTypeDouble item = (ItemTypeDouble)getItem(ClubworkRecord.HOURS);
-                if (item != null) {
-                    item.setSelection(0, Integer.MAX_VALUE);
-                }
+                event instanceof FocusEvent && ((FocusEvent)event).getID() == FocusEvent.FOCUS_GAINED) {
+            ItemTypeDouble item = (ItemTypeDouble)getItem(ClubworkRecord.HOURS);
+            if (item != null) {
+                item.setSelection(0, Integer.MAX_VALUE);
+            }
         }
     }
-    
+
 }

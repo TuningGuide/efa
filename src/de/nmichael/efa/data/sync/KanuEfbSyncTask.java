@@ -201,9 +201,14 @@ public class KanuEfbSyncTask extends ProgressTask {
                 logInfo(Logger.ERROR, Logger.MSG_SYNC_ERRORCONFIG, "No project ID found: " + e.toString());
                 projectId = null;
             }
+            String projectName = EfaUtil.escapeHtmlGetString(Daten.project.getProjectName());
+            String clubName = EfaUtil.escapeHtmlGetString(Daten.project.getClubName());
 	    out.write("username=" + username +  
                       "&password=" + password +
-                      (projectId != null ? "&project=" + projectId.toString() : ""));
+                      (projectId != null ? "&project=" + projectId.toString() : "") +
+                      (projectName != null && projectName.length() > 0 ? "&projectname=" + projectName : "") +
+                      (clubName != null && clubName.length() > 0 ? "&clubname=" + clubName : "") 
+                    );
             out.flush();
             out.close();
 

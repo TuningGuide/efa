@@ -1119,16 +1119,8 @@ public class StatisticTask extends ProgressTask {
         }
         int cnt = 0;
         if (!entryPersonIsGuest && !entryPersonIsOther && !entryPersonExcludeFromClubwork && isInPersonFilter() && isInGroupFilter()) {
-            Integer month = personMemberMonthToFullYear(entryPersonRecord);
-            Double targetHours = 0.0;
-            if(month != null) {
-                month += Math.abs(sr.sEndDate.getYear() - sr.sStartDate.getYear())*12;
-                targetHours = sr.sDefaultClubworkTargetHours/12*month;
-            }
-            else {
-                month = -1+sr.sStartDate.getMonth() + sr.sEndDate.getMonth() + Math.abs(sr.sEndDate.getYear() - sr.sStartDate.getYear())*12;
-                targetHours = sr.sDefaultClubworkTargetHours/12*month;
-            }
+            Integer month = entryPersonRecord.getPersonMemberMonth(sr.sStartDate, sr.sEndDate);
+            Double targetHours = Math.round( sr.sDefaultClubworkTargetHours*month*100/12 ) / 100d;
             Object aggregationKey = getAggregationKeyForClubwork(r);
             if (aggregationKey != null) {
                 if (sr.sStatistikKey != StatisticsRecord.StatisticKey.waters) {

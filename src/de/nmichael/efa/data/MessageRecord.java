@@ -40,6 +40,8 @@ public class MessageRecord extends DataRecord {
     public static final String READ                  = "Read";
     public static final String TOBEMAILED            = "ToBeMailed";
     public static final String REPLYTO               = "ReplyTo";
+    
+    private boolean forceNewMsg = false; // mark this messages as new
 
     public static void initialize() {
         Vector<String> f = new Vector<String>();
@@ -166,6 +168,9 @@ public class MessageRecord extends DataRecord {
     public Vector<IItemType> getGuiItems(AdminRecord admin) {
         String CAT_BASEDATA     = "%01%" + International.getString("Nachricht");
         boolean newMsg = getFrom() == null || getFrom().length() == 0;
+        if (forceNewMsg) {
+            newMsg = true;
+        }
         long now = System.currentTimeMillis();
 
         IItemType item;
@@ -206,7 +211,7 @@ public class MessageRecord extends DataRecord {
         item.setEditable(newMsg);
         item.setNotNull(true);
 
-        if (!newMsg) {
+        if (!newMsg && forceNewMsg) {
             v.add(item = new ItemTypeBoolean(READ, getRead(),
                     IItemType.TYPE_PUBLIC, CAT_BASEDATA,
                     International.getString("gelesen")));
@@ -245,4 +250,9 @@ public class MessageRecord extends DataRecord {
         }
         return items;
     }
+    
+    public void setForceNewMsg(boolean newMsg) {
+        this.forceNewMsg = newMsg;
+    }
+    
 }

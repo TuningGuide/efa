@@ -63,6 +63,7 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
     // Data Fields
     ItemTypeString entryno;
     ItemTypeLabel opensession;
+    ItemTypeButton closesessionButton;
     ItemTypeDate date;
     ItemTypeDate enddate;
     ItemTypeStringAutoComplete boat;
@@ -498,11 +499,21 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
         entryno.registerItemListener(this);
 
         // Open Session
-        opensession = new ItemTypeLabel(LogbookRecord.OPEN, IItemType.TYPE_PUBLIC, null, International.getStringWithMnemonic("Fahrt offen (Boot unterwegs)"));
+        opensession = new ItemTypeLabel(LogbookRecord.OPEN, IItemType.TYPE_PUBLIC, null, International.getStringWithMnemonic("Fahrt offen"));
         opensession.setColor(Color.red);
         opensession.setFieldGrid(4, 1, -1, -1);
         opensession.displayOnGui(this, mainInputPanel, 5, 0);
         opensession.setVisible(false);
+        
+        closesessionButton = new ItemTypeButton("CloseSessionButton", IItemType.TYPE_PUBLIC, null, 
+                International.getStringWithMnemonic("Fahrt offen") + " - " +
+                International.getStringWithMnemonic("jetzt beenden"));
+        closesessionButton.setColor(Color.red);
+        closesessionButton.setFieldSize(50, 17);
+        closesessionButton.setFieldGrid(4, 1, -1, -1);
+        closesessionButton.displayOnGui(this, mainInputPanel, 5, 0);
+        closesessionButton.registerItemListener(this);
+        closesessionButton.setVisible(false);
 
         // Date
         date = new ItemTypeDate(LogbookRecord.DATE, new DataTypeDate(), IItemType.TYPE_PUBLIC, null, International.getStringWithMnemonic("Datum"));
@@ -879,6 +890,9 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
         PersonRecord p = null;
         try {
             String s = item.getValueFromField().trim();
+            if (Daten.efaConfig.getValuePostfixPersonsWithClubName()) {
+                s = PersonRecord.trimAssociationPostfix(s);
+            }
             if (s.length() > 0) {
                 PersonRecord r = Daten.project.getPersons(false).getPerson(s, validAt);
 
@@ -1202,11 +1216,15 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
                 return updateBoatVariant((r != null ? r.getBoatRecord(getValidAtTimestamp(r)) : null), (r != null ? r.getBoatVariant() : 0));
             }
             if (field == cox) {
-                return (r != null ? r.getCoxAsName(getValidAtTimestamp(r)) : "");
+                return (r != null ? r.getCoxAsName(getValidAtTimestamp(r)) +
+                                    (Daten.efaConfig.getValuePostfixPersonsWithClubName() ? PersonRecord.getAssociationPostfix(r.getCrewRecord(9, getValidAtTimestamp(r))) : "")
+                        : "");
             }
             for (int i = 0; i < crew.length; i++) {
                 if (field == crew[i]) {
-                    return (r != null ? r.getCrewAsName(i + 1, getValidAtTimestamp(r)) : "");
+                    return (r != null ? r.getCrewAsName(i + 1, getValidAtTimestamp(r)) +
+                                    (Daten.efaConfig.getValuePostfixPersonsWithClubName() ? PersonRecord.getAssociationPostfix(r.getCrewRecord(i + 1, getValidAtTimestamp(r))) : "")
+                            : "");
                 }
             }
             if (field == starttime) {
@@ -1288,7 +1306,8 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
         setField(comments,r);
         setField(sessiontype,r);
         setField(sessiongroup,r);
-        opensession.setVisible(isModeFull() && r != null && r.getSessionIsOpen());
+        // replaced by closesessionButton // opensession.setVisible(isModeFull() && r != null && r.getSessionIsOpen());
+        closesessionButton.setVisible(isModeFull() && r != null && r.getSessionIsOpen());
         currentBoatUpdateGui( (r != null && r.getBoatVariant() > 0 ? r.getBoatVariant() : -1) );
         setCrewRangeSelection(0);
         setEntryUnchanged();
@@ -2440,9 +2459,11 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
             // Distance
             if ((!distance.isSet() || distance.getValue().getValueInDefaultUnit() == 0)) {
                 if (mode == MODE_BOATHOUSE_FINISH || mode == MODE_BOATHOUSE_LATEENTRY) {
-                    Dialog.error(International.getString("Bitte trage die gefahrenen Entfernung ein!"));
-                    distance.requestFocus();
-                    return false;
+                    if (!Daten.efaConfig.getValueAllowSessionsWithoutDistance()) {
+                        Dialog.error(International.getString("Bitte trage die gefahrenen Entfernung ein!"));
+                        distance.requestFocus();
+                        return false;
+                    }
                 }
                 if (isModeFull()) {
                     if (Dialog.yesNoDialog(International.getString("Warnung"),
@@ -2846,6 +2867,12 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
                     r = logbook.getLogbookRecord(iterator.getLast());;
                 }
                 break;
+            case 0:
+                r = logbook.getLogbookRecord(iterator.getCurrent());
+                if (r == null) {
+                    r = logbook.getLogbookRecord(iterator.getLast());;
+                }
+                break;
         }
         if (r != null) {
             setFields(r);
@@ -3124,6 +3151,18 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
                                 International.getString("Boot war nicht geputzt") + " - " + boatName, 
                                 message.toString());
                         Dialog.infoDialog(International.getString("Danke") + "!");
+                    }
+                }
+            }
+            if (item == closesessionButton) {
+                if (currentRecord != null) {
+                    if (Dialog.yesNoDialog(International.getString("Fahrt beenden"), 
+                            International.getString("Möchtest du die Fahrt jetzt beenden und den Status des Boots auf verfügbar setzen?")
+                            ) == Dialog.YES) {
+                        currentRecord.setSessionIsOpen(false);
+                        updateBoatStatus(true, MODE_BOATHOUSE_FINISH);
+                        saveEntry();
+                        navigateInLogbook(0);
                     }
                 }
             }
@@ -4217,7 +4256,7 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
         return true;
     }
 
-    void finishBoathouseAction(boolean success) {
+    void updateBoatStatus(boolean success, int mode) {
         // log this action
         if (success) {
             switch(mode) {
@@ -4254,8 +4293,9 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
         }
 
         // Update boat status
-        if (success && efaBoathouseAction != null && currentRecord != null &&
-            mode != MODE_BOATHOUSE_LATEENTRY) {
+        if (success && currentRecord != null &&
+            mode != MODE_BOATHOUSE_LATEENTRY &&
+            (efaBoathouseAction != null || this.isModeFull())) {
             long tstmp = currentRecord.getValidAtTimestamp();
             BoatStatus boatStatus = Daten.project.getBoatStatus(false);
             BoatRecord boatRecord = currentRecord.getBoatRecord(tstmp);
@@ -4266,7 +4306,10 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
             String newShowInList = null; // if not explicitly set, this boat will appear in the list determined by its status
             DataTypeIntString newEntryNo = null;
             String newComment = null;
-            switch(efaBoathouseAction.mode) {
+            if (efaBoathouseAction != null) {
+                mode = efaBoathouseAction.mode;
+            }
+            switch(mode) {
                 case EfaBaseFrame.MODE_BOATHOUSE_START:
                 case EfaBaseFrame.MODE_BOATHOUSE_START_CORRECT:
                     newStatus = BoatStatusRecord.STATUS_ONTHEWATER;
@@ -4303,7 +4346,7 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
             } else {
                 if (boatStatusRecord == null) {
                     // unknown boat
-                    boatStatusRecord = efaBoathouseAction.boatStatus;
+                    boatStatusRecord = (efaBoathouseAction != null ? efaBoathouseAction.boatStatus : null);
 
                     // it could be that a session has been corrected and efaBoathouseAction.boatStatus
                     // is actually the status of a real boat; if that's the case, then create a new
@@ -4379,7 +4422,10 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
                 Dialog.error(e.toString());
             }
         }
-
+    }
+    
+    void finishBoathouseAction(boolean success) {
+        updateBoatStatus(success, mode);
         efaBoathouseHideEfaFrame();
     }
 

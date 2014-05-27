@@ -10,13 +10,13 @@ package de.nmichael.efa.data;
 
 import de.nmichael.efa.Daten;
 import de.nmichael.efa.ex.EfaException;
+import de.nmichael.efa.gui.EfaBoathouseFrame;
 import de.nmichael.efa.gui.NewClubworkBookDialog;
 import de.nmichael.efa.util.*;
 import de.nmichael.efa.data.storage.*;
 import de.nmichael.efa.data.types.DataTypeDate;
 import de.nmichael.efa.ex.EfaModifyException;
 import de.nmichael.efa.util.Dialog;
-
 import javax.swing.*;
 import java.awt.*;
 import java.util.*;
@@ -28,6 +28,7 @@ public class Clubwork extends StorageObject {
     //    public ClubworkRecord staticClubworkRecord;
     private String name;
     private ProjectRecord projectRecord;
+    private EfaBoathouseFrame efaBoathouseFrame;
 
     public Clubwork(int storageType,
             String storageLocation,
@@ -43,6 +44,10 @@ public class Clubwork extends StorageObject {
 
     public DataRecord createNewRecord() {
         return new ClubworkRecord(this, MetaData.getMetaData(DATATYPE));
+    }
+
+    public void setEfaBoathouseFrame(EfaBoathouseFrame efaBoathouseFrame) {
+        this.efaBoathouseFrame = efaBoathouseFrame;
     }
 
     public void setName(String name) {
@@ -261,14 +266,14 @@ public class Clubwork extends StorageObject {
                         }
                     }
 
-                    double clubworkTargetHours = sDefaultClubworkTargetHours / 12 * month;
+                    double clubworkTargetHours = Math.round(sDefaultClubworkTargetHours * month * 100 / 12) / 100d;
                     double max = clubworkTargetHours + sTransferableClubworkHours;
                     double min = clubworkTargetHours - sTransferableClubworkHours;
 
                     ClubworkRecord record = to.createClubworkRecord(UUID.randomUUID());
                     record.setPersonId(personId);
                     record.setWorkDate(DataTypeDate.today());
-                    record.setDescription(International.getString("Übertrag") + " (" + DataTypeDate.today() + ")");
+                    record.setDescription(International.getString("Übertrag"));
                     record.setFlag(ClubworkRecord.Flags.CarryOver);
 
                     if (hours == null) {
@@ -290,6 +295,7 @@ public class Clubwork extends StorageObject {
                 }
                 if (successSaved > 0) {
                     Dialog.infoDialog(International.getMessage("{thing} erfolgreich berechnet.", International.getString("Übertrag")));
+                    efaBoathouseFrame.openClubwork(to.getName());
                 } else {
                     Dialog.error(International.getMessage("{thing} konnte nicht berechnet werden!", International.getString("Übertrag")));
                 }

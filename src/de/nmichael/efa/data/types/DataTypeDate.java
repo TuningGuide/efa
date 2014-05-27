@@ -270,7 +270,7 @@ public class DataTypeDate implements Cloneable, Comparable<DataTypeDate> {
     public int hashCode() {
         return (new Integer(year*10000 + month*100 + day)).hashCode();
     }
-    
+
     public boolean isBefore(DataTypeDate o) {
         return compareTo(o) < 0;
     }
@@ -293,11 +293,11 @@ public class DataTypeDate implements Cloneable, Comparable<DataTypeDate> {
 
     public static boolean isRangeOverlap(DataTypeDate r1From, DataTypeDate r1To, DataTypeDate r2From, DataTypeDate r2To) {
         return (r2From.isBeforeOrEqual(r1From) && r2To.isAfterOrEqual(r1From)) ||
-               (r2From.isBeforeOrEqual(r1To) && r2To.isAfterOrEqual(r1To)) ||
-               (r2From.isAfterOrEqual(r1From) && r2To.isBeforeOrEqual(r1To)) ||
-               (r1From.isBeforeOrEqual(r2From) && r1To.isAfterOrEqual(r2From)) ||
-               (r1From.isBeforeOrEqual(r2To) && r1To.isAfterOrEqual(r2To)) ||
-               (r1From.isAfterOrEqual(r2From) && r1To.isBeforeOrEqual(r2To));
+                (r2From.isBeforeOrEqual(r1To) && r2To.isAfterOrEqual(r1To)) ||
+                (r2From.isAfterOrEqual(r1From) && r2To.isBeforeOrEqual(r1To)) ||
+                (r1From.isBeforeOrEqual(r2From) && r1To.isAfterOrEqual(r2From)) ||
+                (r1From.isBeforeOrEqual(r2To) && r1To.isAfterOrEqual(r2To)) ||
+                (r1From.isAfterOrEqual(r2From) && r1To.isBeforeOrEqual(r2To));
     }
 
     public static boolean isRangeOverlap(DataTypeDate r1FromDate, DataTypeTime r1FromTime,
@@ -309,11 +309,11 @@ public class DataTypeDate implements Cloneable, Comparable<DataTypeDate> {
         long r2From = r2FromDate.getTimestamp(r2FromTime);
         long r2To   = r2ToDate.getTimestamp(r2ToTime);
         return (r2From < r1From && r2To > r1From) ||
-               (r2From < r1To && r2To > r1To) ||
-               (r2From > r1From && r2To < r1To) ||
-               (r1From < r2From && r1To > r2From) ||
-               (r1From < r2To && r1To > r2To) ||
-               (r1From > r2From && r1To < r2To);
+                (r2From < r1To && r2To > r1To) ||
+                (r2From > r1From && r2To < r1To) ||
+                (r1From < r2From && r1To > r2From) ||
+                (r1From < r2To && r1To > r2To) ||
+                (r1From > r2From && r1To < r2To);
     }
 
     public long getTimestamp(DataTypeTime time) {
@@ -384,11 +384,26 @@ public class DataTypeDate implements Cloneable, Comparable<DataTypeDate> {
         return 0;
     }
 
-	public int getMonthsDifference(DataTypeDate o) {
-		int m1 = this.getYear() * 12 + this.getMonth();
-		int m2 = o.getYear() * 12 + o.getMonth();
-		return Math.abs(m2 - m1) + 1;
-	}
+    public int getMonthsDifference(DataTypeDate o) {
+        int m1 = this.getYear() * 12 + this.getMonth();
+        int m2 = o.getYear() * 12 + o.getMonth();
+        return Math.abs(m2 - m1) + 1;
+    }
+
+    public static int getMonthIntersect(DataTypeDate from, DataTypeDate to, DataTypeDate from2, DataTypeDate to2) {
+        if(from2.isAfter(from)) {
+            from = from2;
+        }
+
+        if(to2.isBefore(to)) {
+            to = to2;
+        }
+
+        int m1 = from.getYear() * 12 + from.getMonth();
+        int m2 = to.getYear() * 12 + to.getMonth();
+        int month = m2 - m1 + 1;
+        return month > 0 ? month : 0;
+    }
 
     public static String getDateTimeString(DataTypeDate date, DataTypeTime time) {
         String s = null;
@@ -422,7 +437,7 @@ public class DataTypeDate implements Cloneable, Comparable<DataTypeDate> {
         s = EfaUtil.replace(s, "YYYY", EfaUtil.int2String(year,4));
         return s;
     }
-    
+
     public String getMonthAsStringWithIntMarking(String prefix, String postfix) {
         return prefix + EfaUtil.int2String(month, 2) + postfix + getMonthAsString();
     }
@@ -460,7 +475,7 @@ public class DataTypeDate implements Cloneable, Comparable<DataTypeDate> {
     public String getWeekdayAsStringWithIntMarking(String prefix, String postfix) {
         int weekday = toCalendar().get(Calendar.DAY_OF_WEEK);
         if (International.getLanguageID().startsWith("de") &&
-            weekday == Calendar.SUNDAY) {
+                weekday == Calendar.SUNDAY) {
             // for German language setting, put Sunday last
             weekday = Calendar.SATURDAY + 1; // what a hack ;-)
         }

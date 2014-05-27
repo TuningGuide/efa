@@ -66,11 +66,6 @@ public class NewClubworkBookDialog extends StepwiseDialog {
             case 1:
                 return International.getString("Bitte wähle den Zeitraum für dieses Vereinsarbeitsbuch aus. efa wird später nur Arbeit "+
                         "innerhalb dieses Zeitraums für dieses Vereinsarbeitsbuch zulassen.");
-//            case 2:
-//                return International.getString("Durch die Konfiguration eines Vereinsarbeitsbuchwechsels ist es möglich, ein neues Vereinsarbeitsbuch "+
-//                        "automatisch zu einem konfigurierten Zeitpunkt (zum Beispiel Jahreswechsel) zu öffnen. efa-Bootshaus schließt das aktuelle " +
-//						"Vereinsarbeitsbuch und wechselt zum neuen Fahrtenbuch, ohne daß " +
-//                        "weitere Eingriffe eines Administrators nötig wären.");
         }
         return "";
     }

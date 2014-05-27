@@ -62,6 +62,7 @@ public class StatisticsData implements Comparable {
     String sCompAttr2;
     String sCompWarning;
     String sClubwork;
+    String sClubworkTarget;
     String sClubworkRelativeToTarget;
     String sClubworkOverUnderCarryOver;
     String sClubworkCredit;
@@ -134,6 +135,7 @@ public class StatisticsData implements Comparable {
             destinationAreas.reduceToMinimun();
         }
         this.clubwork += sd.clubwork;
+        this.clubworkTargetHours += sd.clubworkTargetHours;
     }
 
     public void updateMaximum(StatisticsData sd) {
@@ -352,48 +354,50 @@ public class StatisticsData implements Comparable {
                         getStringValueInDefaultUnit(sr.sDistanceWithUnit, 0, decimals);
             }
         }
+
+        this.clubworkOverUnderCarryOver = this.clubwork - this.clubworkTargetHours;
+        double t_hours = sr.sTransferableClubworkHours;
+        if(this.clubworkOverUnderCarryOver < - t_hours) {
+            this.clubworkOverUnderCarryOver += t_hours;
+        }
+        else if(this.clubworkOverUnderCarryOver > t_hours) {
+            this.clubworkOverUnderCarryOver -= t_hours;
+        }
+        else {
+            this.clubworkOverUnderCarryOver = 0;
+        }
+
         if (sr.sIsAggrClubwork) {
-            // TODO clubwork == 0 ist problematisch, da => in der Regel clubwork != Soll bzw. targetHours und sollte daher auf jeden Fall
-            // angezeigt
-            // werden
-            /*if (sr.sIgnoreNullValues && clubwork == 0) {
+            if (sr.sIgnoreNullValues && clubworkOverUnderCarryOver == 0) {
                 this.sClubwork = "";
-            } else {*/
-            // TODO teil unter isSummary muss überarbeitet werden? Da targetHours von aktueller Person abhängt und schwanken kann
-            this.sClubwork = this.clubwork +" / "+(isSummary ? absPosition*this.clubworkTargetHours : this.clubworkTargetHours);
-            /*}*/
+            } else {
+                this.sClubwork = this.clubwork+"";
+            }
+        }
+        if (sr.sIsAggrClubworkTarget) {
+            if (sr.sIgnoreNullValues && clubworkOverUnderCarryOver == 0) {
+                this.sClubworkTarget = "";
+            } else {
+                this.sClubworkTarget = Math.round(this.clubworkTargetHours*100)/100d+"";
+            }
         }
         if (sr.sIsAggrClubworkRelativeToTarget) {
-            // TODO clubwork == 0 ist problematisch, da => in der Regel unter clubworkTargetHours und sollte daher auf jeden Fall angezeigt werden
-            /*if (sr.sIgnoreNullValues && clubwork == 0) {
+            if (sr.sIgnoreNullValues && clubworkOverUnderCarryOver == 0) {
                 this.sClubworkRelativeToTarget = "";
-            } else {*/
-            this.clubworkRelativeToTarget = this.clubwork - (this.isSummary ? absPosition*this.clubworkTargetHours : this.clubworkTargetHours);
-            this.sClubworkRelativeToTarget = ""+this.clubworkRelativeToTarget;
-            /*}*/
+            } else {
+                this.clubworkRelativeToTarget = this.clubwork - this.clubworkTargetHours;
+                this.sClubworkRelativeToTarget = ""+Math.round(this.clubworkRelativeToTarget*100)/100d;
+            }
         }
         if (sr.sIsAggrClubworkOverUnderCarryOver) {
-            if (this.isSummary /*|| (sr.sIgnoreNullValues && clubwork == 0)*/) {
+            if (this.isSummary || (sr.sIgnoreNullValues && clubworkOverUnderCarryOver == 0)) {
                 this.sClubworkOverUnderCarryOver = "";
             } else {
-
-                this.clubworkOverUnderCarryOver = this.clubwork - this.clubworkTargetHours;
-                double t_hours = sr.sTransferableClubworkHours;
-                if(this.clubworkOverUnderCarryOver < - t_hours) {
-                    this.clubworkOverUnderCarryOver += t_hours;
-                }
-                else if(this.clubworkOverUnderCarryOver > t_hours) {
-                    this.clubworkOverUnderCarryOver -= t_hours;
-                }
-                else {
-                    this.clubworkOverUnderCarryOver = 0;
-                }
-
-                this.sClubworkOverUnderCarryOver = ""+this.clubworkOverUnderCarryOver;
+                this.sClubworkOverUnderCarryOver = ""+Math.round(this.clubworkOverUnderCarryOver*100)/100d;
             }
         }
         if (sr.sIsAggrClubworkCredit) {
-            if (this.isSummary /*|| (sr.sIgnoreNullValues && clubwork == 0)*/) {
+            if (this.isSummary || (sr.sIgnoreNullValues && clubworkOverUnderCarryOver == 0)) {
                 this.sClubworkCredit = "";
             } else {
                 this.sClubworkCredit = ""+this.clubworkCredit;

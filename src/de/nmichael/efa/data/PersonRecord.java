@@ -1,13 +1,11 @@
 /**
- * Title:        efa - elektronisches Fahrtenbuch für Ruderer
- * Copyright:    Copyright (c) 2001-2011 by Nicolas Michael
- * Website:      http://efa.nmichael.de/
- * License:      GNU General Public License v2
+ * Title: efa - elektronisches Fahrtenbuch für Ruderer Copyright: Copyright (c)
+ * 2001-2011 by Nicolas Michael Website: http://efa.nmichael.de/ License: GNU
+ * General Public License v2
  *
  * @author Nicolas Michael
  * @version 2
  */
-
 package de.nmichael.efa.data;
 
 import de.nmichael.efa.*;
@@ -24,91 +22,116 @@ import java.util.*;
 import java.util.regex.*;
 
 // @i18n complete
-
 public class PersonRecord extends DataRecord implements IItemFactory {
 
     // =========================================================================
     // Field Names
     // =========================================================================
-
-    public static final String ID                  = "Id";
-    public static final String EFBID               = "EfbId";
-    public static final String FIRSTNAME           = "FirstName";
-    public static final String LASTNAME            = "LastName";
-    public static final String FIRSTLASTNAME       = "FirstLastName";
-    public static final String NAMEAFFIX           = "NameAffix";
-    public static final String TITLE               = "Title";
-    public static final String GENDER              = "Gender";
-    public static final String BIRTHDAY            = "Birthday";
-    public static final String ASSOCIATION         = "Association";
-    public static final String STATUSID            = "StatusId";
-    public static final String ADDRESSSTREET       = "AddressStreet";
-    public static final String ADDRESSADDITIONAL   = "AddressAdditional";
-    public static final String ADDRESSCITY         = "AddressCity";
-    public static final String ADDRESSZIP          = "AddressZip";
-    public static final String ADDRESSCOUNTRY      = "AddressCountry";
-    public static final String EMAIL               = "Email";
-    public static final String MEMBERSHIPNO        = "MembershipNo";
-    public static final String PASSWORD            = "Password";
-    public static final String EXTERNALID          = "ExternalId";
-    public static final String DISABILITY          = "Disability";
-    public static final String EXCLUDEFROMSTATISTIC= "ExcludeFromStatistics";
-    public static final String EXCLUDEFROMCOMPETE  = "ExcludeFromCompetition";
+    public static final String ID = "Id";
+    public static final String EFBID = "EfbId";
+    public static final String FIRSTNAME = "FirstName";
+    public static final String LASTNAME = "LastName";
+    public static final String FIRSTLASTNAME = "FirstLastName";
+    public static final String NAMEAFFIX = "NameAffix";
+    public static final String TITLE = "Title";
+    public static final String GENDER = "Gender";
+    public static final String BIRTHDAY = "Birthday";
+    public static final String ASSOCIATION = "Association";
+    public static final String STATUSID = "StatusId";
+    public static final String ADDRESSSTREET = "AddressStreet";
+    public static final String ADDRESSADDITIONAL = "AddressAdditional";
+    public static final String ADDRESSCITY = "AddressCity";
+    public static final String ADDRESSZIP = "AddressZip";
+    public static final String ADDRESSCOUNTRY = "AddressCountry";
+    public static final String EMAIL = "Email";
+    public static final String MEMBERSHIPNO = "MembershipNo";
+    public static final String PASSWORD = "Password";
+    public static final String EXTERNALID = "ExternalId";
+    public static final String DISABILITY = "Disability";
+    public static final String EXCLUDEFROMSTATISTIC = "ExcludeFromStatistics";
+    public static final String EXCLUDEFROMCOMPETE = "ExcludeFromCompetition";
     public static final String EXCLUDEFROMCLUBWORK = "ExcludeFromClubwork";
     public static final String BOATUSAGEBAN = "BoatUsageBan";
-    public static final String INPUTSHORTCUT       = "InputShortcut";
-    public static final String DEFAULTBOATID       = "DefaultBoatId";
-    public static final String FREEUSE1            = "FreeUse1";
-    public static final String FREEUSE2            = "FreeUse2";
-    public static final String FREEUSE3            = "FreeUse3";
-
-    public static final String[] IDX_NAME_NAMEAFFIX = new String[] { FIRSTLASTNAME, NAMEAFFIX };
-
-    private static String GUIITEM_GROUPS           = "GUIITEM_GROUPS";
+    public static final String INPUTSHORTCUT = "InputShortcut";
+    public static final String DEFAULTBOATID = "DefaultBoatId";
+    public static final String FREEUSE1 = "FreeUse1";
+    public static final String FREEUSE2 = "FreeUse2";
+    public static final String FREEUSE3 = "FreeUse3";
+    public static final String[] IDX_NAME_NAMEAFFIX = new String[]{FIRSTLASTNAME, NAMEAFFIX};
+    private static String GUIITEM_GROUPS = "GUIITEM_GROUPS";
     private static String CAT_BASEDATA = "%01%" + International.getString("Basisdaten");
     private static String CAT_MOREDATA = "%02%" + International.getString("Weitere Daten");
-    private static String CAT_ADDRESS  = "%03%" + International.getString("Adresse");
-    private static String CAT_GROUPS   = "%04%" + International.getString("Gruppen");
-    private static String CAT_FREEUSE  = "%05%" + International.getString("Freie Verwendung");
-
+    private static String CAT_ADDRESS = "%03%" + International.getString("Adresse");
+    private static String CAT_GROUPS = "%04%" + International.getString("Gruppen");
+    private static String CAT_FREEUSE = "%05%" + International.getString("Freie Verwendung");
     private static Pattern qnamePattern = Pattern.compile("(.+) \\(([^\\(\\)]+)\\)");
 
     public static void initialize() {
         Vector<String> f = new Vector<String>();
         Vector<Integer> t = new Vector<Integer>();
 
-        f.add(ID);                                t.add(IDataAccess.DATA_UUID);
-        f.add(FIRSTNAME);                         t.add(IDataAccess.DATA_STRING);
-        f.add(LASTNAME);                          t.add(IDataAccess.DATA_STRING);
-        f.add(FIRSTLASTNAME);                     t.add(IDataAccess.DATA_VIRTUAL);
-        f.add(NAMEAFFIX);                         t.add(IDataAccess.DATA_STRING);
-        f.add(TITLE);                             t.add(IDataAccess.DATA_STRING);
-        f.add(GENDER);                            t.add(IDataAccess.DATA_STRING);
-        f.add(BIRTHDAY);                          t.add(IDataAccess.DATA_DATE);
-        f.add(ASSOCIATION);                       t.add(IDataAccess.DATA_STRING);
-        f.add(STATUSID);                          t.add(IDataAccess.DATA_UUID);
-        f.add(ADDRESSSTREET);                     t.add(IDataAccess.DATA_STRING);
-        f.add(ADDRESSADDITIONAL);                 t.add(IDataAccess.DATA_STRING);
-        f.add(ADDRESSCITY);                       t.add(IDataAccess.DATA_STRING);
-        f.add(ADDRESSZIP);                        t.add(IDataAccess.DATA_STRING);
-        f.add(ADDRESSCOUNTRY);                    t.add(IDataAccess.DATA_STRING);
-        f.add(EMAIL);                             t.add(IDataAccess.DATA_STRING);
-        f.add(MEMBERSHIPNO);                      t.add(IDataAccess.DATA_STRING);
-        f.add(PASSWORD);                          t.add(IDataAccess.DATA_STRING);
-        f.add(EXTERNALID);                        t.add(IDataAccess.DATA_STRING);
-        f.add(DISABILITY);                        t.add(IDataAccess.DATA_BOOLEAN);
-        f.add(EXCLUDEFROMSTATISTIC);              t.add(IDataAccess.DATA_BOOLEAN);
-        f.add(EXCLUDEFROMCOMPETE);                t.add(IDataAccess.DATA_BOOLEAN);
-	f.add(EXCLUDEFROMCLUBWORK);               t.add(IDataAccess.DATA_BOOLEAN);
-        f.add(BOATUSAGEBAN);                      t.add(IDataAccess.DATA_BOOLEAN);
-        f.add(INPUTSHORTCUT);                     t.add(IDataAccess.DATA_STRING);
-        f.add(DEFAULTBOATID);                     t.add(IDataAccess.DATA_UUID);
-        f.add(FREEUSE1);                          t.add(IDataAccess.DATA_STRING);
-        f.add(FREEUSE2);                          t.add(IDataAccess.DATA_STRING);
-        f.add(FREEUSE3);                          t.add(IDataAccess.DATA_STRING);
-        f.add(EFBID);                             t.add(IDataAccess.DATA_STRING);
+        f.add(ID);
+        t.add(IDataAccess.DATA_UUID);
+        f.add(FIRSTNAME);
+        t.add(IDataAccess.DATA_STRING);
+        f.add(LASTNAME);
+        t.add(IDataAccess.DATA_STRING);
+        f.add(FIRSTLASTNAME);
+        t.add(IDataAccess.DATA_VIRTUAL);
+        f.add(NAMEAFFIX);
+        t.add(IDataAccess.DATA_STRING);
+        f.add(TITLE);
+        t.add(IDataAccess.DATA_STRING);
+        f.add(GENDER);
+        t.add(IDataAccess.DATA_STRING);
+        f.add(BIRTHDAY);
+        t.add(IDataAccess.DATA_DATE);
+        f.add(ASSOCIATION);
+        t.add(IDataAccess.DATA_STRING);
+        f.add(STATUSID);
+        t.add(IDataAccess.DATA_UUID);
+        f.add(ADDRESSSTREET);
+        t.add(IDataAccess.DATA_STRING);
+        f.add(ADDRESSADDITIONAL);
+        t.add(IDataAccess.DATA_STRING);
+        f.add(ADDRESSCITY);
+        t.add(IDataAccess.DATA_STRING);
+        f.add(ADDRESSZIP);
+        t.add(IDataAccess.DATA_STRING);
+        f.add(ADDRESSCOUNTRY);
+        t.add(IDataAccess.DATA_STRING);
+        f.add(EMAIL);
+        t.add(IDataAccess.DATA_STRING);
+        f.add(MEMBERSHIPNO);
+        t.add(IDataAccess.DATA_STRING);
+        f.add(PASSWORD);
+        t.add(IDataAccess.DATA_STRING);
+        f.add(EXTERNALID);
+        t.add(IDataAccess.DATA_STRING);
+        f.add(DISABILITY);
+        t.add(IDataAccess.DATA_BOOLEAN);
+        f.add(EXCLUDEFROMSTATISTIC);
+        t.add(IDataAccess.DATA_BOOLEAN);
+        f.add(EXCLUDEFROMCOMPETE);
+        t.add(IDataAccess.DATA_BOOLEAN);
+        f.add(EXCLUDEFROMCLUBWORK);
+        t.add(IDataAccess.DATA_BOOLEAN);
+        f.add(BOATUSAGEBAN);
+        t.add(IDataAccess.DATA_BOOLEAN);
+        f.add(INPUTSHORTCUT);
+        t.add(IDataAccess.DATA_STRING);
+        f.add(DEFAULTBOATID);
+        t.add(IDataAccess.DATA_UUID);
+        f.add(FREEUSE1);
+        t.add(IDataAccess.DATA_STRING);
+        f.add(FREEUSE2);
+        t.add(IDataAccess.DATA_STRING);
+        f.add(FREEUSE3);
+        t.add(IDataAccess.DATA_STRING);
+        f.add(EFBID);
+        t.add(IDataAccess.DATA_STRING);
         MetaData metaData = constructMetaData(Persons.DATATYPE, f, t, true);
-        metaData.setKey(new String[] { ID }); // plus VALID_FROM
+        metaData.setKey(new String[]{ID}); // plus VALID_FROM
         metaData.addIndex(IDX_NAME_NAMEAFFIX);
     }
 
@@ -121,16 +144,17 @@ public class PersonRecord extends DataRecord implements IItemFactory {
     }
 
     public DataKey getKey() {
-        return new DataKey<UUID,Long,String>(getId(),getValidFrom(),null);
+        return new DataKey<UUID, Long, String>(getId(), getValidFrom(), null);
     }
 
     public static DataKey getKey(UUID id, long validFrom) {
-        return new DataKey<UUID,Long,String>(id,validFrom,null);
+        return new DataKey<UUID, Long, String>(id, validFrom, null);
     }
 
     public void setId(UUID id) {
         setUUID(ID, id);
     }
+
     public UUID getId() {
         return getUUID(ID);
     }
@@ -138,6 +162,7 @@ public class PersonRecord extends DataRecord implements IItemFactory {
     public void setEfbId(String id) {
         setString(EFBID, id);
     }
+
     public String getEfbId() {
         return getString(EFBID);
     }
@@ -145,6 +170,7 @@ public class PersonRecord extends DataRecord implements IItemFactory {
     public void setFirstName(String name) {
         setString(FIRSTNAME, name);
     }
+
     public String getFirstName() {
         return getString(FIRSTNAME);
     }
@@ -152,6 +178,7 @@ public class PersonRecord extends DataRecord implements IItemFactory {
     public void setLastName(String name) {
         setString(LASTNAME, name);
     }
+
     public String getLastName() {
         return getString(LASTNAME);
     }
@@ -159,9 +186,11 @@ public class PersonRecord extends DataRecord implements IItemFactory {
     public void setFirstLastName(String name) {
         // nothing to do (this column in virtual)
     }
+
     public String getFirstLastName() {
         return getFirstLastName(true);
     }
+
     public String getFirstLastName(boolean alwaysFirstFirst) {
         return getFullName(getString(FIRSTNAME), getString(LASTNAME), null,
                 (alwaysFirstFirst ? true : Daten.efaConfig.getValueNameFormatIsFirstNameFirst()));
@@ -170,6 +199,7 @@ public class PersonRecord extends DataRecord implements IItemFactory {
     public void setNameAffix(String affix) {
         setString(NAMEAFFIX, affix);
     }
+
     public String getNameAffix() {
         return getString(NAMEAFFIX);
     }
@@ -177,6 +207,7 @@ public class PersonRecord extends DataRecord implements IItemFactory {
     public void setTitle(String title) {
         setString(TITLE, title);
     }
+
     public String getTitle() {
         return getString(TITLE);
     }
@@ -184,6 +215,7 @@ public class PersonRecord extends DataRecord implements IItemFactory {
     public void setGender(String gender) {
         setString(GENDER, gender);
     }
+
     public String getGender() {
         return getString(GENDER);
     }
@@ -196,6 +228,7 @@ public class PersonRecord extends DataRecord implements IItemFactory {
     public void setBirthday(DataTypeDate date) {
         setDate(BIRTHDAY, date);
     }
+
     public DataTypeDate getBirthday() {
         return getDate(BIRTHDAY);
     }
@@ -203,6 +236,7 @@ public class PersonRecord extends DataRecord implements IItemFactory {
     public void setAssocitation(String name) {
         setString(ASSOCIATION, name);
     }
+
     public String getAssocitation() {
         return getString(ASSOCIATION);
     }
@@ -210,9 +244,11 @@ public class PersonRecord extends DataRecord implements IItemFactory {
     public void setStatusId(UUID id) {
         setUUID(STATUSID, id);
     }
+
     public UUID getStatusId() {
         return getUUID(STATUSID);
     }
+
     public String getStatusName() {
         UUID id = getStatusId();
         if (id != null) {
@@ -223,6 +259,7 @@ public class PersonRecord extends DataRecord implements IItemFactory {
         }
         return null;
     }
+
     public boolean isStatusMember() {
         UUID id = getStatusId();
         if (id != null) {
@@ -235,6 +272,7 @@ public class PersonRecord extends DataRecord implements IItemFactory {
     public void setAddressStreet(String street) {
         setString(ADDRESSSTREET, street);
     }
+
     public String getAddressStreet() {
         return getString(ADDRESSSTREET);
     }
@@ -242,6 +280,7 @@ public class PersonRecord extends DataRecord implements IItemFactory {
     public void setAddressAdditional(String addressAdditional) {
         setString(ADDRESSADDITIONAL, addressAdditional);
     }
+
     public String getAddressAdditional() {
         return getString(ADDRESSADDITIONAL);
     }
@@ -249,6 +288,7 @@ public class PersonRecord extends DataRecord implements IItemFactory {
     public void setAddressCity(String city) {
         setString(ADDRESSCITY, city);
     }
+
     public String getAddressCity() {
         return getString(ADDRESSCITY);
     }
@@ -256,6 +296,7 @@ public class PersonRecord extends DataRecord implements IItemFactory {
     public void setAddressZip(String zip) {
         setString(ADDRESSZIP, zip);
     }
+
     public String getAddressZip() {
         return getString(ADDRESSZIP);
     }
@@ -263,6 +304,7 @@ public class PersonRecord extends DataRecord implements IItemFactory {
     public void setAddressCountry(String country) {
         setString(ADDRESSCOUNTRY, country);
     }
+
     public String getAddressCountry() {
         return getString(ADDRESSCOUNTRY);
     }
@@ -270,6 +312,7 @@ public class PersonRecord extends DataRecord implements IItemFactory {
     public void setEmail(String email) {
         setString(EMAIL, email);
     }
+
     public String getEmail() {
         return getString(EMAIL);
     }
@@ -322,6 +365,7 @@ public class PersonRecord extends DataRecord implements IItemFactory {
     public void setMembershipNo(String no) {
         setString(MEMBERSHIPNO, no);
     }
+
     public String getMembershipNo() {
         return getString(MEMBERSHIPNO);
     }
@@ -329,6 +373,7 @@ public class PersonRecord extends DataRecord implements IItemFactory {
     public void setPassword(String password) {
         setString(PASSWORD, password);
     }
+
     public String getPassword() {
         return getString(PASSWORD);
     }
@@ -336,6 +381,7 @@ public class PersonRecord extends DataRecord implements IItemFactory {
     public void setExternalId(String id) {
         setString(EXTERNALID, id);
     }
+
     public String getExternalId() {
         return getString(EXTERNALID);
     }
@@ -343,6 +389,7 @@ public class PersonRecord extends DataRecord implements IItemFactory {
     public void setDisability(boolean disabled) {
         setBool(DISABILITY, disabled);
     }
+
     public boolean getDisability() {
         return getBool(DISABILITY);
     }
@@ -350,6 +397,7 @@ public class PersonRecord extends DataRecord implements IItemFactory {
     public void setExcludeFromPublicStatistics(boolean exclude) {
         setBool(EXCLUDEFROMSTATISTIC, exclude);
     }
+
     public boolean getExcludeFromPublicStatistics() {
         return getBool(EXCLUDEFROMSTATISTIC);
     }
@@ -357,6 +405,7 @@ public class PersonRecord extends DataRecord implements IItemFactory {
     public void setExcludeFromCompetition(boolean exclude) {
         setBool(EXCLUDEFROMCOMPETE, exclude);
     }
+
     public boolean getExcludeFromCompetition() {
         return getBool(EXCLUDEFROMCOMPETE);
     }
@@ -372,6 +421,7 @@ public class PersonRecord extends DataRecord implements IItemFactory {
     public void setBoatUsageBan(boolean banned) {
         setBool(BOATUSAGEBAN, banned);
     }
+
     public boolean getBoatUsageBan() {
         return getBool(BOATUSAGEBAN);
     }
@@ -379,6 +429,7 @@ public class PersonRecord extends DataRecord implements IItemFactory {
     public void setInputShortcut(String shortcut) {
         setString(INPUTSHORTCUT, shortcut);
     }
+
     public String getInputShortcut() {
         return getString(INPUTSHORTCUT);
     }
@@ -386,9 +437,11 @@ public class PersonRecord extends DataRecord implements IItemFactory {
     public void setDefaultBoatId(UUID id) {
         setUUID(DEFAULTBOATID, id);
     }
+
     public UUID getDefaultBoatId() {
         return getUUID(DEFAULTBOATID);
     }
+
     public String getDefaultBoatAsName() {
         UUID id = getUUID(DEFAULTBOATID);
         Boats boats = getPersistence().getProject().getBoats(false);
@@ -403,12 +456,13 @@ public class PersonRecord extends DataRecord implements IItemFactory {
 
     public GroupRecord[] getGroupList() {
         Groups groups = getPersistence().getProject().getGroups(false);
-        return groups.getGroupsForPerson(getId(), getValidFrom(), getInvalidFrom()-1);
+        return groups.getGroupsForPerson(getId(), getValidFrom(), getInvalidFrom() - 1);
     }
 
     public void setFreeUse1(String s) {
         setString(FREEUSE1, s);
     }
+
     public String getFreeUse1() {
         return getString(FREEUSE1);
     }
@@ -416,6 +470,7 @@ public class PersonRecord extends DataRecord implements IItemFactory {
     public void setFreeUse2(String s) {
         setString(FREEUSE2, s);
     }
+
     public String getFreeUse2() {
         return getString(FREEUSE2);
     }
@@ -423,6 +478,7 @@ public class PersonRecord extends DataRecord implements IItemFactory {
     public void setFreeUse3(String s) {
         setString(FREEUSE3, s);
     }
+
     public String getFreeUse3() {
         return getString(FREEUSE3);
     }
@@ -465,7 +521,7 @@ public class PersonRecord extends DataRecord implements IItemFactory {
         if (pos < 0) {
             return name;
         }
-        return (name.substring(pos+2) + " " + name.substring(0, pos)).trim();
+        return (name.substring(pos + 2) + " " + name.substring(0, pos)).trim();
     }
 
     public String getQualifiedName(boolean firstFirst) {
@@ -481,18 +537,18 @@ public class PersonRecord extends DataRecord implements IItemFactory {
     }
 
     public String[] getQualifiedNameFieldsTranslateVirtualToReal() {
-        return new String[] { FIRSTNAME, LASTNAME, NAMEAFFIX };
+        return new String[]{FIRSTNAME, LASTNAME, NAMEAFFIX};
     }
 
     public String[] getQualifiedNameValues(String qname) {
         Matcher m = qnamePattern.matcher(qname);
         if (m.matches()) {
-            return new String[] {
+            return new String[]{
                 getFirstLastName(m.group(1).trim()),
                 m.group(2).trim()
             };
         } else {
-            return new String[] {
+            return new String[]{
                 getFirstLastName(qname.trim()),
                 null
             };
@@ -516,13 +572,13 @@ public class PersonRecord extends DataRecord implements IItemFactory {
             pos = name.indexOf(" ");
             if (pos >= 0) {
                 firstName = name.substring(0, pos).trim();
-                lastName  = name.substring(pos+1).trim();
+                lastName = name.substring(pos + 1).trim();
             }
         } else {
-            firstName = name.substring(pos+2);
+            firstName = name.substring(pos + 2);
             lastName = name.substring(0, pos).trim();
         }
-        return new String[] { firstName, lastName, affix };
+        return new String[]{firstName, lastName, affix};
     }
 
     public static String[] tryGetNameAndAffix(String s) {
@@ -533,7 +589,7 @@ public class PersonRecord extends DataRecord implements IItemFactory {
             name = m.group(1).trim();
             affix = m.group(2).trim();
         }
-        return new String[] { name, affix };
+        return new String[]{name, affix};
     }
 
     public Object getUniqueIdForRecord() {
@@ -584,13 +640,50 @@ public class PersonRecord extends DataRecord implements IItemFactory {
         return (value.equals(getAsText(fieldName)));
     }
 
+    public Integer getPersonMemberMonth(DataTypeDate startDate, DataTypeDate endDate) {
+        long fromLong = this.getValidFrom();
+        if (fromLong == 0) {
+            return 0;
+        }
+        DataTypeDate from = new DataTypeDate(fromLong);
+
+        long toLong = this.getInvalidFrom();
+        DataTypeDate to;
+        if (toLong == Long.MAX_VALUE) {
+            to = endDate;
+        } else {
+            to = new DataTypeDate(toLong);
+        }
+
+        return DataTypeDate.getMonthIntersect(from, to, startDate, endDate);
+    }
+    
+    public static String getAssociationPostfix(PersonRecord p) {
+        if (p != null && p.getAssocitation() != null && p.getAssocitation().length() > 0) {
+            return " (" + p.getAssocitation() + ")";
+        }
+        return "";
+    }
+
+    public String getAssociationPostfix() {
+        return getAssociationPostfix(this);
+    }
+
+    public static String trimAssociationPostfix(String s) {
+        int pos = s.lastIndexOf(" (");
+        if (pos > 0) {
+            return s.substring(0, pos);
+        }
+        return s;
+    }
+
     public IItemType[] getDefaultItems(String itemName) {
         if (itemName.equals(PersonRecord.GUIITEM_GROUPS)) {
             IItemType[] items = new IItemType[1];
             String CAT_USAGE = "%04%" + International.getString("Gruppen");
             items[0] = getGuiItemTypeStringAutoComplete(PersonRecord.GUIITEM_GROUPS, null,
                     IItemType.TYPE_PUBLIC, CAT_GROUPS,
-                    getPersistence().getProject().getGroups(false), getValidFrom(), getInvalidFrom()-1,
+                    getPersistence().getProject().getGroups(false), getValidFrom(), getInvalidFrom() - 1,
                     International.getString("Gruppe"));
             items[0].setFieldSize(300, -1);
             return items;
@@ -606,22 +699,22 @@ public class PersonRecord extends DataRecord implements IItemFactory {
         Vector<IItemType> v = new Vector<IItemType>();
         v.add(item = new ItemTypeString(PersonRecord.FIRSTNAME, getFirstName(),
                 IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Vorname")));
-        ((ItemTypeString)item).setNotAllowedCharacters(",");
+        ((ItemTypeString) item).setNotAllowedCharacters(",");
         v.add(item = new ItemTypeString(PersonRecord.LASTNAME, getLastName(),
                 IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Nachname")));
-        ((ItemTypeString)item).setNotAllowedCharacters(",");
+        ((ItemTypeString) item).setNotAllowedCharacters(",");
         v.add(item = new ItemTypeString(PersonRecord.NAMEAFFIX, getNameAffix(),
                 IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Namenszusatz")));
-        ((ItemTypeString)item).setNotAllowedCharacters(",");
+        ((ItemTypeString) item).setNotAllowedCharacters(",");
         v.add(item = new ItemTypeString(PersonRecord.TITLE, getTitle(),
                 IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Titel")));
-        ((ItemTypeString)item).setNotAllowedCharacters(",");
+        ((ItemTypeString) item).setNotAllowedCharacters(",");
         v.add(item = new ItemTypeStringList(PersonRecord.GENDER, getGender(),
                 EfaTypes.makeGenderArray(EfaTypes.ARRAY_STRINGLIST_VALUES), EfaTypes.makeGenderArray(EfaTypes.ARRAY_STRINGLIST_DISPLAY),
                 IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Geschlecht")));
         v.add(item = new ItemTypeDate(PersonRecord.BIRTHDAY, getBirthday(),
                 IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Geburtstag")));
-        ((ItemTypeDate)item).setAllowYearOnly(true);
+        ((ItemTypeDate) item).setAllowYearOnly(true);
 
         if (admin != null && admin.isAllowedEditPersons()) {
             v.add(item = new ItemTypeStringList(PersonRecord.STATUSID, (getStatusId() != null ? getStatusId().toString() : status.getStatusOther().getId().toString()),
@@ -640,8 +733,8 @@ public class PersonRecord extends DataRecord implements IItemFactory {
                     IItemType.TYPE_PUBLIC, CAT_MOREDATA, International.getString("von allgemein verfügbaren Statistiken ausnehmen")));
             v.add(item = new ItemTypeBoolean(PersonRecord.EXCLUDEFROMCOMPETE, getExcludeFromCompetition(),
                     IItemType.TYPE_PUBLIC, CAT_MOREDATA, International.getString("von Wettbewerbsmeldungen ausnehmen")));
-			v.add(item = new ItemTypeBoolean(PersonRecord.EXCLUDEFROMCLUBWORK, getExcludeFromClubwork(),
-					IItemType.TYPE_PUBLIC, CAT_MOREDATA, International.getString("von Vereinsarbeit ausnehmen")));
+            v.add(item = new ItemTypeBoolean(PersonRecord.EXCLUDEFROMCLUBWORK, getExcludeFromClubwork(),
+                    IItemType.TYPE_PUBLIC, CAT_MOREDATA, International.getString("von Vereinsarbeit ausnehmen")));
             v.add(item = new ItemTypeBoolean(PersonRecord.BOATUSAGEBAN, getBoatUsageBan(),
                     IItemType.TYPE_PUBLIC, CAT_MOREDATA, International.getString("Bootsbenutzungs-Sperre")));
             v.add(item = new ItemTypeString(PersonRecord.INPUTSHORTCUT, getInputShortcut(),
@@ -705,31 +798,32 @@ public class PersonRecord extends DataRecord implements IItemFactory {
                 IItemType.TYPE_INTERNAL, "",
                 getPersistence(), getValidFrom(), getInvalidFrom() - 1,
                 International.getString("Name")));
-        
+
         return v;
     }
 
     public void saveGuiItems(Vector<IItemType> items) {
-        for(IItemType item : items) {
+        for (IItemType item : items) {
             String name = item.getName();
             if (name.equals(GUIITEM_GROUPS) && item.isChanged()) {
-                ItemTypeItemList list = (ItemTypeItemList)item;
+                ItemTypeItemList list = (ItemTypeItemList) item;
                 Groups groups = getPersistence().getProject().getGroups(false);
-                Hashtable<UUID,String> groupIds = new Hashtable<UUID,String>();
-                for (int i=0; i<list.size(); i++) {
-                    ItemTypeStringAutoComplete l = (ItemTypeStringAutoComplete)list.getItems(i)[0];
-                    UUID id = (UUID)l.getId(l.getValue());
+                Hashtable<UUID, String> groupIds = new Hashtable<UUID, String>();
+                for (int i = 0; i < list.size(); i++) {
+                    ItemTypeStringAutoComplete l = (ItemTypeStringAutoComplete) list.getItems(i)[0];
+                    UUID id = (UUID) l.getId(l.getValue());
                     if (id != null) {
                         groupIds.put(id, "foo");
                     }
                 }
                 groups.setGroupsForPerson(getId(),
                         groupIds.keySet().toArray(new UUID[0]),
-                        getInvalidFrom()-1);
+                        getInvalidFrom() - 1);
             }
         }
         super.saveGuiItems(items);
     }
+
     public TableItemHeader[] getGuiTableHeader() {
         TableItemHeader[] header = new TableItemHeader[4];
         if (Daten.efaConfig.getValueNameFormatIsFirstNameFirst()) {
@@ -761,5 +855,4 @@ public class PersonRecord extends DataRecord implements IItemFactory {
         }
         return items;
     }
-    
 }

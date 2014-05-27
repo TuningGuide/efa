@@ -127,12 +127,24 @@ public class MessageListDialog extends DataListDialog {
                                 ( (origToAdmin && (r.getTo() == null || r.getTo().equals(MessageRecord.TO_ADMIN))) ||
                                   (!origToAdmin && r.getTo() != null && r.getTo().equals(MessageRecord.TO_BOATMAINTENANCE)) ) ) {
                             // forward message
-                            ((Messages)persistence).createAndSaveMessageRecord(r.getFrom(),
+                            MessageRecord fwd = ((Messages)persistence).createMessageRecord();
+                            fwd.setFrom(r.getFrom());
+                            fwd.setTo(origToAdmin ? MessageRecord.TO_BOATMAINTENANCE : MessageRecord.TO_ADMIN);
+                            fwd.setSubject("Fwd: " + r.getSubject());
+                            fwd.setText(International.getMessage("Weitergeleitet von {name}", admin.getName()) + ":\n\n" + r.getText());
+                            fwd.setForceNewMsg(true);
+                            /*((Messages)persistence).createAndSaveMessageRecord(r.getFrom(),
                                     (origToAdmin ? MessageRecord.TO_BOATMAINTENANCE : MessageRecord.TO_ADMIN),
                                     (String)null,
                                     r.getSubject(),
                                     International.getMessage("Weitergeleitet von {name}", admin.getName()) + ":\n\n" + r.getText());
-
+                            */
+                            DataEditDialog dlg = createNewDataEditDialog(this, persistence, fwd, true);
+                            
+                            dlg.showDialog();
+                            if (dlg.getDialogResult()) {
+                                //persistence.data().add(records[i]);
+                            }
                             // mark original message as read, if allowed
                             if (!r.getRead() &&
                                  ( ((r.getTo() == null || r.getTo().equals(MessageRecord.TO_ADMIN)) && admin.isAllowedMsgMarkReadAdmin()) ||
@@ -181,4 +193,12 @@ public class MessageListDialog extends DataListDialog {
         }
         return new MessageEditDialog(parent, (MessageRecord)record, newRecord, admin);
     }
+
+    public DataEditDialog createNewDataEditDialog(JDialog parent, StorageObject persistence, DataRecord record, boolean newRecord) {
+        if (record == null) {
+            record = Daten.project.getMessages(false).createMessageRecord();
+        }
+        return new MessageEditDialog(parent, (MessageRecord)record, newRecord, admin);
+    }
+
 }

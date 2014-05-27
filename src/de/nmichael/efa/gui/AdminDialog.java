@@ -97,8 +97,8 @@ public class AdminDialog extends BaseDialog implements IItemListener {
                 y = 0;
                 panel.add(label,
                         new GridBagConstraints(0, y++, 1, 1, 0.0, 0.0,
-                        GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL,
-                        new Insets(0, 0, 10, 0), 0, 0));
+                                GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL,
+                                new Insets(0, 0, 10, 0), 0, 0));
                 lastMenuName = menuButton.getMenuName();
             }
             if (panel == null) {
@@ -129,35 +129,35 @@ public class AdminDialog extends BaseDialog implements IItemListener {
         // left side
         centerPanel.add(menuFile,
                 new GridBagConstraints(0, 0, 1, 2, 0.0, 0.0,
-                GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL,
-                new Insets(10, 10, 10, 10), 0, 0));
+                        GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL,
+                        new Insets(10, 10, 10, 10), 0, 0));
         if (Daten.efaConfig.getDeveloperFunctionsActivated()) {
             centerPanel.add(menuDeveloper,
                     new GridBagConstraints(0, 2, 1, 1, 0.0, 0.0,
-                    GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL,
-                    new Insets(10, 10, 10, 10), 0, 0));
+                            GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL,
+                            new Insets(10, 10, 10, 10), 0, 0));
         }
 
         // middle
         centerPanel.add(menuAdministration,
                 new GridBagConstraints(1, 0, 1, 3, 0.0, 0.0,
-                GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL,
-                new Insets(10, 10, 10, 10), 0, 0));
+                        GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL,
+                        new Insets(10, 10, 10, 10), 0, 0));
 
         // right
         centerPanel.add(menuConfiguration,
                 new GridBagConstraints(2, 0, 1, 1, 0.0, 0.0,
-                GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL,
-                new Insets(10, 10, 10, 10), 0, 0));
+                        GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL,
+                        new Insets(10, 10, 10, 10), 0, 0));
         centerPanel.add(menuOutput,
                 new GridBagConstraints(2, 1, 1, 1, 0.0, 0.0,
-                GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL,
-                new Insets(10, 10, 10, 10), 0, 0));
+                        GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL,
+                        new Insets(10, 10, 10, 10), 0, 0));
         centerPanel.add(menuInfo,
                 new GridBagConstraints(2, 2, 1, 1, 0.0, 0.0,
-                GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL,
-                new Insets(10, 10, 10, 10), 0, 0));
-        
+                        GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL,
+                        new Insets(10, 10, 10, 10), 0, 0));
+
         mainPanel.add(centerPanel, BorderLayout.CENTER);
         closeButton.setIcon(getIcon(IMAGE_LOGOUT));
         closeButton.setIconTextGap(10);
@@ -170,29 +170,29 @@ public class AdminDialog extends BaseDialog implements IItemListener {
         projectName = new JLabel();
         northPanel.add(projectName,
                 new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0,
-                GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL,
-                new Insets(10, 10, 10, 10), 0, 0));
+                        GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL,
+                        new Insets(10, 10, 10, 10), 0, 0));
         logbookName = new JLabel();
         northPanel.add(logbookName,
                 new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0,
-                GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL,
-                new Insets(10, 10, 10, 10), 0, 0));
+                        GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL,
+                        new Insets(10, 10, 10, 10), 0, 0));
 
         clubworkName = new JLabel();
         northPanel.add(clubworkName,
                 new GridBagConstraints(2, 0, 1, 1, 0.0, 0.0,
-                GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL,
-                new Insets(10, 10, 10, 10), 0, 0));
+                        GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL,
+                        new Insets(10, 10, 10, 10), 0, 0));
 
         updateInfos();
         mainPanel.add(northPanel, BorderLayout.NORTH);
     }
-    
+
     protected void preShowCallback() {
         AdminTask.startAdminTask(admin, this);
     }
 
-    private void updateInfos() {
+    public void updateInfos() {
         projectName.setText(International.getString("Projekt") + ": "
                 + (Daten.project != null ? Daten.project.getProjectName() : "- " + International.getString("Kein Projekt geöffnet.") + " -"));
         logbookName.setText(International.getString("Fahrtenbuch") + ": "
@@ -288,15 +288,15 @@ public class AdminDialog extends BaseDialog implements IItemListener {
                 // handled in EfaMenuButton; here we just need to update some infos
                 if (efaBoathouseFrame.getLogbook() != null && !efaBoathouseFrame.getLogbook().isOpen()
                         &&               Daten.project != null && Daten.project.isOpen() &&
-                    Daten.project.getCurrentLogbookEfaBoathouse() != null &&
-                    Daten.project.getCurrentLogbookEfaBoathouse().length() > 0) {
+                        Daten.project.getCurrentLogbookEfaBoathouse() != null &&
+                        Daten.project.getCurrentLogbookEfaBoathouse().length() > 0) {
                     efaBoathouseFrame.openLogbook(Daten.project.getCurrentLogbookEfaBoathouse());
                 }
                 updateInfos();
             }
             updateMessageButton(null);
         }
-        
+
     }
 
 }

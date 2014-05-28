@@ -8,21 +8,26 @@
  */
 package de.nmichael.efa.data;
 
-import de.nmichael.efa.data.efawett.Zielfahrt;
 import de.nmichael.efa.Daten;
 import de.nmichael.efa.core.config.AdminRecord;
-import de.nmichael.efa.data.storage.*;
-import de.nmichael.efa.data.types.*;
 import de.nmichael.efa.core.items.*;
-import de.nmichael.efa.ex.EfaException;
+import de.nmichael.efa.data.efawett.Zielfahrt;
+import de.nmichael.efa.data.storage.DataKey;
+import de.nmichael.efa.data.storage.DataRecord;
+import de.nmichael.efa.data.storage.IDataAccess;
+import de.nmichael.efa.data.storage.MetaData;
+import de.nmichael.efa.data.types.DataTypeDate;
+import de.nmichael.efa.data.types.DataTypePasswordCrypted;
 import de.nmichael.efa.gui.BaseDialog;
 import de.nmichael.efa.gui.BaseTabbedDialog;
-import de.nmichael.efa.gui.util.*;
-import de.nmichael.efa.util.*;
-import java.awt.AWTEvent;
-import java.awt.GridBagConstraints;
+import de.nmichael.efa.gui.util.TableItem;
+import de.nmichael.efa.gui.util.TableItemHeader;
+import de.nmichael.efa.util.International;
+import de.nmichael.efa.util.Logger;
 
-import java.util.*;
+import java.awt.*;
+import java.util.UUID;
+import java.util.Vector;
 
 // @i18n complete
 public class ProjectRecord extends DataRecord {
@@ -662,8 +667,16 @@ public class ProjectRecord extends DataRecord {
         return getDate(ENDDATE);
     }
 
+    /**
+     * gives the amount of hours to work in a period (which can be a year or only for some month)
+     * @return
+     */
     public double getDefaultClubworkTargetHours() {
         return getDouble(DEFAULTCLUBWORKTARGETHOURS);
+    }
+
+    public double getDefaultMonthlyClubworkTargetHours() {
+        return this.getDefaultClubworkTargetHours() / this.getStartDate().getMonthsDifference(this.getEndDate());
     }
 
     public double getTransferableClubworkHours() {

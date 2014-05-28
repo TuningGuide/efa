@@ -9,16 +9,17 @@
 package de.nmichael.efa.data;
 
 import de.nmichael.efa.Daten;
-import de.nmichael.efa.ex.EfaException;
-import de.nmichael.efa.gui.EfaBoathouseFrame;
-import de.nmichael.efa.gui.NewClubworkBookDialog;
-import de.nmichael.efa.util.*;
 import de.nmichael.efa.data.storage.*;
 import de.nmichael.efa.data.types.DataTypeDate;
 import de.nmichael.efa.ex.EfaModifyException;
+import de.nmichael.efa.gui.EfaBoathouseFrame;
+import de.nmichael.efa.gui.NewClubworkBookDialog;
 import de.nmichael.efa.util.Dialog;
+import de.nmichael.efa.util.International;
+import de.nmichael.efa.util.LogString;
+import de.nmichael.efa.util.Logger;
+
 import javax.swing.*;
-import java.awt.*;
 import java.util.*;
 
 // @i18n complete
@@ -241,7 +242,7 @@ public class Clubwork extends StorageObject {
                 }
             }
 
-            double sDefaultClubworkTargetHours = pr.getDefaultClubworkTargetHours();
+            double sDefaultMonthlyClubworkTargetHours = pr.getDefaultMonthlyClubworkTargetHours();
             double sTransferableClubworkHours = pr.getTransferableClubworkHours();
 
             // Save Carry Over
@@ -266,7 +267,7 @@ public class Clubwork extends StorageObject {
                         }
                     }
 
-                    double clubworkTargetHours = Math.round(sDefaultClubworkTargetHours * month * 100 / 12) / 100d;
+                    double clubworkTargetHours = Math.round(sDefaultMonthlyClubworkTargetHours * month * 100) / 100d;
                     double max = clubworkTargetHours + sTransferableClubworkHours;
                     double min = clubworkTargetHours - sTransferableClubworkHours;
 

@@ -8,19 +8,25 @@
  */
 package de.nmichael.efa.data;
 
-import de.nmichael.efa.*;
-import de.nmichael.efa.data.storage.*;
-import de.nmichael.efa.data.types.*;
-import de.nmichael.efa.ex.EfaException;
-import de.nmichael.efa.core.config.*;
+import de.nmichael.efa.Daten;
+import de.nmichael.efa.core.config.AdminRecord;
 import de.nmichael.efa.core.items.*;
-import de.nmichael.efa.gui.util.*;
-import de.nmichael.efa.util.*;
+import de.nmichael.efa.data.storage.DataKey;
+import de.nmichael.efa.data.storage.DataRecord;
+import de.nmichael.efa.data.storage.IDataAccess;
+import de.nmichael.efa.data.storage.MetaData;
+import de.nmichael.efa.data.types.DataTypeDate;
+import de.nmichael.efa.ex.EfaException;
+import de.nmichael.efa.gui.util.TableItem;
+import de.nmichael.efa.gui.util.TableItemHeader;
+import de.nmichael.efa.util.International;
+import de.nmichael.efa.util.Logger;
 
-import java.awt.AWTEvent;
-import java.awt.event.FocusEvent;
-import java.util.*;
-import java.util.regex.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.UUID;
+import java.util.Vector;
+import java.util.regex.Pattern;
 
 // @i18n complete
 public class ClubworkRecord extends DataRecord implements IItemFactory {
@@ -481,7 +487,7 @@ public class ClubworkRecord extends DataRecord implements IItemFactory {
                     }
                 }
 
-                aggregations[4] += "/" + Math.round(clubworkBook.getDefaultClubworkTargetHours() * groupMonth * 100 / 12) / 100d;
+                aggregations[4] += "/" + Math.round(clubworkBook.getDefaultMonthlyClubworkTargetHours() * groupMonth * 100) / 100d;
             }
         }
 

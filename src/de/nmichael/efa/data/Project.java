@@ -8,26 +8,10 @@
  */
 package de.nmichael.efa.data;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Hashtable;
-import java.util.Set;
-import java.util.Vector;
-
 import de.nmichael.efa.Daten;
 import de.nmichael.efa.core.config.AdminRecord;
 import de.nmichael.efa.core.config.EfaTypes;
-import de.nmichael.efa.data.storage.Audit;
-import de.nmichael.efa.data.storage.DataAccess;
-import de.nmichael.efa.data.storage.DataFile;
-import de.nmichael.efa.data.storage.DataKey;
-import de.nmichael.efa.data.storage.DataKeyIterator;
-import de.nmichael.efa.data.storage.DataRecord;
-import de.nmichael.efa.data.storage.EfaOnlineClient;
-import de.nmichael.efa.data.storage.IDataAccess;
-import de.nmichael.efa.data.storage.MetaData;
-import de.nmichael.efa.data.storage.RemoteEfaClient;
-import de.nmichael.efa.data.storage.StorageObject;
+import de.nmichael.efa.data.storage.*;
 import de.nmichael.efa.data.types.DataTypeDate;
 import de.nmichael.efa.ex.EfaException;
 import de.nmichael.efa.ex.EfaModifyException;
@@ -35,8 +19,10 @@ import de.nmichael.efa.util.Dialog;
 import de.nmichael.efa.util.International;
 import de.nmichael.efa.util.LogString;
 import de.nmichael.efa.util.Logger;
+
+import java.io.File;
 import java.net.InetAddress;
-import java.util.UUID;
+import java.util.*;
 
 // @i18n complete
 public class Project extends StorageObject {
@@ -2063,6 +2049,10 @@ public class Project extends StorageObject {
 
     public double getClubDefaultClubworkTargetHours() {
         return getClubRecord().getDefaultClubworkTargetHours();
+    }
+
+    public double getClubDefaultMonthlyClubworkTargetHours() {
+        return getClubRecord().getDefaultMonthlyClubworkTargetHours();
     }
 
     public double getClubTransferableClubworkHours() {

@@ -1118,7 +1118,13 @@ public class StatisticTask extends ProgressTask {
         }
         int cnt = 0;
         if (!entryPersonIsGuest && !entryPersonIsOther && !entryPersonExcludeFromClubwork && isInPersonFilter() && isInGroupFilter()) {
-            Integer month = entryPersonRecord.getPersonMemberMonth(sr.sStartDate, sr.sEndDate);
+            DataTypeDate[] range = new DataTypeDate[0];
+            try {
+                range = DataTypeDate.getRangeOverlap(sr.sStartDate, sr.sEndDate, sr.sClubworkStartDate, sr.sClubworkEndDate);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            Integer month = entryPersonRecord.getPersonMemberMonth(range[0], range[1]);
             Double targetHours = Math.round( sr.sDefaultClubworkTargetHours*month*100 ) / 100d;
             Object aggregationKey = getAggregationKeyForClubwork(r);
             if (aggregationKey != null) {
@@ -2190,6 +2196,8 @@ public class StatisticTask extends ProgressTask {
                 }
 
                 if (clubwork != null && DataTypeDate.isRangeOverlap(sr.sStartDate, sr.sEndDate, lbStart, lbEnd)) {
+                    sr.sClubworkStartDate = lbStart;
+                    sr.sClubworkEndDate = lbEnd;
                     sr.sDefaultClubworkTargetHours = pr.getDefaultMonthlyClubworkTargetHours();
                     sr.sTransferableClubworkHours = pr.getTransferableClubworkHours();
                     sr.sFineForTooLittleClubwork = pr.getFineForTooLittleClubwork();

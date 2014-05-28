@@ -10,8 +10,12 @@
 package de.nmichael.efa.data.types;
 
 import de.nmichael.efa.core.config.EfaTypes;
-import java.util.*;
-import de.nmichael.efa.util.*;
+import de.nmichael.efa.util.EfaUtil;
+import de.nmichael.efa.util.International;
+import de.nmichael.efa.util.TMJ;
+
+import java.util.Calendar;
+import java.util.GregorianCalendar;
 
 public class DataTypeDate implements Cloneable, Comparable<DataTypeDate> {
 
@@ -314,6 +318,16 @@ public class DataTypeDate implements Cloneable, Comparable<DataTypeDate> {
                 (r1From < r2From && r1To > r2From) ||
                 (r1From < r2To && r1To > r2To) ||
                 (r1From > r2From && r1To < r2To);
+    }
+
+    public static DataTypeDate[] getRangeOverlap(DataTypeDate r1From, DataTypeDate r1To, DataTypeDate r2From, DataTypeDate r2To) throws Exception {
+        DataTypeDate[] range = new DataTypeDate[2];
+        if(r1From.isAfter(r1To) || r2From.isAfter(r2To)) {
+            throw new Exception("DataTypeDate::getRangeOverlap from is bigger than to date");
+        }
+        range[0] = (r1From.isAfter(r2From) ? r1From : r2From);
+        range[1] = (r1To.isBefore(r2To) ? r1To : r2To);
+        return range;
     }
 
     public long getTimestamp(DataTypeTime time) {

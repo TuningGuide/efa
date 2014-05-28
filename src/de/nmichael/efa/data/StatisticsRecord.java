@@ -10,46 +10,15 @@
 
 package de.nmichael.efa.data;
 
-import java.awt.AWTEvent;
-import java.awt.Color;
-import java.awt.GridBagConstraints;
-import java.awt.event.ActionEvent;
-import java.awt.event.FocusEvent;
-import java.awt.event.ItemEvent;
-import java.io.File;
-import java.util.Hashtable;
-import java.util.UUID;
-import java.util.Vector;
-
 import de.nmichael.efa.Daten;
 import de.nmichael.efa.core.Plugins;
 import de.nmichael.efa.core.config.AdminRecord;
 import de.nmichael.efa.core.config.EfaTypes;
-import de.nmichael.efa.core.items.IItemListener;
-import de.nmichael.efa.core.items.IItemType;
-import de.nmichael.efa.core.items.ItemTypeBoolean;
-import de.nmichael.efa.core.items.ItemTypeButton;
-import de.nmichael.efa.core.items.ItemTypeDate;
-import de.nmichael.efa.core.items.ItemTypeDistance;
-import de.nmichael.efa.core.items.ItemTypeFile;
-import de.nmichael.efa.core.items.ItemTypeInteger;
-import de.nmichael.efa.core.items.ItemTypeLabel;
-import de.nmichael.efa.core.items.ItemTypeMultiSelectList;
-import de.nmichael.efa.core.items.ItemTypeString;
-import de.nmichael.efa.core.items.ItemTypeStringAutoComplete;
-import de.nmichael.efa.core.items.ItemTypeStringList;
+import de.nmichael.efa.core.items.*;
 import de.nmichael.efa.data.efawett.WettDef;
 import de.nmichael.efa.data.efawett.WettDefs;
-import de.nmichael.efa.data.storage.DataKey;
-import de.nmichael.efa.data.storage.DataRecord;
-import de.nmichael.efa.data.storage.IDataAccess;
-import de.nmichael.efa.data.storage.MetaData;
-import de.nmichael.efa.data.storage.StorageObject;
-import de.nmichael.efa.data.types.DataTypeDate;
-import de.nmichael.efa.data.types.DataTypeDistance;
-import de.nmichael.efa.data.types.DataTypeIntString;
-import de.nmichael.efa.data.types.DataTypeList;
-import de.nmichael.efa.data.types.DataTypeTime;
+import de.nmichael.efa.data.storage.*;
+import de.nmichael.efa.data.types.*;
 import de.nmichael.efa.gui.BaseDialog;
 import de.nmichael.efa.gui.BaseTabbedDialog;
 import de.nmichael.efa.gui.EnterPasswordDialog;
@@ -60,11 +29,17 @@ import de.nmichael.efa.statistics.Competition;
 import de.nmichael.efa.statistics.StatOutputLines;
 import de.nmichael.efa.statistics.StatisticsData;
 import de.nmichael.efa.util.Dialog;
-import de.nmichael.efa.util.EfaUtil;
-import de.nmichael.efa.util.Email;
-import de.nmichael.efa.util.FTPClient;
-import de.nmichael.efa.util.International;
+import de.nmichael.efa.util.*;
+
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.FocusEvent;
+import java.awt.event.ItemEvent;
+import java.io.File;
 import java.util.Arrays;
+import java.util.Hashtable;
+import java.util.UUID;
+import java.util.Vector;
 
 // @i18n complete
 
@@ -524,6 +499,8 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
     public boolean sSumGuestsAndOthers;
     public boolean sSumGuestsByClub;
     // --- Clubwork-Options
+    public DataTypeDate sClubworkStartDate;
+    public DataTypeDate sClubworkEndDate;
     public double sDefaultClubworkTargetHours;
     public double sClubworkTargetHoursForStatistic;
     public double sTransferableClubworkHours;

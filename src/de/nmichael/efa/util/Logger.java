@@ -339,6 +339,7 @@ public class Logger {
     public static final String MSG_WARN_WEATHERUPDATEFAILED = "WRN015";
     public static final String MSG_WARN_SAVEMESSAGE = "WRN016";
     public static final String MSG_WARN_PREVIOUSEXITIRREGULAR = "WRN017";
+    public static final String MSG_WARN_DOWNLOADFAILED = "WRN018";
 
     // File Operations
     public static final String MSG_FILE_FILEOPENFAILED = "FLE001";
@@ -408,6 +409,7 @@ public class Logger {
     public static final String MSG_STAT_CALCULATEDENTRIES = "STA001";
     public static final String MSG_STAT_IGNOREDENTRIES = "STA002";
     public static final String MSG_STAT_VISITEDENTRIES = "STA003";
+    public static final String MSG_STAT_OUTPUTREPLHTMLNOTFOUND = "STA004";
 
     // Debug Logging
     public static final String MSG_DEBUG_GENERIC = "DBG001";

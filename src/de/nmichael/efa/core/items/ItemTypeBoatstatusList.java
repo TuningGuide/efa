@@ -312,8 +312,14 @@ public class ItemTypeBoatstatusList extends ItemTypeList {
             return null;
         }
     }
+    
+    public static BoatListItem createBoatListItem(int mode) {
+        BoatListItem b = new BoatListItem();
+        b.mode = mode;
+        return b;
+    }
 
-    public class BoatListItem {
+    public static class BoatListItem {
         public int mode;
         public ItemTypeBoatstatusList list;
         public String text;

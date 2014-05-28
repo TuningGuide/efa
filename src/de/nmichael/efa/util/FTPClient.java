@@ -172,6 +172,8 @@ public class FTPClient {
             ftpClient.quit();
             return null; // korrektes Ende!
         } catch (Exception e) {
+            Logger.log(Logger.WARNING, Logger.MSG_WARN_DOWNLOADFAILED, 
+                    "Download of file '" + remoteFile + "' failed: " + e.toString());
             Logger.logdebug(e);
             return e.toString();
         }

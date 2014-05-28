@@ -469,7 +469,7 @@ public class WettDefs extends DatenListe {
         efw_lrvbln_wint_meld_jug = 100;
         efw_lrvbln_blwi_meld_erw = 0;
         efw_lrvbln_blwi_meld_jug = 0;
-        efw_lrvbln_konto = "Berliner Volksbank, Kto. 777 999 7000, BLZ 100 900 00";
+        efw_lrvbln_konto = "Berliner Volksbank, Kto. 777 999 7000, BLZ 100 900 00 (IBAN: DE74 1009 0000 7779 9970 00, BIC: BEV0DEBB)";
     }
 
     // Dateiformat überprüfen, ggf. konvertieren

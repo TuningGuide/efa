@@ -147,7 +147,14 @@ public class AutoCompleteList {
                                 }
                             }
                         }
-                        String alias = (r instanceof PersonRecord ? ((PersonRecord)r).getInputShortcut() : null);
+                        String alias = null;
+                        if (r instanceof PersonRecord) {
+                            alias = ((PersonRecord)r).getInputShortcut();
+                            if (Daten.efaConfig.getValuePostfixPersonsWithClubName()) {
+                                s = s + ((PersonRecord)r).getAssociationPostfix();
+                            }
+                            
+                        }
                         if (!r.getDeleted()) {
                             if (s.length() > 0) {
                                 ValidInfo vi = null;
@@ -357,6 +364,16 @@ public class AutoCompleteList {
         try {
             if (dataAccess != null && dataAccess.isStorageObjectOpen()) {
                 DataRecord dummyRec = dataAccess.getPersistence().createNewRecord();
+                if (dummyRec instanceof DestinationRecord) {
+                    if (Daten.efaConfig.getValuePrefixDestinationWithWaters()) {
+                        qname = DestinationRecord.trimWatersPrefix(qname);
+                    }
+                }
+                if (dummyRec instanceof PersonRecord) {
+                    if (Daten.efaConfig.getValuePostfixPersonsWithClubName()) {
+                        qname = PersonRecord.trimAssociationPostfix(qname);
+                    }
+                }
                 DataKey[] keys = dataAccess.getByFields(dummyRec.getQualifiedNameFields(), dummyRec.getQualifiedNameValues(qname));
                 if (keys == null || keys.length < 1) {
                     return null;

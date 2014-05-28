@@ -123,6 +123,8 @@ public class EfaConfig extends StorageObject implements IItemFactory {
     private ItemTypeBoolean showDestinationInfoForInput;
     private ItemTypeBoolean additionalWatersInput;
     private ItemTypeBoolean prefixDestinationWithWaters;
+    private ItemTypeBoolean postfixPersonsWithClubName;
+    private ItemTypeBoolean allowSessionsWithoutDistance;
     private ItemTypeBoolean popupComplete;
     private ItemTypeStringList nameFormat;
     private ItemTypeBoolean correctMisspelledNames;
@@ -503,12 +505,18 @@ public class EfaConfig extends StorageObject implements IItemFactory {
             addParameter(showDestinationInfoForInput = new ItemTypeBoolean("DestinationInfoShowForInput", false,
                     IItemType.TYPE_PUBLIC,BaseTabbedDialog.makeCategory(CATEGORY_COMMON, CATEGORY_INPUT),
                     International.getString("Zielinformationen bei Eingabe anzeigen")));
+            addParameter(allowSessionsWithoutDistance = new ItemTypeBoolean("MustEnterDistance", false,
+                    IItemType.TYPE_EXPERT,BaseTabbedDialog.makeCategory(CATEGORY_COMMON, CATEGORY_INPUT),
+                    International.getString("Erlaube Fahrten ohne Entfernungsangabe")));
             addParameter(additionalWatersInput = new ItemTypeBoolean("AdditionalWatersInput", false,
                     IItemType.TYPE_PUBLIC,BaseTabbedDialog.makeCategory(CATEGORY_COMMON, CATEGORY_INPUT),
                     International.getString("Eingabe von Gewässern für unbekannte Ziele und Abstecher")));
             addParameter(prefixDestinationWithWaters = new ItemTypeBoolean("PrefixDestinationWithWaters", false,
                     IItemType.TYPE_PUBLIC,BaseTabbedDialog.makeCategory(CATEGORY_COMMON, CATEGORY_INPUT),
                     International.getString("Gewässernamen in Zielliste anzeigen")));
+            addParameter(postfixPersonsWithClubName = new ItemTypeBoolean("PostfixPersonsWithClubName", false,
+                    IItemType.TYPE_PUBLIC,BaseTabbedDialog.makeCategory(CATEGORY_COMMON, CATEGORY_INPUT),
+                    International.getString("Vereinsnamen in Personenliste anzeigen")));
             addParameter(showObmann = new ItemTypeBoolean("BoatCaptainShow", true,
                     IItemType.TYPE_EXPERT,BaseTabbedDialog.makeCategory(CATEGORY_COMMON, CATEGORY_INPUT),
                     International.getString("Obmann-Auswahlliste anzeigen")));
@@ -1331,7 +1339,15 @@ public class EfaConfig extends StorageObject implements IItemFactory {
     public boolean getValuePrefixDestinationWithWaters() {
         return prefixDestinationWithWaters.getValue();
     }
-
+    
+    public boolean getValuePostfixPersonsWithClubName() {
+        return postfixPersonsWithClubName.getValue();
+    }
+    
+    public boolean getValueAllowSessionsWithoutDistance() {
+        return allowSessionsWithoutDistance.getValue();
+    }
+    
     public boolean getValuePopupComplete() {
         return popupComplete.getValue();
     }

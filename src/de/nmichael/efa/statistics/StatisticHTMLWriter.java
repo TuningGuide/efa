@@ -49,6 +49,8 @@ public class StatisticHTMLWriter extends StatisticWriter {
 
             // Nur Tabelle ersetzen?
             if (sr.sOutputHtmlUpdateTable && !new File(sr.sOutputFile).isFile()) {
+                Logger.log(Logger.WARNING, Logger.MSG_STAT_OUTPUTREPLHTMLNOTFOUND, 
+                        "Cannot replace table only in statistics file: File '" + sr.sOutputFile + "' not found.");
                 sr.sOutputHtmlUpdateTable = false;
             }
             if (sr.sOutputHtmlUpdateTable) {

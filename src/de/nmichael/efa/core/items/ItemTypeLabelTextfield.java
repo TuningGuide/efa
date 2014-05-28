@@ -38,10 +38,9 @@ public abstract class ItemTypeLabelTextfield extends ItemTypeLabelValue {
     public void showValue() {
         super.showValue();
         if (field != null) {
-            String text = toString();
-            ((JTextField)field).setText(text);
-            ((JTextField)field).selectAll();
-            //((JTextField)field).setCaretPosition(0); // hopefully setting the caret to 0 doesn't break anything?!
+            ((JTextField)field).setText(toString());
+            ((JTextField)field).setCaretPosition(0); // hopefully setting the caret to 0 doesn't break anything?!
+            // ((JTextField)field).selectAll(); @todo - change Velten (replace setCaretPosition(0) by selectAll() - why?
         }
     }
 

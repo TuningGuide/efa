@@ -592,5 +592,13 @@ public class DestinationRecord extends DataRecord implements IItemFactory {
         }
         return s;
     }
+    
+    public static String trimWatersPrefix(String s) {
+        int pos = s.indexOf(WATERS_DESTINATION_DELIMITER.trim());
+        if (pos > 0 && pos+1 < s.length()) {
+            return s.substring(pos+1).trim();
+        }
+        return s;
+    }
 
 }

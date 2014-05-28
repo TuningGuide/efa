@@ -17,7 +17,6 @@ import de.nmichael.efa.data.storage.*;
 import de.nmichael.efa.data.types.DataTypeDate;
 import de.nmichael.efa.ex.EfaModifyException;
 import de.nmichael.efa.util.Dialog;
-
 import javax.swing.*;
 import java.awt.*;
 import java.util.*;
@@ -148,7 +147,9 @@ public class Clubwork extends StorageObject {
         DataTypeDate date = (thisOrNext == 0) ? new DataTypeDate(0) : new DataTypeDate(1, 1, 3000);
         Clubwork sourceOrTarget = null;
         for (int i = 0; i < names.length; i++) {
-			if(names[i] == null) continue;
+            if (names[i] == null) {
+                continue;
+            }
 
             Clubwork clubwork = Daten.project.getClubwork(names[i], false);
             if (thisOrNext == 0) {
@@ -265,14 +266,14 @@ public class Clubwork extends StorageObject {
                         }
                     }
 
-					double clubworkTargetHours = Math.round( sDefaultClubworkTargetHours*month*100/12 ) / 100d;
+                    double clubworkTargetHours = Math.round(sDefaultClubworkTargetHours * month * 100 / 12) / 100d;
                     double max = clubworkTargetHours + sTransferableClubworkHours;
                     double min = clubworkTargetHours - sTransferableClubworkHours;
 
                     ClubworkRecord record = to.createClubworkRecord(UUID.randomUUID());
                     record.setPersonId(personId);
                     record.setWorkDate(DataTypeDate.today());
-					record.setDescription(International.getString("Übertrag"));
+                    record.setDescription(International.getString("Übertrag"));
                     record.setFlag(ClubworkRecord.Flags.CarryOver);
 
                     if (hours == null) {
@@ -295,8 +296,7 @@ public class Clubwork extends StorageObject {
                 if (successSaved > 0) {
                     Dialog.infoDialog(International.getMessage("{thing} erfolgreich berechnet.", International.getString("Übertrag")));
                     efaBoathouseFrame.openClubwork(to.getName());
-				}
-				else {
+                } else {
                     Dialog.error(International.getMessage("{thing} konnte nicht berechnet werden!", International.getString("Übertrag")));
                 }
             } else {

@@ -14,7 +14,6 @@ import de.nmichael.efa.data.storage.IDataAccess;
 import de.nmichael.efa.util.International;
 import de.nmichael.efa.util.Logger;
 import sun.misc.Regexp;
-
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -25,14 +24,14 @@ public class ItemTypeDouble extends ItemTypeLabelTextfield {
     public static double UNSET = IDataAccess.UNDEFINED_DOUBLE;
     public static double MAX = Double.MAX_VALUE;
     public static double MIN = -Double.MAX_VALUE;
-    
+
 
     private double value;
     private double min;
     private double max;
 
-    public ItemTypeDouble(String name, double value, double min, double max, 
-            int type, String category, String description) {
+    public ItemTypeDouble(String name, double value, double min, double max,
+                          int type, String category, String description) {
         this.name = name;
         this.value = value;
         this.min = min;
@@ -43,7 +42,7 @@ public class ItemTypeDouble extends ItemTypeLabelTextfield {
     }
 
     public ItemTypeDouble(String name, double value, double min, double max, boolean allowUnset,
-            int type, String category, String description) {
+                          int type, String category, String description) {
         this.name = name;
         this.value = value;
         this.min = min;
@@ -79,7 +78,7 @@ public class ItemTypeDouble extends ItemTypeLabelTextfield {
         } catch (Exception e) {
             if (dlg == null) {
                 Logger.log(Logger.ERROR, Logger.MSG_CORE_UNSUPPORTEDDATATYPE,
-                           "Invalid value for parameter "+name+": "+value);
+                        "Invalid value for parameter "+name+": "+value);
             }
         }
     }
@@ -88,14 +87,7 @@ public class ItemTypeDouble extends ItemTypeLabelTextfield {
         if (value == UNSET) {
             return "";
         }
-        //Pattern pattern = Pattern.compile("^(-?\\d+)(?:\\.(\\d+))?$");
-        String strValue = Double.toString(value);
-        /*Matcher matcher = pattern.matcher(strValue);
-        if(matcher.matches()) {
-            return International.getMessage("{Double-fullpart},{Double-decpart}", matcher.group(1),
-                    matcher.groupCount() >= 2 ? matcher.group(2) : "0");
-        }*/
-        return strValue;
+        return Double.toString(value);
     }
 
     public double getValue() {

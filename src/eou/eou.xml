@@ -2,6 +2,22 @@
 <efaOnlineUpdate>
 
     <Version>
+        <VersionID>2.2.0_01</VersionID>
+        <ReleaseDate>28.05.2014</ReleaseDate>
+        <DownloadUrl>http://efa.nmichael.de/download/efa220.zip</DownloadUrl>
+        <DownloadSize>3586716</DownloadSize>
+
+        <Changes lang="de">
+            <ChangeItem>Bugfix: NullPointerException beim Aufrufen des Projekt-Dialogs behoben</ChangeItem>
+            <ChangeItem>Bugfix: Vereinsarbeits-Button wird manchmal beim Start von efa nicht angezigt - behoben</ChangeItem>
+        </Changes>
+        <Changes lang="en">
+            <ChangeItem>Bugfix: NullPointerException when opening project edit dialog fixed</ChangeItem>
+            <ChangeItem>Bugfix: Clubwork button sometimes not shown after efa start - fixed</ChangeItem>
+        </Changes>
+    </Version>
+
+    <Version>
         <VersionID>2.2.0_00</VersionID>
         <ReleaseDate>26.05.2014</ReleaseDate>
         <DownloadUrl>http://efa.nmichael.de/download/efa220.zip</DownloadUrl>

@@ -47,19 +47,20 @@ public class ProjectEditDialog extends UnversionizedDataEditDialog implements II
         clubwork
     }
 
-    public static String getInternationalProjectTypeString(String PROJECT_TYPE) {
-        if (PROJECT_TYPE == ProjectRecord.TYPE_PROJECT) {
+    public static String getInternationalProjectTypeString(ProjectRecord p) {
+        String PROJECT_TYPE = (p != null ? p.getType() : null);
+        if (ProjectRecord.TYPE_PROJECT.equals(PROJECT_TYPE)) {
             return International.getString("Projekt");
-        } else if (PROJECT_TYPE == ProjectRecord.TYPE_CLUB) {
+        } else if (ProjectRecord.TYPE_CLUB.equals(PROJECT_TYPE)) {
             return International.getString("Verein");
-        } else if (PROJECT_TYPE == ProjectRecord.TYPE_BOATHOUSE) {
+        } else if (ProjectRecord.TYPE_BOATHOUSE.equals(PROJECT_TYPE)) {
             return International.getString("Bootshaus");
-        } else if (PROJECT_TYPE == ProjectRecord.TYPE_LOGBOOK) {
+        } else if (ProjectRecord.TYPE_LOGBOOK.equals(PROJECT_TYPE)) {
             return International.getString("Fahrtenbuch");
-        } else if (PROJECT_TYPE == ProjectRecord.TYPE_CLUBWORK) {
+        } else if (ProjectRecord.TYPE_CLUBWORK.equals(PROJECT_TYPE)) {
             return International.getString("Vereinsarbeit");
         } else {
-            return International.getString("unbekannt");
+            return International.getString("Projekt");
         }
     }
 
@@ -84,23 +85,24 @@ public class ProjectEditDialog extends UnversionizedDataEditDialog implements II
     }
 
     public ProjectEditDialog(Frame parent, Project p, ProjectRecord projectRecord, int subtype, AdminRecord admin) {
-        super(parent, getInternationalProjectTypeString(projectRecord.getType()), null, false, admin);
-        iniItems(p, projectRecord.getName(), typeMapping(projectRecord.getType()), subtype);
+        super(parent, getInternationalProjectTypeString(projectRecord), null, false, admin);
+        iniItems(p, (projectRecord != null ? projectRecord.getName() : null), typeMapping(projectRecord), subtype);
     }
 
     public ProjectEditDialog(JDialog parent, Project p, ProjectRecord projectRecord, int subtype, AdminRecord admin) {
-        super(parent, getInternationalProjectTypeString(projectRecord.getType()), null, false, admin);
-        iniItems(p, projectRecord.getName(), typeMapping(projectRecord.getType()), subtype);
+        super(parent, getInternationalProjectTypeString(projectRecord), null, false, admin);
+        iniItems(p, (projectRecord != null ? projectRecord.getName() : null), typeMapping(projectRecord), subtype);
     }
 
-    public Type typeMapping(String strType) {
+    public Type typeMapping(ProjectRecord p) {
+        String strType = (p != null ? p.getType() : null);
         Type type;
-        if (strType.equals(ProjectRecord.TYPE_PROJECT)) {
-            type = Type.project;
-        } else if (strType.equals(ProjectRecord.TYPE_LOGBOOK)) {
+        if (ProjectRecord.TYPE_LOGBOOK.equals(strType)) {
             type = Type.logbook;
-        } else {
+        } else if (ProjectRecord.TYPE_CLUBWORK.equals(strType)) {
             type = Type.clubwork;
+        } else {
+            type = Type.project;
         }
         return type;
     }

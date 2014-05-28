@@ -439,8 +439,9 @@ public class EfaBoathouseFrame extends BaseFrame implements IItemListener {
             lockEfa();
         }
 
-        // Update Project Info#
+        // Update Project Info
         updateProjectLogbookInfo();
+        updateGuiElements();
 
         // note: packing must happen at the very end, since it makes the frame "displayable", which then
         // does not allow to change any window settings like setUndecorated()

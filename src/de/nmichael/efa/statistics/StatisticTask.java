@@ -2227,7 +2227,8 @@ public class StatisticTask extends ProgressTask {
             //assumes that statusGuest && statusOther is already set
             getEntryPerson(personRecord);
 
-            if(!entryPersonIsGuest && !entryPersonIsOther && !usedPersonIds.contains(personRecord.getId())) {
+            if(//vh !entryPersonIsGuest && !entryPersonIsOther &&
+                !usedPersonIds.contains(personRecord.getId())) {
                 ClubworkRecord r = (ClubworkRecord)Daten.project.getCurrentClubwork().createNewRecord();
                 r.setPersonId(personRecord.getId());
                 r.setDescription("No clubwork for this person found");

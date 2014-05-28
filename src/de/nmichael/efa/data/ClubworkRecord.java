@@ -445,7 +445,7 @@ public class ClubworkRecord extends DataRecord implements IItemFactory {
             });
             sideInfo.put("earliestDate", getWorkDate());
             sideInfo.put("latestDate", getWorkDate());
-            aggregations[4] = String.valueOf(getHours());
+            aggregations[3] = String.valueOf(getHours());
         } else {
             DataTypeDate earliestDate = (DataTypeDate) sideInfo.get("earliestDate");
             if (getWorkDate().isBefore(earliestDate)) {
@@ -457,7 +457,7 @@ public class ClubworkRecord extends DataRecord implements IItemFactory {
                 sideInfo.put("latestDate", getWorkDate());
             }
 
-            aggregations[4] = String.valueOf(Double.valueOf(aggregations[4]) + getHours());
+            aggregations[3] = String.valueOf(Double.valueOf(aggregations[3]) + getHours());
         }
 
         HashSet<UUID> uniquePeople = (HashSet<UUID>) sideInfo.get("uniquePeople");
@@ -468,7 +468,6 @@ public class ClubworkRecord extends DataRecord implements IItemFactory {
             aggregations[0] = uniqueSize + International.getString("Person(s)");
             aggregations[1] = (sideInfo.get("earliestDate")).toString() + "-"
                     + (sideInfo.get("latestDate")).toString();
-            aggregations[3] = International.getString("Sum");
             Clubwork clubwork = Daten.project.getCurrentClubwork();
             if (clubwork != null) {
                 ProjectRecord clubworkBook = Daten.project.getClubworkBookRecord(clubwork.getName());
@@ -478,16 +477,16 @@ public class ClubworkRecord extends DataRecord implements IItemFactory {
                     try {
                         DataRecord[] personRecords = personContainer.data().getValidAny(new DataKey<UUID, Long, String>(id, null, null));
                         for (DataRecord personRecord : personRecords) {
-                            if (((PersonRecord) personRecord).isStatusMember()) {
+                            //vh if (((PersonRecord) personRecord).isStatusMember()) {
                                 groupMonth += ((PersonRecord) personRecord).getPersonMemberMonth(clubwork.getStartDate(), clubwork.getEndDate());
-                            }
+                            //}
                         }
                     } catch (EfaException e) {
                         e.printStackTrace();
                     }
                 }
 
-                aggregations[4] += "/" + Math.round(clubworkBook.getDefaultMonthlyClubworkTargetHours() * groupMonth * 100) / 100d;
+                aggregations[3] += "/" + Math.round(clubworkBook.getDefaultMonthlyClubworkTargetHours() * groupMonth * 100) / 100d;
             }
         }
 

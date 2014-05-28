@@ -260,9 +260,9 @@ public class Clubwork extends StorageObject {
                                 from.getEndDate().getTimestamp(null));
                         if (personRecords != null && personRecords.length > 0) {
                             for (int i = 0; i < personRecords.length; i++) {
-                                if (personRecords[i].isStatusMember()) {
+                                //vh if (personRecords[i].isStatusMember()) {
                                     month = personMemberMonthToFullYear(personRecords[i], month, from);
-                                }
+                                //}
                             }
                         }
                     }

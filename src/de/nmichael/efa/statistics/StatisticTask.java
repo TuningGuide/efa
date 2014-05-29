@@ -1117,16 +1117,26 @@ public class StatisticTask extends ProgressTask {
             return;
         }
         int cnt = 0;
-        if (!entryPersonIsGuest && !entryPersonIsOther && !entryPersonExcludeFromClubwork && isInPersonFilter() && isInGroupFilter()) {
-            DataTypeDate[] range = new DataTypeDate[0];
-            try {
-                range = DataTypeDate.getRangeOverlap(sr.sStartDate, sr.sEndDate, sr.sClubworkStartDate, sr.sClubworkEndDate);
-            } catch (Exception e) {
-                e.printStackTrace();
+        if (isInPersonFilter() && isInGroupFilter()) {
+            Object aggregationKey = null;
+            Double targetHours = 0.0;
+            if(!entryPersonIsGuest && !entryPersonIsOther && !entryPersonExcludeFromClubwork) {
+                DataTypeDate[] range = new DataTypeDate[0];
+                try {
+                    range = DataTypeDate.getRangeOverlap(sr.sStartDate, sr.sEndDate, sr.sClubworkStartDate, sr.sClubworkEndDate);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                Integer month = entryPersonRecord.getPersonMemberMonth(range[0], range[1]);
+                targetHours = Math.round( sr.sDefaultClubworkTargetHours*month*100 ) / 100d;
+                aggregationKey = getAggregationKeyForClubwork(r);
+
             }
-            Integer month = entryPersonRecord.getPersonMemberMonth(range[0], range[1]);
-            Double targetHours = Math.round( sr.sDefaultClubworkTargetHours*month*100 ) / 100d;
-            Object aggregationKey = getAggregationKeyForClubwork(r);
+            else if(r.getHours() > 0) {
+                // take guest or excluded into account if he worked but leave targetHours 0
+                aggregationKey = getAggregationKeyForClubwork(r);
+            }
+
             if (aggregationKey != null) {
                 if (sr.sStatistikKey != StatisticsRecord.StatisticKey.waters) {
                     cnt = calculateAggregations(r, aggregationKey, r.getHours(), targetHours);
@@ -2235,7 +2245,7 @@ public class StatisticTask extends ProgressTask {
             //assumes that statusGuest && statusOther is already set
             getEntryPerson(personRecord);
 
-            if(//vh !entryPersonIsGuest && !entryPersonIsOther &&
+            if(!entryPersonIsGuest && !entryPersonIsOther &&
                 !usedPersonIds.contains(personRecord.getId())) {
                 ClubworkRecord r = (ClubworkRecord)Daten.project.getCurrentClubwork().createNewRecord();
                 r.setPersonId(personRecord.getId());

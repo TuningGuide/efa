@@ -317,6 +317,9 @@ public class ItemTypeStringAutoComplete extends ItemTypeString implements AutoCo
                 }
                 matching = true;
             }
+            if(complete == null) {
+                complete = list.getAliasThatStartsWith(prefix);
+            }
             if (withPopup && popupComplete && e != null && mode != Mode.none) {
                 AutoCompletePopupWindow.showAndSelect(field, list, (complete != null ? complete : ""), null);
             }

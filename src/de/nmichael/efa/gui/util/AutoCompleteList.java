@@ -155,6 +155,9 @@ public class AutoCompleteList {
                             }
                             
                         }
+                        if (r instanceof DestinationRecord) {
+                            alias = ((DestinationRecord)r).getAlias();
+                        }
                         if (!r.getDeleted()) {
                             if (s.length() > 0) {
                                 ValidInfo vi = null;
@@ -354,6 +357,20 @@ public class AutoCompleteList {
             return aliases2realVisible.get(s);
         }
         return null;
+    }
+
+    public synchronized String getAliasThatStartsWith(String s) {
+        s = s.toLowerCase();
+        String alias = null;
+        for(String key : aliases2realVisible.keySet()) {
+            if(key.equals(s)) {
+                return aliases2realVisible.get(key);
+            }
+            if(key.startsWith(s)) {
+                alias = aliases2realVisible.get(key);
+            }
+        }
+        return alias;
     }
 
     public String[] getData() {

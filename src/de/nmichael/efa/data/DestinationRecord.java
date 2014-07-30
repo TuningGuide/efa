@@ -43,6 +43,7 @@ public class DestinationRecord extends DataRecord implements IItemFactory {
     public static final String DISTANCE            = "Distance";
     public static final String ONLYINBOATHOUSEID   = "OnlyInBoathouseId";
     public static final String WATERSIDLIST        = "WatersIdList";
+    public static final String ALIAS                = "Alias";
 
     public static final String[] IDX_NAME = new String[] { NAME };
 
@@ -64,6 +65,7 @@ public class DestinationRecord extends DataRecord implements IItemFactory {
         f.add(DISTANCE);                          t.add(IDataAccess.DATA_DISTANCE);
         f.add(ONLYINBOATHOUSEID);                 t.add(IDataAccess.DATA_STRING);
         f.add(WATERSIDLIST);                      t.add(IDataAccess.DATA_LIST_UUID);
+        f.add(ALIAS);                             t.add(IDataAccess.DATA_STRING);
         MetaData metaData = constructMetaData(Destinations.DATATYPE, f, t, true);
         metaData.setKey(new String[] { ID }); // plus VALID_FROM
         metaData.addIndex(IDX_NAME);
@@ -185,6 +187,14 @@ public class DestinationRecord extends DataRecord implements IItemFactory {
     public String getWatersNamesStringList() {
         return getWatersNamesStringList(getPersistence().getProject().getWaters(false),
                 getWatersIdList(), null, null);
+    }
+
+    public void setAlias(String alias) {
+        setString(ALIAS, alias);
+    }
+
+    public String getAlias() {
+        return getString(ALIAS);
     }
 
     public static String getWatersNamesStringList(Waters waters,
@@ -441,6 +451,8 @@ public class DestinationRecord extends DataRecord implements IItemFactory {
                 IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Start ist Bootshaus")));
         v.add(item = new ItemTypeBoolean(DestinationRecord.ROUNDTRIP, getRoundtrip(),
                 IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Start gleich Ziel")));
+        v.add(item = new ItemTypeString(DestinationRecord.ALIAS, getAlias(),
+                IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.getString("Alias")));
         if (Daten.efaConfig.getValueUseFunctionalityRowingBerlin()) {
             v.add(item = new ItemTypeString(DestinationRecord.GUIITEM_DESTINATIONAREAS, (getDestinationAreas() == null ? "" : getDestinationAreas().toString()),
                     IItemType.TYPE_PUBLIC, CAT_BASEDATA, International.onlyFor("Zielbereiche","de")));

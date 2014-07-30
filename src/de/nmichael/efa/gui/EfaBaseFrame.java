@@ -3052,6 +3052,7 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
             }
             if (item == cox) {
                 editPerson((ItemTypeStringAutoComplete)item);
+                //autoCompleteListPersons.delete();
             }
             for (int i=0; i<LogbookRecord.CREW_MAX; i++) {
                 if (item == crew[i]) {
@@ -3208,6 +3209,7 @@ public class EfaBaseFrame extends BaseDialog implements IItemListener {
             if (item == boat || item == boatvariant) {
                 currentBoatUpdateGui();
             }
+
             if (item == cox) {
                 if (Daten.efaConfig.getValueAutoObmann() && isNewRecord
                         && cox.getValueFromField().trim().length() > 0 && this.getBoatCaptain() == -1) {

@@ -51,6 +51,7 @@ public class ItemTypeStringAutoComplete extends ItemTypeString implements AutoCo
     protected boolean alwaysReturnPlainText = false;
     protected ItemTypeDate validAtDateItem;
     protected ItemTypeTime validAtTimeItem;
+    protected boolean onChoosenDeleteFromList = true;
 
 
     public ItemTypeStringAutoComplete(String name, String value, int type,
@@ -88,6 +89,10 @@ public class ItemTypeStringAutoComplete extends ItemTypeString implements AutoCo
                 public void focusLost(FocusEvent e) {
                     field_focusLost(e);
                 }
+
+                public void focusGained(FocusEvent e) {
+                    field_focusGained(e);
+                }
             });
         }
         super.iniDisplay();
@@ -108,6 +113,12 @@ public class ItemTypeStringAutoComplete extends ItemTypeString implements AutoCo
     public void setAutoCompleteData(AutoCompleteList autoCompleteList) {
         this.autoCompleteList = autoCompleteList;
     }
+
+    public void setAutoCompleteData(AutoCompleteList autoCompleteList, boolean deleteFromList) {
+        this.autoCompleteList = autoCompleteList;
+        this.onChoosenDeleteFromList = deleteFromList;
+    }
+
 
     public AutoCompleteList getAutoCompleteData() {
         return this.autoCompleteList;
@@ -190,7 +201,26 @@ public class ItemTypeStringAutoComplete extends ItemTypeString implements AutoCo
         if (isCheckSpelling && Daten.efaConfig != null && Daten.efaConfig.getValueCorrectMisspelledNames()) {
             checkSpelling();
         }
+
         super.field_focusLost(e);
+        if(onChoosenDeleteFromList && valueIsKnown && !value.isEmpty()) {
+            Vector<String> vis = autoCompleteList.getDataVisible();
+            if(vis.remove(value)) {
+                autoCompleteList.setDataVisible(vis);
+                System.out.println("removed "+value);
+            }
+        }
+    }
+
+    protected void field_focusGained(FocusEvent e) {
+        if(onChoosenDeleteFromList && valueIsKnown && !value.isEmpty()) {
+             Vector<String> vis = autoCompleteList.getDataVisible();
+            if(!vis.contains(value) && vis.add(value)) {
+                autoCompleteList.setDataVisible(vis);
+                System.out.println("added "+value);
+            }
+        }
+        super.field_focusGained(e);
     }
 
     public void showOrRemoveAutoCompletePopupWindow() {

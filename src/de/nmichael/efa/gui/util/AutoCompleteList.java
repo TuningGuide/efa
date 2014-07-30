@@ -76,6 +76,14 @@ public class AutoCompleteList {
         scn++;
     }
 
+    public Vector<String> getDataVisible() {
+        return dataVisible;
+    }
+
+    public void setDataVisible(Vector<String> dataVisible) {
+        this.dataVisible = dataVisible;
+    }
+
     public void setFilterDataOnlyForThisBoathouse(boolean filterDataOnlyForThisBoathouse) {
         this.filterDataOnlyForThisBoathouse = filterDataOnlyForThisBoathouse;
     }

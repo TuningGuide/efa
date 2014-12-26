@@ -686,7 +686,8 @@ public class StatisticTask extends ProgressTask {
         // Note: This method only provides the aggregation key for StatisticCategory=LIST!
         switch (sr.sStatistikKey) {
             case name:
-                if (sr.sSumGuestsByClub && entryPersonIsGuest) {
+            default:
+            	if (sr.sSumGuestsByClub && entryPersonIsGuest) {
                     String clubName = International.getString("unbekannt");
                     if (entryPersonRecord != null && entryPersonRecord.getAssocitation() != null
                             && entryPersonRecord.getAssocitation().length() > 0) {
@@ -2175,6 +2176,9 @@ public class StatisticTask extends ProgressTask {
                         k = it.getNext();
                     }
                     return true;
+                case clubwork:
+                	createStatisticClubwork(sr, statisticsNumber);
+                	return true;
             }
         } catch (Exception e) {
             Logger.logdebug(e);
@@ -2183,7 +2187,7 @@ public class StatisticTask extends ProgressTask {
         return false;
     }
 
-    private boolean createStatisticClubwork(StatisticsRecord sr, int statisticsNumber) {
+    private boolean createStatisticClubwork(StatisticsRecord sr, int statisticsNumber) {    	
         String[] names = Daten.project.getAllClubworkNames();
         if (names == null || names.length == 0) {
             Dialog.error(International.getMessage("Keine {items} im Zeitraum {fromdate} bis {todate} gefunden.",
@@ -2258,10 +2262,63 @@ public class StatisticTask extends ProgressTask {
             }
         }
 
+        if(sr.sIsAggrDistance) {
+            this.calculateDistanceForClubworkEntries(statisticsNumber);
+        }
+
         return true;
     }
 
-    private String createStatistic(StatisticsRecord sr, int statisticsNumber) {
+    private boolean calculateDistanceForClubworkEntries(int statisticsNumber) {
+    	Vector<Logbook> logbooks = getAllLogbooks();
+        if (logbooks.size() == 0) {
+            Dialog.error(International.getMessage("Keine {items} im Zeitraum {fromdate} bis {todate} gefunden.",
+                    International.getString("Fahrten"),
+                    sr.sStartDate.toString(), sr.sEndDate.toString()));
+            return false;
+        }
+        int WORK_PER_LOGBOOK = WORK_PER_STATISTIC / logbooks.size();
+        for (int i = 0; i < logbooks.size(); i++) {
+            try {
+                logbook = logbooks.get(i);
+                logInfo(International.getString("Fahrtenbuch") + " " + logbook.getName() + " ...\n");
+                DataKeyIterator it = logbook.data().getStaticIterator();
+                int size = it.size();
+                DataKey k = it.getFirst();
+                int pos = 0;
+                while (k != null) {
+                    LogbookRecord r = (LogbookRecord) logbook.data().get(k);
+                    if (r != null) {
+                        if (Logger.isTraceOn(Logger.TT_STATISTICS, 9)) {
+                            Logger.log(Logger.DEBUG, Logger.MSG_STAT_VISITEDENTRIES,
+                                    "visited: " + (r.getEntryId() != null ? r.getEntryId().toString() : "EntryId = <null>"));
+                        }
+                        
+                        if(r.getDistance() != null) {
+                            for (int j = 0; j <= LogbookRecord.CREW_MAX; j++) {
+                            	getEntryPerson(r, j);
+                            	Object key = getAggregationKeyForClubwork(null);
+                            	if(key != null) {
+                            		StatisticsData entry = this.data.get(key);
+                            		if(entry != null) {
+                            			entry.distance += r.getDistance().getValueInDefaultUnit();
+                            		}
+                            	}
+                            }
+                        }
+                    }
+                    this.setCurrentWorkDone(((++pos * WORK_PER_LOGBOOK) / size) + (i * WORK_PER_LOGBOOK) + (statisticsNumber * WORK_PER_STATISTIC));
+                    k = it.getNext();
+                }
+            } catch (Exception e) {
+                Logger.logdebug(e);
+                logInfo("ERROR: " + e.toString() + "\n");
+            }
+        }
+		return true;
+	}
+
+	private String createStatistic(StatisticsRecord sr, int statisticsNumber) {
         this.sr = sr;
         data = new Hashtable<Object, StatisticsData>();
 
@@ -2277,14 +2334,7 @@ public class StatisticTask extends ProgressTask {
         if (sr.sStatisticCategory != StatisticsRecord.StatisticCategory.other) {
             createStatisticLogbook(sr, statisticsNumber);
         } else {
-            switch(sr.sStatisticTypeEnum) {
-                case clubwork:
-                    createStatisticClubwork(sr, statisticsNumber);
-                    break;
-                default:
-                    createStatisticOther(sr, statisticsNumber);
-                    break;
-            }
+            createStatisticOther(sr, statisticsNumber);
         }
 
         StatisticsData[] sd = runPostprocessing();

@@ -10,36 +10,24 @@
 
 package de.nmichael.efa.gui.dataedit;
 
+import de.nmichael.efa.Daten;
 import de.nmichael.efa.core.config.AdminRecord;
-import de.nmichael.efa.core.items.*;
+import de.nmichael.efa.core.items.IItemListenerDataRecordTable;
+import de.nmichael.efa.core.items.ItemTypeDataRecordTable;
+import de.nmichael.efa.data.ClubworkRecord;
 import de.nmichael.efa.data.storage.*;
-import de.nmichael.efa.ex.EfaModifyException;
-import de.nmichael.efa.gui.BaseDialog;
-import de.nmichael.efa.gui.dataedit.DataEditDialog;
-import de.nmichael.efa.gui.dataedit.VersionizedDataDeleteDialog;
-import de.nmichael.efa.gui.util.EfaMouseListener;
-import de.nmichael.efa.gui.util.TableCellRenderer;
 import de.nmichael.efa.gui.util.TableItem;
 import de.nmichael.efa.gui.util.TableItemHeader;
-import de.nmichael.efa.util.Dialog;
-import de.nmichael.efa.util.EfaUtil;
-import de.nmichael.efa.util.International;
 import de.nmichael.efa.util.Logger;
 
-import javax.swing.*;
-import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableModel;
-import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.KeyEvent;
-import java.util.Arrays;
-import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Vector;
 
 // @i18n complete
 
 public class ClubworkItemTypeDataRecordTable extends ItemTypeDataRecordTable {
+
+    protected boolean showNonApproved = false;
 
     public ClubworkItemTypeDataRecordTable(String name,
                                            TableItemHeader[] tableHeader,
@@ -51,12 +39,16 @@ public class ClubworkItemTypeDataRecordTable extends ItemTypeDataRecordTable {
                                            IItemListenerDataRecordTable itemListenerActionTable,
                                            int type, String category, String description) {
         super("TABLE",
-                persistence.createNewRecord().getGuiTableHeader(),
+                ((ClubworkRecord)persistence.createNewRecord()).getGuiTableHeader(admin),
                 persistence, validAt, admin,
                 filterFieldName, filterFieldValue, // defaults are null
                 actions, actionTypes, actionIcons, // default actions: new, edit, delete
                 itemListenerActionTable,
                 type, category, description);
+    }
+
+    protected TableItem[] getSpecialisedGuiTableItems(DataRecord r) {
+        return ((ClubworkRecord)r).getGuiTableItems(admin);
     }
 
     protected void updateFilter() {
@@ -77,5 +69,84 @@ public class ClubworkItemTypeDataRecordTable extends ItemTypeDataRecordTable {
         }
         filterBySearch.setUnchanged();
         searchField.setUnchanged();
+    }
+
+    public void showOnlyNonApproved(boolean showNonApproved) {
+        this.showNonApproved = showNonApproved;
+        updateData();
+    }
+
+    protected void updateData() {
+        if (persistence == null) {
+            return;
+        }
+        try {
+            String filterByAnyText = null;
+            if (filterBySearch != null && searchField != null) {
+                filterBySearch.getValueFromField();
+                searchField.getValueFromGui();
+                if (filterBySearch.getValue() && searchField.getValue() != null && searchField.getValue().length() > 0) {
+                    filterByAnyText = searchField.getValue().toLowerCase();
+                }
+            }
+            myValidAt = (validAt >= 0 ? validAt : System.currentTimeMillis());
+            data = new Vector<DataRecord>();
+            IDataAccess dataAccess = persistence.data();
+            boolean isVersionized = dataAccess.getMetaData().isVersionized();
+            DataKeyIterator it = dataAccess.getStaticIterator();
+            DataKey key = it.getFirst();
+            Hashtable<DataKey, String> uniqueHash = new Hashtable<DataKey, String>();
+            while (key != null) {
+                // avoid duplicate versionized keys for the same record
+                if (isVersionized) {
+                    DataKey ukey = dataAccess.getUnversionizedKey(key);
+                    if (uniqueHash.get(ukey) != null) {
+                        key = it.getNext();
+                        continue;
+                    }
+                    uniqueHash.put(ukey, "");
+                }
+
+                DataRecord r;
+                if (isVersionized) {
+                    r = dataAccess.getValidAt(key, myValidAt);
+                    if (r == null && showAll) {
+                        r = dataAccess.getValidLatest(key);
+                    }
+                } else {
+                    r = dataAccess.get(key);
+                    if (!showAll && !r.isValidAt(myValidAt)) {
+                        r = null;
+                    }
+                }
+                if (r == null && showDeleted) {
+                    DataRecord[] any = dataAccess.getValidAny(key);
+                    if (any != null && any.length > 0 && any[0].getDeleted()) {
+                        r = any[0];
+                    }
+                }
+                if( showNonApproved && r instanceof ClubworkRecord) {
+                    try {
+                        if(r.getLastModified() <= Daten.project.getCurrentClubwork().getProjectRecord().getClubworkApprovedLong()) {
+                            r = null;
+                        }
+                    }
+                    catch (NullPointerException eignore) {
+                        Logger.logdebug(eignore);
+                    }
+                }
+                if (r != null && (!r.getDeleted() || showDeleted)) {
+                    if (filterFieldName == null || filterFieldValue == null
+                            || filterFieldValue.equals(r.getAsString(filterFieldName))) {
+                        if (filterByAnyText == null || r.getAllFieldsAsSeparatedText().toLowerCase().indexOf(filterByAnyText) >= 0) {
+                            data.add(r);
+                        }
+                    }
+                }
+                key = it.getNext();
+            }
+        } catch (Exception e) {
+            Logger.logdebug(e);
+        }
     }
 }

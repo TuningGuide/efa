@@ -10,26 +10,37 @@
 
 package de.nmichael.efa.gui.dataedit;
 
-import de.nmichael.efa.*;
+import de.nmichael.efa.Daten;
 import de.nmichael.efa.core.config.AdminRecord;
 import de.nmichael.efa.core.items.IItemType;
+import de.nmichael.efa.core.items.ItemTypeBoolean;
 import de.nmichael.efa.core.items.ItemTypeDataRecordTable;
-import de.nmichael.efa.data.*;
-import de.nmichael.efa.data.storage.*;
+import de.nmichael.efa.data.Clubwork;
+import de.nmichael.efa.data.ClubworkRecord;
+import de.nmichael.efa.data.ProjectRecord;
+import de.nmichael.efa.data.storage.DataRecord;
+import de.nmichael.efa.data.storage.StorageObject;
+import de.nmichael.efa.data.types.DataTypeDate;
+import de.nmichael.efa.data.types.DataTypeTime;
 import de.nmichael.efa.gui.BaseDialog;
-import de.nmichael.efa.util.*;
+import de.nmichael.efa.util.International;
 
-import java.util.*;
-import java.awt.*;
-import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.util.UUID;
 
 
 // @i18n complete
 public class ClubworkListDialog extends DataListDialog {
 
     public static final int ACTION_CARRYOVER = 4;
+    public static final int ACTION_APPROVE = 5;
+
+    protected ClubworkItemTypeDataRecordTable table;
+    protected JPanel mainTablePanel;
+    private ItemTypeBoolean showNonApproved;
 
     public ClubworkListDialog(Frame parent, AdminRecord admin) {
         super(parent, International.getString("Vereinsarbeit"), Daten.project.getCurrentClubwork(), 0, admin);
@@ -72,7 +83,8 @@ public class ClubworkListDialog extends DataListDialog {
                     ItemTypeDataRecordTable.ACTIONTEXT_EDIT,
                     ItemTypeDataRecordTable.ACTIONTEXT_DELETE,
                     International.getString("Liste ausgeben"),
-                    International.getString("Übertrag berechnen")
+                    International.getString("Übertrag berechnen"),
+                    International.getString("Neue Einträge annehmen")
             };
 
             actionType = new int[] {
@@ -80,7 +92,8 @@ public class ClubworkListDialog extends DataListDialog {
                     ItemTypeDataRecordTable.ACTION_EDIT,
                     ItemTypeDataRecordTable.ACTION_DELETE,
                     ACTION_PRINTLIST,
-                    ACTION_CARRYOVER
+                    ACTION_CARRYOVER,
+                    ACTION_APPROVE
             };
 
             actionImage = new String[] {
@@ -88,7 +101,8 @@ public class ClubworkListDialog extends DataListDialog {
                     BaseDialog.IMAGE_EDIT,
                     BaseDialog.IMAGE_DELETE,
                     BaseDialog.IMAGE_LIST,
-                    BaseDialog.IMAGE_MERGE
+                    BaseDialog.IMAGE_MERGE,
+                    BaseDialog.IMAGE_ACCEPT
             };
         }
 	}
@@ -96,7 +110,7 @@ public class ClubworkListDialog extends DataListDialog {
     protected void iniDialog() throws Exception {
         mainPanel.setLayout(new BorderLayout());
 
-        JPanel mainTablePanel = new JPanel();
+        mainTablePanel = new JPanel();
         mainTablePanel.setLayout(new BorderLayout());
 
         if (filterFieldDescription != null) {
@@ -108,7 +122,7 @@ public class ClubworkListDialog extends DataListDialog {
         }
 
         table = new ClubworkItemTypeDataRecordTable("TABLE",
-                persistence.createNewRecord().getGuiTableHeader(),
+                ((ClubworkRecord)persistence.createNewRecord()).getGuiTableHeader(admin),
                 persistence, validAt, admin,
                 filterFieldName, filterFieldValue, // defaults are null
                 actionText, actionType, actionImage, // default actions: new, edit, delete
@@ -140,11 +154,33 @@ public class ClubworkListDialog extends DataListDialog {
             table.setDefaultActionForDoubleclick(-1);
         }
 
-        super.iniControlPanel();
+        this.iniControlPanel();
         mainPanel.add(mainTablePanel, BorderLayout.CENTER);
 
         setRequestFocus(table);
         this.validate();
+    }
+
+    protected void iniControlPanel() {
+        if (persistence != null && admin != null) {
+            JPanel mainControlPanel = new JPanel();
+            mainControlPanel.setLayout(new GridBagLayout());
+
+            ProjectRecord r = Daten.project.getCurrentClubwork().getProjectRecord();
+            DataTypeDate approvedDate = new DataTypeDate(r.getClubworkApprovedLong());
+            DataTypeTime approvedTime = new DataTypeTime(r.getClubworkApprovedLong());
+
+            String lastApprovedMsg = approvedDate != null ? " ("+International.getMessage("zuletzt kontrolliert am {date}", approvedDate+" "+approvedTime)+")" : "";
+
+            showNonApproved = new ItemTypeBoolean("SHOW_NONAPPROVED",
+                    false,
+                    IItemType.TYPE_PUBLIC, "", International.getString("nur nicht kontrollierte Einträge anzeigen")+ lastApprovedMsg);
+            showNonApproved.setPadding(0, 0, 0, 0);
+            showNonApproved.displayOnGui(this, mainControlPanel, 0, 0);
+            showNonApproved.registerItemListener(this);
+
+            mainTablePanel.add(mainControlPanel, BorderLayout.SOUTH);
+        }
     }
 
     public DataEditDialog createNewDataEditDialog(JDialog parent, StorageObject persistence, DataRecord record) {
@@ -160,8 +196,40 @@ public class ClubworkListDialog extends DataListDialog {
             Clubwork clubwork = Daten.project.getCurrentClubwork();
             clubwork.doCarryOver(this);
         }
+        else if(actionId == ACTION_APPROVE) {
+            Clubwork clubwork = Daten.project.getCurrentClubwork();
+
+            long l = 0;
+            try {
+                l = Daten.project.data().acquireLocalLock(Daten.project.getClubworkBookRecordKey(clubwork.getName()));
+                ProjectRecord r = clubwork.getProjectRecord();
+                r.setClubworkApprovedLong(System.currentTimeMillis());
+                Daten.project.data().update(r, l);
+            } catch (Exception e) {
+                e.printStackTrace();
+            } finally {
+                Daten.project.data().releaseLocalLock(l);
+            }
+        }
         else {
             super.itemListenerActionTable(actionId, records);
+        }
+    }
+
+    public void itemListenerAction(IItemType itemType, AWTEvent event) {
+        if (itemType == showNonApproved) {
+            if (event.getID() == ActionEvent.ACTION_PERFORMED) {
+                showNonApproved.getValueFromGui();
+                if (showNonApproved.getValue()) {
+                    showNonApproved.saveColor();
+                    showNonApproved.setColor(Color.gray);
+                } else {
+                    showNonApproved.restoreColor();
+                }
+
+                table.showOnlyNonApproved(showNonApproved.getValue());
+                table.showValue();
+            }
         }
     }
 }

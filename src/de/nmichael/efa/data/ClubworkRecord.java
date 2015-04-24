@@ -45,9 +45,9 @@ public class ClubworkRecord extends DataRecord implements IItemFactory {
     public static final String HOURS = "Hours";
     public static final String GUIITEM_PERSONIDLIST = "PersonList";
     public static final String FLAG = "Flag";
+    public static final String APPROVEDLONG = "ApprovedLong";
 
     public enum Flags {
-
         UNDEFINED,
         Normal,
         CarryOver,
@@ -82,6 +82,8 @@ public class ClubworkRecord extends DataRecord implements IItemFactory {
         t.add(IDataAccess.DATA_DOUBLE);
         f.add(FLAG);
         t.add(IDataAccess.DATA_INTEGER);
+        f.add(APPROVEDLONG);
+        t.add(IDataAccess.DATA_LONGINT);
 
         MetaData metaData = constructMetaData(Clubwork.DATATYPE, f, t, false);
         metaData.setKey(new String[]{ID});
@@ -196,6 +198,14 @@ public class ClubworkRecord extends DataRecord implements IItemFactory {
         } else {
             return Flags.UNDEFINED;
         }
+    }
+
+    public void setApprovedLong(Long datetime) {
+        setLong(APPROVEDLONG, datetime);
+    }
+
+    public Long getApprovedLong() {
+        return getLong(APPROVEDLONG);
     }
 
     public String getFlagAsText() {
@@ -399,7 +409,11 @@ public class ClubworkRecord extends DataRecord implements IItemFactory {
     }
 
     public TableItemHeader[] getGuiTableHeader() {
-        TableItemHeader[] header = new TableItemHeader[6];
+        return getGuiTableHeader(null);
+    }
+
+    public TableItemHeader[] getGuiTableHeader(AdminRecord admin) {
+        TableItemHeader[] header = new TableItemHeader[admin == null ? 6 : 7];
         if (Daten.efaConfig.getValueNameFormatIsFirstNameFirst()) {
             header[0] = new TableItemHeader(International.getString("Vorname"));
             header[1] = new TableItemHeader(International.getString("Nachname"));
@@ -411,11 +425,19 @@ public class ClubworkRecord extends DataRecord implements IItemFactory {
         header[3] = new TableItemHeader(International.getString("Beschreibung"));
         header[4] = new TableItemHeader(International.getString("Stunden"));
         header[5] = new TableItemHeader(International.getString("Typ"));
+        if(admin != null) {
+            header[6] = new TableItemHeader(International.getString("Geändert am"));
+        }
         return header;
     }
 
     public TableItem[] getGuiTableItems() {
-        TableItem[] items = new TableItem[6];
+        return null;
+        //return getGuiTableItems(null);
+    }
+
+    public TableItem[] getGuiTableItems(AdminRecord admin) {
+        TableItem[] items = new TableItem[admin == null ? 6 : 7];
         if (Daten.efaConfig.getValueNameFormatIsFirstNameFirst()) {
             items[0] = new TableItem(getFirstName());
             items[1] = new TableItem(getLastName());
@@ -427,6 +449,9 @@ public class ClubworkRecord extends DataRecord implements IItemFactory {
         items[3] = new TableItem(getDescription());
         items[4] = new TableItem(getHours());
         items[5] = new TableItem(getFlagAsText());
+        if(admin != null) {
+            items[6] = new TableItem(new DataTypeDate(getLastModified()));
+        }
         return items;
     }
 
@@ -478,7 +503,7 @@ public class ClubworkRecord extends DataRecord implements IItemFactory {
                         DataRecord[] personRecords = personContainer.data().getValidAny(new DataKey<UUID, Long, String>(id, null, null));
                         for (DataRecord personRecord : personRecords) {
                             //vh if (((PersonRecord) personRecord).isStatusMember()) {
-                                groupMonth += ((PersonRecord) personRecord).getPersonMemberMonth(clubwork.getStartDate(), clubwork.getEndDate());
+                            groupMonth += ((PersonRecord) personRecord).getPersonMemberMonth(clubwork.getStartDate(), clubwork.getEndDate());
                             //}
                         }
                     } catch (EfaException e) {

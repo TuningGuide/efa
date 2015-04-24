@@ -24,6 +24,7 @@ import de.nmichael.efa.gui.util.TableItem;
 import de.nmichael.efa.gui.util.TableItemHeader;
 import de.nmichael.efa.util.International;
 import de.nmichael.efa.util.Logger;
+
 import java.awt.*;
 import java.util.UUID;
 import java.util.Vector;
@@ -109,6 +110,7 @@ public class ProjectRecord extends DataRecord {
     public static final String TRANSFERABLECLUBWORKHOURS = "TransferableClubworkHours";
     public static final String FINEFORTOOLITTLECLUBWORK = "FineForTooLittleClubwork";
     public static final String CLUBWORKCARRYOVERDONE = "ClubworkCarryOverDone";
+    public static final String CLUBWORKAPPROVEDLONG = "ClubworkApprovedLong";
 
     public static void initialize() {
         Vector<String> f = new Vector<String>();
@@ -216,6 +218,8 @@ public class ProjectRecord extends DataRecord {
         t.add(IDataAccess.DATA_STRING);
         f.add(CLUBWORKCARRYOVERDONE);
         t.add(IDataAccess.DATA_BOOLEAN);
+        f.add(CLUBWORKAPPROVEDLONG);
+        t.add(IDataAccess.DATA_LONGINT);
 
         MetaData metaData = constructMetaData(Project.DATATYPE, f, t, false);
         metaData.setKey(new String[]{TYPE, NAME});
@@ -440,6 +444,8 @@ public class ProjectRecord extends DataRecord {
     public void setClubworkCarryOverDone(boolean done) {
         setBool(CLUBWORKCARRYOVERDONE, done);
     }
+
+    public void setClubworkApprovedLong(Long datetime) { setLong(CLUBWORKAPPROVEDLONG, datetime); }
 
     public void setLastDrvFaYear(int year) {
         setInt(LAST_DRV_FA_YEAR, year);
@@ -682,9 +688,9 @@ public class ProjectRecord extends DataRecord {
         return getDouble(TRANSFERABLECLUBWORKHOURS);
     }
 
-    public double getFineForTooLittleClubwork() {
-        return getDouble(FINEFORTOOLITTLECLUBWORK);
-    }
+    public double getFineForTooLittleClubwork() { return getDouble(FINEFORTOOLITTLECLUBWORK); }
+
+    public Long getClubworkApprovedLong() { return getLong(CLUBWORKAPPROVEDLONG); }
 
     public String getCurrentClubworkEfaBase() {
         return getString(CURRENTCLUBWORKEFABASE);

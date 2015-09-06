@@ -10,24 +10,24 @@
 
 package de.nmichael.efa.gui.dataedit;
 
-import de.nmichael.efa.*;
+import de.nmichael.efa.Daten;
 import de.nmichael.efa.core.config.AdminRecord;
 import de.nmichael.efa.core.items.IItemType;
 import de.nmichael.efa.core.items.ItemTypeDataRecordTable;
-import de.nmichael.efa.data.*;
-import de.nmichael.efa.data.storage.*;
+import de.nmichael.efa.data.Clubwork;
+import de.nmichael.efa.data.ClubworkRecord;
+import de.nmichael.efa.data.storage.DataRecord;
+import de.nmichael.efa.data.storage.StorageObject;
 import de.nmichael.efa.ex.EfaModifyException;
 import de.nmichael.efa.gui.BaseDialog;
-import static de.nmichael.efa.gui.dataedit.DataListDialog.ACTION_EXPORT;
-import static de.nmichael.efa.gui.dataedit.DataListDialog.ACTION_IMPORT;
-import static de.nmichael.efa.gui.dataedit.DataListDialog.ACTION_PRINTLIST;
-import de.nmichael.efa.util.*;
+import de.nmichael.efa.util.International;
+import de.nmichael.efa.util.Logger;
 
-import java.util.*;
-import java.awt.*;
-import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.util.UUID;
 
 
 // @i18n complete
@@ -49,8 +49,10 @@ public class ClubworkListDialog extends DataListDialog {
     private void iniValues() {
         super.sortByColumn = 2;
         super.sortAscending = false;
-        super.filterFieldName = "Flag";
-        super.filterFieldValue = ""+ClubworkRecord.Flags.Normal.ordinal();
+        if(admin == null) {
+            super.filterFieldName = "Flag";
+            super.filterFieldValue = ""+ClubworkRecord.Flags.Normal.ordinal();
+        }
     }
 
     public void keyAction(ActionEvent evt) {

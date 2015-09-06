@@ -11,31 +11,10 @@
 package de.nmichael.efa.gui.dataedit;
 
 import de.nmichael.efa.core.config.AdminRecord;
-import de.nmichael.efa.core.items.*;
-import de.nmichael.efa.data.storage.*;
-import de.nmichael.efa.ex.EfaModifyException;
-import de.nmichael.efa.gui.BaseDialog;
-import de.nmichael.efa.gui.dataedit.DataEditDialog;
-import de.nmichael.efa.gui.dataedit.VersionizedDataDeleteDialog;
-import de.nmichael.efa.gui.util.EfaMouseListener;
-import de.nmichael.efa.gui.util.TableCellRenderer;
-import de.nmichael.efa.gui.util.TableItem;
+import de.nmichael.efa.core.items.IItemListenerDataRecordTable;
+import de.nmichael.efa.core.items.ItemTypeDataRecordTable;
+import de.nmichael.efa.data.storage.StorageObject;
 import de.nmichael.efa.gui.util.TableItemHeader;
-import de.nmichael.efa.util.Dialog;
-import de.nmichael.efa.util.EfaUtil;
-import de.nmichael.efa.util.International;
-import de.nmichael.efa.util.Logger;
-
-import javax.swing.*;
-import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableModel;
-import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.KeyEvent;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Hashtable;
-import java.util.Vector;
 
 // @i18n complete
 
@@ -63,7 +42,7 @@ public class ClubworkItemTypeDataRecordTable extends ItemTypeDataRecordTable {
         searchField.getValueFromGui();
         filterBySearch.getValueFromGui();
         boolean aggre = filterBySearch.getValue() && searchField.getValue().trim().length() >= 3;
-        if(aggre) {
+        if(admin != null || aggre) {
             filterFieldName = null;
         }
         else {

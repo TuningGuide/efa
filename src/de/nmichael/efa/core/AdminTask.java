@@ -90,20 +90,29 @@ public class AdminTask extends Thread {
         String[] clubworkNames = Daten.project.getAllClubworkNames();
         if (clubworkNames != null && clubworkNames.length > 0) {
             Clubwork clubwork = Daten.project.getCurrentClubwork();
-            if (clubwork != null && clubwork.isOpen()) {
-                DataTypeDate date = clubwork.getEndDate();
-                if (date != null && DataTypeDate.today().isAfterOrEqual(date)) {
-                    int res = Dialog.yesNoDialog(International.getString("Übertrag berechnen"),
-                            International.getMessage("Möchtest Du den Übertrag für das Vereinsarbeitsbuch '{record}' wirklich berechnen?",
-                            clubwork.getName()));
-                    if (res == Dialog.YES) {
-                        clubwork.doCarryOver(1, parent);
-                        ((AdminDialog) parent).updateInfos();
+            if(clubwork.getProjectRecord().getClubworkCarryOverDone() == false) {
+                if (clubwork != null && clubwork.isOpen()) {
+                    DataTypeDate date = clubwork.getEndDate();
+                    if (date != null && DataTypeDate.today().isAfterOrEqual(date)) {
+                        int res = Dialog.auswahlDialog(International.getString("Übertrag berechnen"),
+                                International.getMessage("Möchtest Du den Übertrag für das Vereinsarbeitsbuch '{record}' wirklich berechnen?",
+                                        clubwork.getName()),
+                                International.getString("ja"),
+                                International.getString("nein, nie"),
+                                International.getString("nein, nicht jetzt")
+                                );
+                        if (res == 0 /* yes */ || res == 1 /* no */) {
+                            clubwork.getProjectRecord().setClubworkCarryOverDone(true);
+                        }
+                        if (res == 0 /* yes */) {
+                            clubwork.doCarryOver(1, parent);
+                            ((AdminDialog) parent).updateInfos();
+                        }
                     }
+                } else {
+                    Dialog.error(International.getString("Kein Vereinsarbeitsbuch geöffnet.")
+                            + International.getMessage("Berechnen des {verb}s nicht möglich.", International.getString("Übertrag")));
                 }
-            } else {
-                Dialog.error(International.getString("Kein Vereinsarbeitsbuch geöffnet.")
-                        + International.getMessage("Berechnen des {verb}s nicht möglich.", International.getString("Übertrag")));
             }
         }
     }

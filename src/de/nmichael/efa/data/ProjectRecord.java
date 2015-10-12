@@ -437,6 +437,9 @@ public class ProjectRecord extends DataRecord {
         setDouble(FINEFORTOOLITTLECLUBWORK, monetaryUnits);
     }
 
+    public boolean getClubworkCarryOverDone() {
+        return getBool(CLUBWORKCARRYOVERDONE);
+    }
     public void setClubworkCarryOverDone(boolean done) {
         setBool(CLUBWORKCARRYOVERDONE, done);
     }

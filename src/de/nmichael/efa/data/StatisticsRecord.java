@@ -118,6 +118,7 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
     public static final String OPTIONTRUNCATEDIST        = "OptionTruncateDistance";
     public static final String OPTIONLISTALLNULLENTRIES  = "OptionListAllNullEntries";
     public static final String OPTIONIGNORENULLVALUES    = "OptionIgnoreNullValues";
+    public static final String OPTIONIGNOREMEMBERSWITHENOUGHCLUBWORK = "OptionIgnoreMembersWithEnoughClubwork";
     public static final String OPTIONSUMGUESTSANDOTHERS  = "OptionSumGuestsAndOthers";
     public static final String OPTIONSUMGUESTSBYCLUB     = "OptionSumGuestsByClub";
     public static final String OPTIONSHOWVALIDLASTTRIP   = "OptionShowValidLastTrip";
@@ -508,6 +509,7 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
     public boolean sSumGuestsAndOthers;
     public boolean sSumGuestsByClub;
     public boolean sShowValidLastTrip;
+    public boolean sIgnoreMembersWithEnoughClubwork;
     // --- Clubwork-Options
     public DataTypeDate sClubworkStartDate;
     public DataTypeDate sClubworkEndDate;
@@ -636,6 +638,7 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
         f.add(OPTIONTRUNCATEDIST);                t.add(IDataAccess.DATA_BOOLEAN);
         f.add(OPTIONLISTALLNULLENTRIES);          t.add(IDataAccess.DATA_BOOLEAN);
         f.add(OPTIONIGNORENULLVALUES);            t.add(IDataAccess.DATA_BOOLEAN);
+        f.add(OPTIONIGNOREMEMBERSWITHENOUGHCLUBWORK); t.add(IDataAccess.DATA_BOOLEAN);
         f.add(OPTIONSUMGUESTSANDOTHERS);          t.add(IDataAccess.DATA_BOOLEAN);
         f.add(OPTIONSUMGUESTSBYCLUB);             t.add(IDataAccess.DATA_BOOLEAN);
         f.add(OPTIONSHOWVALIDLASTTRIP);           t.add(IDataAccess.DATA_STRING);
@@ -2495,6 +2498,13 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
         setString(OPTIONSHOWVALIDLASTTRIP, validLastTrip ? SHOWDATAVALID_LASTTRIPTIME : StatisticsRecord.SHOWDATAVALID_STATENDTIME);
     }
 
+    public boolean getOptionIgnoreMembersWithEnoughClubwork() {
+        return getBool(OPTIONIGNOREMEMBERSWITHENOUGHCLUBWORK);
+    }
+    public void setOptionMembersWithEnoughClubwork(boolean ignore) {
+        setBool(OPTIONIGNOREMEMBERSWITHENOUGHCLUBWORK, ignore);
+    }
+
     public int getLogbookFieldCount() {
         DataTypeList l = getShowLogbookFields();
         return (l != null ? l.length() : 0);
@@ -2892,6 +2902,9 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
                 IItemType.TYPE_PUBLIC, CAT_OPTIONS,
                 International.getStringWithMnemonic("Gültigkeitszeitpunkt für Anzeige von Daten")
         ));
+        v.add(item = new ItemTypeBoolean(StatisticsRecord.OPTIONIGNOREMEMBERSWITHENOUGHCLUBWORK, getOptionIgnoreMembersWithEnoughClubwork(),
+                IItemType.TYPE_PUBLIC, CAT_OPTIONS,
+                International.getString("Mitglieder die Sollstunden erfüllt haben nicht ausgeben")));
 
         setVisibleItems(getOutputTypeEnum());
         return v;
@@ -3536,6 +3549,7 @@ public class StatisticsRecord extends DataRecord implements IItemListener {
         sSumGuestsAndOthers = getOptionSumGuestsAndOthers();
         sSumGuestsByClub = getOptionSumGuestsByClub();
         sShowValidLastTrip = getOptionShowValidLastTrip();
+        sIgnoreMembersWithEnoughClubwork = getOptionIgnoreMembersWithEnoughClubwork();
 
         resetStatisticValues();
         return true;

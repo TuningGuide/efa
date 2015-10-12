@@ -395,21 +395,21 @@ public class StatisticsData implements Comparable {
         }
 
         if (sr.sIsAggrClubwork) {
-            if (sr.sIgnoreNullValues && clubworkOverUnderCarryOver == 0) {
+            if (sr.sIgnoreMembersWithEnoughClubwork && clubworkOverUnderCarryOver == 0) {
                 this.sClubwork = "";
             } else {
                 this.sClubwork = this.clubwork+"";
             }
         }
         if (sr.sIsAggrClubworkTarget) {
-            if (sr.sIgnoreNullValues && clubworkOverUnderCarryOver == 0) {
+            if (sr.sIgnoreMembersWithEnoughClubwork && clubworkOverUnderCarryOver == 0) {
                 this.sClubworkTarget = "";
             } else {
                 this.sClubworkTarget = Math.round(this.clubworkTargetHours*100)/100d+"";
             }
         }
         if (sr.sIsAggrClubworkRelativeToTarget) {
-            if (sr.sIgnoreNullValues && clubworkOverUnderCarryOver == 0) {
+            if (sr.sIgnoreMembersWithEnoughClubwork && clubworkOverUnderCarryOver == 0) {
                 this.sClubworkRelativeToTarget = "";
             } else {
                 this.clubworkRelativeToTarget = this.clubwork - this.clubworkTargetHours;
@@ -417,14 +417,14 @@ public class StatisticsData implements Comparable {
             }
         }
         if (sr.sIsAggrClubworkOverUnderCarryOver) {
-            if (this.isSummary || (sr.sIgnoreNullValues && clubworkOverUnderCarryOver == 0)) {
+            if (this.isSummary || (sr.sIgnoreMembersWithEnoughClubwork && clubworkOverUnderCarryOver == 0)) {
                 this.sClubworkOverUnderCarryOver = "";
             } else {
                 this.sClubworkOverUnderCarryOver = ""+Math.round(this.clubworkOverUnderCarryOver*100)/100d;
             }
         }
         if (sr.sIsAggrClubworkCredit) {
-            if (this.isSummary || (sr.sIgnoreNullValues && clubworkOverUnderCarryOver == 0)) {
+            if (this.isSummary || (sr.sIgnoreMembersWithEnoughClubwork && clubworkOverUnderCarryOver == 0)) {
                 this.sClubworkCredit = "";
             } else {
                 this.sClubworkCredit = ""+this.clubworkCredit;

@@ -60,25 +60,19 @@ public class Clubwork extends StorageObject {
     }
 
     public DataTypeDate getStartDate() {
-        if (projectRecord != null) {
-            return projectRecord.getStartDate();
-        } else {
-            ProjectRecord pr = Daten.project.getClubworkBookRecord(name);
-            return (pr != null ? pr.getStartDate() : null);
-        }
+        return this.getProjectRecord().getStartDate();
     }
 
     public DataTypeDate getEndDate() {
-        if (projectRecord != null) {
-            return projectRecord.getEndDate();
-        } else {
-            ProjectRecord pr = Daten.project.getClubworkBookRecord(name);
-            return (pr != null ? pr.getEndDate() : null);
-        }
+        return this.getProjectRecord().getEndDate();
     }
 
     public ProjectRecord getProjectRecord() {
-        return this.projectRecord;
+        if (projectRecord != null) {
+            return projectRecord;
+        } else {
+            return Daten.project.getClubworkBookRecord(name);
+        }
     }
 
     public void setProjectRecord(ProjectRecord r) {
